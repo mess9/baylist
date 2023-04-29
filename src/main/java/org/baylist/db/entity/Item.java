@@ -1,7 +1,9 @@
 package org.baylist.db.entity;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.bson.types.ObjectId;
@@ -16,10 +18,13 @@ import java.util.Objects;
 @Setter
 @Builder
 @ToString
+@AllArgsConstructor
+@NoArgsConstructor
 public class Item {
 
     @MongoId
     private ObjectId id;
+//    private Long id;
 
     private String name;
     private String body;
