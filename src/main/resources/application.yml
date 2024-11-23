@@ -1,28 +1,3 @@
-spring:
-  data:
-    mongodb:
-      database: test
-      # --- connect to localhost ---
-      #      host: localhost
-      #      port: 27017
-      # --- connect to free mongo on atlas server ---
-      uri: mongodb+srv://mess9:${mongoPassword}@mess9.mgdagze.mongodb.net/?retryWrites=true&w=majority
-      # --- connect to free mongo on atlas server if not resolve dns (view org.baylist.config.MongoClient.Class) ---
-  #      uri: mongodb://ac-brl9kus-shard-00-00.mgdagze.mongodb.net:27017,ac-brl9kus-shard-00-01.mgdagze.mongodb.net:27017,ac-brl9kus-shard-00-02.mgdagze.mongodb.net:27017/?ssl=true&replicaSet=atlas-2scpt2-shard-0&authSource=admin&retryWrites=true&w=majority
-  #      username: mess9
-  #      password: ${mongoPassword}
-  datasource:
-    url: postgresql://db.bit.io:5432/mess9/baylist
-    username: mess9
-    password: ${sqlPassword}
-
-server:
-  port: 8088
-  servlet:
-    context-path: /
-    encoding:
-      charset: UTF-8
-
 #logging:
 #  level:
 #    root: debug
