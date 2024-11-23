@@ -1,13 +1,3 @@
-spring:
-  data:
-    mongodb:
-      host: localhost
-      port: 27017
-      database: test
-
-server:
-  port: 8088
-  servlet:
-    context-path: /
-    encoding:
-      charset: UTF-8
+#logging:
+#  level:
+#    root: debug
