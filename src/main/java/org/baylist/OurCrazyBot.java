@@ -53,7 +53,7 @@ public class OurCrazyBot implements SpringLongPollingBot, LongPollingSingleThrea
             }
         }
     }
-
+//1654641
     @AfterBotRegistration
     public void afterRegistration(BotSession botSession) {
         System.out.println("Registered bot running state is: " + botSession.isRunning());
