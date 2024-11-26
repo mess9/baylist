@@ -1,3 +1,6 @@
 #logging:
 #  level:
 #    root: debug
+
+telegram:
+  token: ${TOKEN_TG}
