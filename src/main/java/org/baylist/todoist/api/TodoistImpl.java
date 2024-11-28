@@ -12,7 +12,7 @@ public class TodoistImpl implements Todoist {
     }
 
     @Override
-    public Project getProject(int index) {
+    public Project getProject(long index) {
         return null;
     }
 }

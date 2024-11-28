@@ -8,6 +8,6 @@ public interface Todoist {
 
     List<Project> getProjects();
 
-    Project getProject(int index);
+    Project getProject(long index);
 
 }

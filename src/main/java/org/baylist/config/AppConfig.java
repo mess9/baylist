@@ -9,10 +9,13 @@ import org.springframework.web.client.RestClient;
 public class AppConfig {
 
     @Bean
-    public RestClient todoistRestClient(@Value("${todoist.baseUrl}") String url) {
-        return RestClient.builder().baseUrl(url).defaultHeaders(h -> {
-            h.add("Authorization", "Bearer 01b09c39a6c73efb05def5e25a0d1826c95dc57a");
-        }).build();
+    public RestClient todoistRestClient(@Value("${todoist.baseUrl}") String url,
+                                        @Value("${todoist.token}") String token) {
+        return RestClient
+                .builder()
+                .baseUrl(url)
+                .defaultHeaders(h -> h.add("Authorization", "Bearer " + token))
+                .build();
     }
 
 
