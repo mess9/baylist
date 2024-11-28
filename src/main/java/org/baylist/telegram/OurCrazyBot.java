@@ -1,6 +1,9 @@
-package org.baylist;
+package org.baylist.telegram;
 
-import org.springframework.beans.factory.annotation.Value;
+import lombok.extern.slf4j.Slf4j;
+import org.baylist.todoist.controller.TodoistService;
+import org.baylist.todoist.dto.Project;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.client.okhttp.OkHttpTelegramClient;
 import org.telegram.telegrambots.longpolling.BotSession;
@@ -13,15 +16,20 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
+import java.util.List;
+
 
 @Component
+@Slf4j
 public class OurCrazyBot implements SpringLongPollingBot, LongPollingSingleThreadUpdateConsumer {
-    private final TelegramClient telegramClient;
 
-    private String TOKEN_TG = System.getenv("TOKEN_TG");
+    private final String TOKEN_TG = System.getenv("TOKEN_TG");
+
+    private final TelegramClient telegramClient;
+    @Autowired
+    TodoistService todoistService;
 
     public OurCrazyBot() {
-        System.out.println(getBotToken());
         telegramClient = new OkHttpTelegramClient(getBotToken());
     }
 
@@ -41,19 +49,26 @@ public class OurCrazyBot implements SpringLongPollingBot, LongPollingSingleThrea
             String message_text = update.getMessage().getText();
             long chat_id = update.getMessage().getChatId();
 
+            log.info("get message - {}", message_text);
+
+            List<Project> projects = todoistService.getProjects();
+            System.out.println(projects);
+
             SendMessage message = SendMessage
                     .builder()
                     .chatId(chat_id)
-                    .text(message_text)
+                    .text("я отвечаю всегда однообразно")
                     .build();
+
             try {
                 telegramClient.execute(message);
             } catch (TelegramApiException e) {
-                e.printStackTrace();
+                log.error(e.getMessage());
             }
         }
     }
-//1654641
+
+
     @AfterBotRegistration
     public void afterRegistration(BotSession botSession) {
         System.out.println("Registered bot running state is: " + botSession.isRunning());
