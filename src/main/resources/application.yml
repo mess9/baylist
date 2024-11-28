@@ -2,5 +2,5 @@
 #  level:
 #    root: debug
 
-telegram:
-  token: ${TOKEN_TG}
+todoist:
+  baseUrl: https://api.todoist.com/rest/v2

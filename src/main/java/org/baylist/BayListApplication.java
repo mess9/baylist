@@ -10,4 +10,5 @@ public class BayListApplication {
 		SpringApplication.run(BayListApplication.class, args);
 	}
 
+
 }
