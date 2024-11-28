@@ -1,8 +1,10 @@
 package org.baylist.telegram;
 
 import lombok.extern.slf4j.Slf4j;
-import org.baylist.todoist.controller.TodoistService;
+import org.baylist.config.Storage;
+import org.baylist.todoist.controller.TodoistController;
 import org.baylist.todoist.dto.Project;
+import org.baylist.todoist.service.TodoistService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.client.okhttp.OkHttpTelegramClient;
@@ -27,7 +29,9 @@ public class OurCrazyBot implements SpringLongPollingBot, LongPollingSingleThrea
 
     private final TelegramClient telegramClient;
     @Autowired
-    TodoistService todoistService;
+    private TodoistService todoistService;
+//    @Autowired
+//    TodoistController todoistController;
 
     public OurCrazyBot() {
         telegramClient = new OkHttpTelegramClient(getBotToken());
@@ -51,14 +55,32 @@ public class OurCrazyBot implements SpringLongPollingBot, LongPollingSingleThrea
 
             log.info("get message - {}", message_text);
 
-            List<Project> projects = todoistService.getProjects();
-            System.out.println(projects);
+            todoistService.fillProjectMap();
 
-            SendMessage message = SendMessage
-                    .builder()
-                    .chatId(chat_id)
-                    .text("я отвечаю всегда однообразно")
-                    .build();
+            List<String> projectsNames = Storage.projects
+                    .values()
+                    .stream()
+                    .map(Project::getName)
+                    .toList();
+
+            StringBuilder sb = new StringBuilder();
+            sb.append("Есть такие проекты: \n");
+            projectsNames.forEach(m-> sb.append(m).append("\n"));
+
+            SendMessage message;
+
+            if (message_text.equalsIgnoreCase("Проекты")) {
+                message = SendMessage.builder()
+                        .chatId(chat_id)
+                        .text(sb.toString())
+                        .build();
+
+            } else {
+                message = SendMessage.builder()
+                        .chatId(chat_id)
+                        .text("я отвечаю всегда однообразно")
+                        .build();
+            }
 
             try {
                 telegramClient.execute(message);
