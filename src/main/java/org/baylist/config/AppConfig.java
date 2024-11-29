@@ -7,7 +7,7 @@ import org.springframework.web.client.RestClient;
 
 @Configuration
 public class AppConfig {
-    
+
 
     @Bean
     public RestClient todoistRestClient(@Value("${todoist.baseUrl}") String baseUrl,

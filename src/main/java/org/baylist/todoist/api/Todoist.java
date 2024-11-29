@@ -1,5 +1,6 @@
 package org.baylist.todoist.api;
 
+import org.baylist.todoist.dto.Label;
 import org.baylist.todoist.dto.Project;
 import org.baylist.todoist.dto.Section;
 import org.baylist.todoist.dto.Task;
@@ -21,13 +22,13 @@ public interface Todoist {
 
     List<Task> getTasksBySection(long index);
 
-    List<Task> getTasksByLabel(List<String> labels);
-
     List<Task> getTasksByLabel(String labels);
 
-    List<Section> getAllSections();
+    List<Section> getSections();
 
     List<Section> getSectionsByProject(long index);
+
+    List<Label> getLabels();
 
     //endregion GET
 
