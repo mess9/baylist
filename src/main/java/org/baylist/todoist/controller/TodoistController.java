@@ -28,7 +28,7 @@ public class TodoistController implements Todoist {
     public Project getProject(long index) {
         return restClient
                 .get()
-                .uri("projects/" + index)
+                .uri("/projects/" + index)
                 .retrieve()
                 .body(Project.class);
     }
