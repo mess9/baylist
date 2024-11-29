@@ -7,13 +7,14 @@ import org.springframework.web.client.RestClient;
 
 @Configuration
 public class AppConfig {
+    
 
     @Bean
-    public RestClient todoistRestClient(@Value("${todoist.baseUrl}") String url,
+    public RestClient todoistRestClient(@Value("${todoist.baseUrl}") String baseUrl,
                                         @Value("${todoist.token}") String token) {
         return RestClient
                 .builder()
-                .baseUrl(url)
+                .baseUrl(baseUrl)
                 .defaultHeaders(h -> h.add("Authorization", "Bearer " + token))
                 .build();
     }
