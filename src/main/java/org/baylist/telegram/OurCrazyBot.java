@@ -2,7 +2,6 @@ package org.baylist.telegram;
 
 import lombok.extern.slf4j.Slf4j;
 import org.baylist.config.Storage;
-import org.baylist.todoist.controller.TodoistController;
 import org.baylist.todoist.dto.Project;
 import org.baylist.todoist.service.TodoistService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -75,6 +74,12 @@ public class OurCrazyBot implements SpringLongPollingBot, LongPollingSingleThrea
                         .text(sb.toString())
                         .build();
 
+            } else if (projectsNames.contains(message_text)) {
+                Project projectById = todoistService.getProjectById(Storage.projects.entrySet().stream().filter(e -> e.getValue().getName().equals(message_text)).findAny().orElseThrow().getKey());
+                message = SendMessage.builder()
+                        .chatId(chat_id)
+                        .text("подробности по проекту: \n" + projectById.toString())
+                        .build();
             } else {
                 message = SendMessage.builder()
                         .chatId(chat_id)
