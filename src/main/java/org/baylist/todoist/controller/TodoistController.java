@@ -216,7 +216,9 @@ public class TodoistController implements Todoist {
                         .pathSegment(PROJECT_METHOD)
                         .pathSegment(String.valueOf(projectId))
                         .build()
-                        .toUriString());
+                        .toUriString())
+                .retrieve()
+                .toBodilessEntity();
     }
 
     @Override
@@ -228,7 +230,9 @@ public class TodoistController implements Todoist {
                         .pathSegment(SECTION_METHOD)
                         .pathSegment(String.valueOf(sectionId))
                         .build()
-                        .toUriString());
+                        .toUriString())
+                .retrieve()
+                .toBodilessEntity();
     }
 
 
@@ -241,6 +245,8 @@ public class TodoistController implements Todoist {
                         .pathSegment(TASK_METHOD)
                         .pathSegment(String.valueOf(taskId))
                         .build()
-                        .toUriString());
+                        .toUriString())
+                .retrieve()
+                .toBodilessEntity();
     }
 }

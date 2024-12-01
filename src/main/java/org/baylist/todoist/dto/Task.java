@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
-@Builder(setterPrefix = "хуй")
+@Builder(setterPrefix = "xyi")
 public class Task {
     private String id;
     @JsonProperty("assigner_id")

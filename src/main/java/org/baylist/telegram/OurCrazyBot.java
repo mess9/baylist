@@ -1,8 +1,6 @@
 package org.baylist.telegram;
 
 import lombok.extern.slf4j.Slf4j;
-import org.baylist.config.Storage;
-import org.baylist.todoist.dto.Project;
 import org.baylist.todoist.service.TodoistService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -12,12 +10,8 @@ import org.telegram.telegrambots.longpolling.interfaces.LongPollingUpdateConsume
 import org.telegram.telegrambots.longpolling.starter.AfterBotRegistration;
 import org.telegram.telegrambots.longpolling.starter.SpringLongPollingBot;
 import org.telegram.telegrambots.longpolling.util.LongPollingSingleThreadUpdateConsumer;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
-
-import java.util.List;
 
 
 @Component
@@ -53,45 +47,45 @@ public class OurCrazyBot implements SpringLongPollingBot, LongPollingSingleThrea
             long chat_id = update.getMessage().getChatId();
 
             log.info("get message - {}", message_text);
-
-            todoistService.fillProjectMap();
-
-            List<String> projectsNames = Storage.projects
-                    .values()
-                    .stream()
-                    .map(Project::getName)
-                    .toList();
-
-            StringBuilder sb = new StringBuilder();
-            sb.append("Есть такие проекты: \n");
-            projectsNames.forEach(m-> sb.append(m).append("\n"));
-
-            SendMessage message;
-
-            if (message_text.equalsIgnoreCase("Проекты")) {
-                message = SendMessage.builder()
-                        .chatId(chat_id)
-                        .text(sb.toString())
-                        .build();
-
-            } else if (projectsNames.contains(message_text)) {
-                Project projectById = todoistService.getProjectById(Storage.projects.entrySet().stream().filter(e -> e.getValue().getName().equals(message_text)).findAny().orElseThrow().getKey());
-                message = SendMessage.builder()
-                        .chatId(chat_id)
-                        .text("подробности по проекту: \n" + projectById.toString())
-                        .build();
-            } else {
-                message = SendMessage.builder()
-                        .chatId(chat_id)
-                        .text("я отвечаю всегда однообразно")
-                        .build();
-            }
-
-            try {
-                telegramClient.execute(message);
-            } catch (TelegramApiException e) {
-                log.error(e.getMessage());
-            }
+//
+//            todoistService.fillProjectMap();
+//
+//            List<String> projectsNames = Storage.projects
+//                    .values()
+//                    .stream()
+//                    .map(Project::getName)
+//                    .toList();
+//
+//            StringBuilder sb = new StringBuilder();
+//            sb.append("Есть такие проекты: \n");
+//            projectsNames.forEach(m-> sb.append(m).append("\n"));
+//
+//            SendMessage message;
+//
+//            if (message_text.equalsIgnoreCase("Проекты")) {
+//                message = SendMessage.builder()
+//                        .chatId(chat_id)
+//                        .text(sb.toString())
+//                        .build();
+//
+//            } else if (projectsNames.contains(message_text)) {
+//                Project projectById = todoistService.getProjectById(Storage.projects.entrySet().stream().filter(e -> e.getValue().getName().equals(message_text)).findAny().orElseThrow().getKey());
+//                message = SendMessage.builder()
+//                        .chatId(chat_id)
+//                        .text("подробности по проекту: \n" + projectById.toString())
+//                        .build();
+//            } else {
+//                message = SendMessage.builder()
+//                        .chatId(chat_id)
+//                        .text("я отвечаю всегда однообразно")
+//                        .build();
+//            }
+//
+//            try {
+//                telegramClient.execute(message);
+//            } catch (TelegramApiException e) {
+//                log.error(e.getMessage());
+//            }
         }
     }
 

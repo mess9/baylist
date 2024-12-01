@@ -1,70 +1,63 @@
 package org.baylist.todoist.service;
 
 import lombok.AllArgsConstructor;
-import org.baylist.config.Storage;
+import org.baylist.db.ProjectDb;
+import org.baylist.db.SectionDb;
+import org.baylist.db.Storage;
 import org.baylist.todoist.controller.TodoistController;
 import org.baylist.todoist.dto.Project;
 import org.baylist.todoist.dto.Section;
+import org.baylist.todoist.dto.Task;
 import org.springframework.stereotype.Service;
 
-import java.util.function.Function;
-import java.util.stream.Collectors;
+import java.util.List;
 
 @Service
 @AllArgsConstructor
 public class TodoistService {
     private final TodoistController todoistController;
 
-    public void fillProjectMap() {
-        Storage.projects.putAll(todoistController.getProjects()
-                .stream()
-                .collect(Collectors.toMap(k -> Long.parseLong(k.getId()), Function.identity())));
-    }
+    public Storage syncDate() {
+        List<Project> projects = todoistController.getProjects();
+        List<Section> sections = todoistController.getSections();
+        List<Task> tasks = todoistController.getTasks();
 
-    public Project getProjectById(long id) {
-        return todoistController.getProject(id);
-    }
+        Storage storage = new Storage();
+        List<ProjectDb> projectDbs = projects.stream().map(p -> {
+                    ProjectDb projectDb = new ProjectDb();
+                    projectDb.setProject(p);
 
-    public void fillTasksMap() {
-        Storage.allTasks.putAll(todoistController.getTasks()
-                .stream()
-                .collect(Collectors.toMap(t -> Long.parseLong(t.getId()), Function.identity())));
-    }
+                    List<Section> listSection = sections
+                            .stream()
+                            .filter(s -> s.getProjectId().equals(p.getId()))
+                            .toList();
+                    List<Task> tasksByProject = tasks
+                            .stream()
+                            .filter(t -> t.getProjectId().equals(p.getId()))
+                            .toList();
+                    projectDb.setTasks(tasksByProject);
 
-    public void fillTasksByProjectIdMap(long projectId) {
-        Storage.tasksByProject.putAll(todoistController.getTasksByProject(projectId)
-                .stream()
-                .collect(Collectors.toMap(t -> Long.parseLong(t.getId()), Function.identity())));
-    }
+                    List<SectionDb> list = listSection
+                            .stream()
+                            .map(s -> {
+                                SectionDb sectionDb = new SectionDb();
+                                sectionDb.setSection(s);
 
-    public void fillTasksBySectionIdMap(long sectionId) {
-        Storage.tasksBySection.putAll(todoistController.getTasksBySection(sectionId)
-                .stream()
-                .collect(Collectors.toMap(t -> Long.parseLong(t.getId()), Function.identity())));
-    }
+                                List<Task> tasksBySection = tasks
+                                        .stream()
+                                        .filter(t -> t.getSectionId() != null && t.getSectionId().equals(s.getId()))
+                                        .toList();
+                                sectionDb.setTasks(tasksBySection);
+                                return sectionDb;
+                            })
+                            .toList();
+                    projectDb.setSections(list);
+                    return projectDb;
+                })
+                .toList();
 
-    public void fillTasksByLabelMap(String label) {
-        Storage.tasksByLabel.putAll(todoistController.getTasksByLabel(label)
-                .stream()
-                .collect(Collectors.toMap(t -> Long.parseLong(t.getId()), Function.identity())));
-    }
+        storage.setProjects(projectDbs);
 
-    public void fillSectionsMap() {
-        Storage.sections.putAll(todoistController.getSections()
-                .stream()
-                .collect(Collectors.toMap(s -> Long.parseLong(s.getId()), Function.identity())));
-
-    }
-
-    public void fillSectionByProjectIdMap(long projectId) {
-        Storage.sectionsByProject.putAll(todoistController.getSectionsByProject(projectId)
-                .stream()
-                .collect(Collectors.toMap(k-> Long.parseLong(k.getId()), Function.identity())));
-    }
-
-    public void fillLabelsMap() {
-        Storage.labels.putAll(todoistController.getLabels()
-                .stream()
-                .collect(Collectors.toMap(l-> Long.parseLong(l.getId()), Function.identity())));
+        return storage;
     }
 }
