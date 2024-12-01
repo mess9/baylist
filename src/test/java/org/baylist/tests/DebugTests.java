@@ -107,6 +107,19 @@ public class DebugTests {
     }
 
 
+    @Test
+    public void createProject() {
+        Project project = Project.builder()
+                .setName("test")
+                .setColor("charcoal")
+                .setViewStyle("board")
+                .build();
+        Project controllerProject = todoistController.createProject(project);
 
+        assertThat(controllerProject).isNotNull();
+
+        Project testProject = todoistController.getProject(Long.parseLong(controllerProject.getId()));
+        assertThat(testProject).isEqualTo(controllerProject);
+    }
 
 }
