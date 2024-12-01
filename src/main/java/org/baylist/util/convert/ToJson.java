@@ -5,6 +5,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 
+import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_DEFAULT;
+import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
+import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
+
 @UtilityClass
 @Slf4j
 public class ToJson {
@@ -13,6 +17,9 @@ public class ToJson {
 
         try {
             ObjectMapper mapper = new ObjectMapper();
+            mapper.setSerializationInclusion(NON_NULL);
+            mapper.setSerializationInclusion(NON_DEFAULT);
+            mapper.setSerializationInclusion(NON_EMPTY);
             json = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(object);
         } catch (JsonProcessingException e) {
             String failMessage = "Failed to convert to JSON\n";

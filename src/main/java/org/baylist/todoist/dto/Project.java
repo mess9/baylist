@@ -10,19 +10,19 @@ public class Project {
     private String id;
     @JsonProperty("parent_id")
     private String parentId;
-    private int order;
+    private Integer order;
     private String color;
     private String name;
     @JsonProperty("comment_count")
-    private int commentCount;
+    private Integer commentCount;
     @JsonProperty("is_shared")
-    private boolean isShared;
+    private Boolean isShared;
     @JsonProperty("is_favorite")
-    private boolean isFavorite;
+    private Boolean isFavorite;
     @JsonProperty("is_inbox_project")
-    private boolean isInboxProject;
+    private Boolean isInboxProject;
     @JsonProperty("is_team_inbox")
-    private boolean isTeamInbox;
+    private Boolean isTeamInbox;
     private String url;
     @JsonProperty("view_style")
 

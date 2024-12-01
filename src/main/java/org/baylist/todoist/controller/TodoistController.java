@@ -6,14 +6,14 @@ import org.baylist.todoist.dto.Label;
 import org.baylist.todoist.dto.Project;
 import org.baylist.todoist.dto.Section;
 import org.baylist.todoist.dto.Task;
-import org.baylist.util.convert.ToJson;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
+
+import static org.baylist.util.convert.ToJson.toJson;
 
 @Controller
 @AllArgsConstructor
@@ -169,7 +169,7 @@ public class TodoistController implements Todoist {
                         .pathSegment(PROJECT_METHOD)
                         .build()
                         .toUriString())
-                .body(ToJson.toJson(project))
+                .body(toJson(project))
                 .retrieve()
                 .toEntity(Project.class)
                 .getBody();
@@ -177,12 +177,33 @@ public class TodoistController implements Todoist {
 
 
     @Override
-    public Section createSection() {
-        return null;
+    public Section createSection(Section section) {
+        return restClient
+                .post()
+                .uri(UriComponentsBuilder
+                        .fromPath("")
+                        .pathSegment(SECTION_METHOD)
+                        .build()
+                        .toUriString())
+                .body(toJson(section))
+                .retrieve()
+                .toEntity(Section.class)
+                .getBody();
     }
 
+
     @Override
-    public Task createTask() {
-        return null;
+    public Task createTask(Task task) {
+        return restClient
+                .post()
+                .uri(UriComponentsBuilder
+                        .fromPath("")
+                        .pathSegment(TASK_METHOD)
+                        .build()
+                        .toUriString())
+                .body(toJson(task))
+                .retrieve()
+                .toEntity(Task.class)
+                .getBody();
     }
 }

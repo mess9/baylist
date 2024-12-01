@@ -5,6 +5,7 @@ import org.baylist.todoist.dto.Label;
 import org.baylist.todoist.dto.Project;
 import org.baylist.todoist.dto.Section;
 import org.baylist.todoist.dto.Task;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -107,19 +108,52 @@ public class DebugTests {
     }
 
 
+
     @Test
     public void createProject() {
         Project project = Project.builder()
                 .setName("test")
-                .setColor("charcoal")
-                .setViewStyle("board")
                 .build();
+
         Project controllerProject = todoistController.createProject(project);
 
         assertThat(controllerProject).isNotNull();
 
         Project testProject = todoistController.getProject(Long.parseLong(controllerProject.getId()));
         assertThat(testProject).isEqualTo(controllerProject);
+    }
+
+    @Test
+    public void createSection() {
+        String projectId = todoistController.getProjects().getFirst().getId();
+        Section testSection = Section.builder()
+                .setName("testSection")
+                .setProjectId(projectId)
+                .build();
+        Section section = todoistController.createSection(testSection);
+
+        assertThat(section).isNotNull();
+
+        List<Section> sectionsByProject = todoistController.getSectionsByProject(Long.parseLong(projectId));
+        assertThat(sectionsByProject).contains(section);
+    }
+
+    @Test
+    @DisplayName("проверка на хуй")
+    public void createTask() {
+        Task хуй = Task.builder()
+                .хуйContent("хуй")
+                .build();
+
+        Task task = todoistController.createTask(хуй);
+
+        assertThat(task).isNotNull();
+
+        String inboxProjectId = todoistController.getProjects().stream().filter(p -> p.getName().equals("Inbox")).findAny().orElseThrow().getId();
+
+        List<Task> tasksByProject = todoistController.getTasksByProject(Long.parseLong(inboxProjectId));
+
+        assertThat(tasksByProject).contains(task);
     }
 
 }
