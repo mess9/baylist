@@ -25,6 +25,5 @@ public class Project {
     private Boolean isTeamInbox;
     private String url;
     @JsonProperty("view_style")
-
     private String viewStyle;
 }

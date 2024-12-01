@@ -110,7 +110,7 @@ public class DebugTests {
 
 
     @Test
-    public void createProject() {
+    public void createProjectAndDeleteProject() {
         Project project = Project.builder()
                 .setName("test")
                 .build();
@@ -121,10 +121,15 @@ public class DebugTests {
 
         Project testProject = todoistController.getProject(Long.parseLong(controllerProject.getId()));
         assertThat(testProject).isEqualTo(controllerProject);
+
+        todoistController.deleteProject(Long.parseLong(testProject.getId()));
+        List<Project> projects = todoistController.getProjects();
+        assertThat(projects.stream().filter(p-> p.getId().equals(testProject.getId()))).isEmpty();
+
     }
 
     @Test
-    public void createSection() {
+    public void createSectionAndDeleteSection() {
         String projectId = todoistController.getProjects().getFirst().getId();
         Section testSection = Section.builder()
                 .setName("testSection")
@@ -136,24 +141,28 @@ public class DebugTests {
 
         List<Section> sectionsByProject = todoistController.getSectionsByProject(Long.parseLong(projectId));
         assertThat(sectionsByProject).contains(section);
+
+        todoistController.deleteSection(Long.parseLong(projectId));
+        List<Section> sections = todoistController.getSections();
+        assertThat(sections.stream().filter(p-> p.getId().equals(projectId))).isEmpty();
     }
 
     @Test
     @DisplayName("проверка на хуй")
-    public void createTask() {
+    public void createTaskAndDeleteTask() {
         Task хуй = Task.builder()
                 .хуйContent("хуй")
                 .build();
 
         Task task = todoistController.createTask(хуй);
-
         assertThat(task).isNotNull();
 
         String inboxProjectId = todoistController.getProjects().stream().filter(p -> p.getName().equals("Inbox")).findAny().orElseThrow().getId();
-
         List<Task> tasksByProject = todoistController.getTasksByProject(Long.parseLong(inboxProjectId));
-
         assertThat(tasksByProject).contains(task);
-    }
 
+        todoistController.deleteTask(Long.parseLong(task.getId()));
+        List<Task> tasksByProjectNext = todoistController.getTasksByProject(Long.parseLong(inboxProjectId));
+        assertThat(tasksByProjectNext).doesNotContain(task);
+    }
 }

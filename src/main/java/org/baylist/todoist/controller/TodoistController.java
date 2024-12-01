@@ -206,4 +206,41 @@ public class TodoistController implements Todoist {
                 .toEntity(Task.class)
                 .getBody();
     }
+
+    @Override
+    public void deleteProject(long projectId) {
+        restClient
+                .delete()
+                .uri(UriComponentsBuilder
+                        .fromPath("")
+                        .pathSegment(PROJECT_METHOD)
+                        .pathSegment(String.valueOf(projectId))
+                        .build()
+                        .toUriString());
+    }
+
+    @Override
+    public void deleteSection(long sectionId) {
+        restClient
+                .delete()
+                .uri(UriComponentsBuilder
+                        .fromPath("")
+                        .pathSegment(SECTION_METHOD)
+                        .pathSegment(String.valueOf(sectionId))
+                        .build()
+                        .toUriString());
+    }
+
+
+    @Override
+    public void deleteTask(long taskId) {
+        restClient
+                .delete()
+                .uri(UriComponentsBuilder
+                        .fromPath("")
+                        .pathSegment(TASK_METHOD)
+                        .pathSegment(String.valueOf(taskId))
+                        .build()
+                        .toUriString());
+    }
 }

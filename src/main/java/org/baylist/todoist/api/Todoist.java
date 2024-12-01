@@ -40,4 +40,14 @@ public interface Todoist {
 
     Task createTask(Task task);
 
+    //endregion CREATE
+
+    // region DELETE
+
+    void deleteProject(long projectId);
+    void deleteSection(long sectionId);
+    void deleteTask(long projectId);
+
+    //endregion DELETE
+
 }
