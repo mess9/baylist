@@ -32,4 +32,10 @@ public interface Todoist {
 
     //endregion GET
 
+    // region CREATE
+
+    Project createProject(Project project);
+    Section createSection();
+    Task createTask();
+
 }
