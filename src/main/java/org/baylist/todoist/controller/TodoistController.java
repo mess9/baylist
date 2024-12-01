@@ -6,6 +6,7 @@ import org.baylist.todoist.dto.Label;
 import org.baylist.todoist.dto.Project;
 import org.baylist.todoist.dto.Section;
 import org.baylist.todoist.dto.Task;
+import org.baylist.util.convert.ToJson;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.stereotype.Controller;
@@ -146,7 +147,7 @@ public class TodoistController implements Todoist {
     }
 
     @Override
-    public List<Label> getLabels() { //done - check
+    public List<Label> getLabels() { // TODO done - check
         return restClient
                 .get()
                 .uri(UriComponentsBuilder
@@ -161,7 +162,6 @@ public class TodoistController implements Todoist {
 
     @Override
     public Project createProject(Project project) {
-        HttpEntity<Project> request = new HttpEntity<>(project);
         return restClient
                 .post()
                 .uri(UriComponentsBuilder
@@ -169,7 +169,7 @@ public class TodoistController implements Todoist {
                         .pathSegment(PROJECT_METHOD)
                         .build()
                         .toUriString())
-                .body(request)
+                .body(ToJson.toJson(project))
                 .retrieve()
                 .toEntity(Project.class)
                 .getBody();
