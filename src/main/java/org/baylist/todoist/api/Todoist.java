@@ -35,7 +35,19 @@ public interface Todoist {
     // region CREATE
 
     Project createProject(Project project);
-    Section createSection();
-    Task createTask();
+
+    Section createSection(Section section);
+
+    Task createTask(Task task);
+
+    //endregion CREATE
+
+    // region DELETE
+
+    void deleteProject(long projectId);
+    void deleteSection(long sectionId);
+    void deleteTask(long projectId);
+
+    //endregion DELETE
 
 }

@@ -1,4 +1,4 @@
-package org.baylist.tests;
+package org.baylist.tests.api;
 
 import org.baylist.todoist.controller.TodoistController;
 import org.baylist.todoist.dto.Label;
@@ -14,13 +14,13 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
-public class DebugTests {
+class TodoistGetTests {
 
     @Autowired
     TodoistController todoistController;
 
     @Test
-    public void getAllProjects() {
+    void getAllProjects() {
         List<Project> projects = todoistController.getProjects();
 
         assertThat(projects)
@@ -29,7 +29,7 @@ public class DebugTests {
     }
 
     @Test
-    public void getProjectById() {
+    void getProjectById() {
         List<Project> projects = todoistController.getProjects();
         Project project = todoistController.getProject(Long.parseLong(projects.getFirst().getId()));
 
@@ -37,7 +37,7 @@ public class DebugTests {
     }
 
     @Test
-    public void getAllOpenTasks() {
+    void getAllOpenTasks() {
         List<Task> tasks = todoistController.getTasks();
 
         assertThat(tasks)
@@ -46,7 +46,7 @@ public class DebugTests {
     }
 
     @Test
-    public void getTaskByProjectId() {
+    void getTaskByProjectId() {
         List<Task> tasks = todoistController.getTasks();
         List<Task> tasksByProject = todoistController.getTasksByProject(Long.parseLong(tasks.getFirst().getProjectId()));
 
@@ -56,7 +56,7 @@ public class DebugTests {
     }
 
     @Test
-    public void getTaskBySectionId() {
+    void getTaskBySectionId() {
         List<Task> tasks = todoistController.getTasks();
         List<Task> tasksBySection = todoistController.getTasksBySection(Long.parseLong(tasks.getFirst().getSectionId()));
 
@@ -66,7 +66,7 @@ public class DebugTests {
     }
 
     @Test
-    public void getTaskByLabel() {
+    void getTaskByLabel() {
         List<Task> tasks = todoistController.getTasks();
         List<Task> tasksByLabel = todoistController.getTasksByLabel(
                 tasks.stream().filter(e -> !e.getLabels().isEmpty()).findAny().orElseThrow().getLabels().getFirst()
@@ -78,7 +78,7 @@ public class DebugTests {
     }
 
     @Test
-    public void getAllSections() {
+    void getAllSections() {
         List<Section> sections = todoistController.getSections();
 
         assertThat(sections)
@@ -87,7 +87,7 @@ public class DebugTests {
     }
 
     @Test
-    public void getSectionByProjectId() {
+    void getSectionByProjectId() {
         List<Section> sections = todoistController.getSections();
         System.out.println(sections);
         List<Section> sectionsByProjectId = todoistController.getSectionsByProject(Long.parseLong(sections.getFirst().getProjectId()));
@@ -98,7 +98,7 @@ public class DebugTests {
     }
 
     @Test
-    public void getLabel() {
+    void getLabel() {
         List<Label> labels = todoistController.getLabels();
 
         assertThat(labels)
@@ -106,20 +106,5 @@ public class DebugTests {
                 .hasSizeGreaterThan(1);
     }
 
-
-    @Test
-    public void createProject() {
-        Project project = Project.builder()
-                .setName("test")
-                .setColor("charcoal")
-                .setViewStyle("board")
-                .build();
-        Project controllerProject = todoistController.createProject(project);
-
-        assertThat(controllerProject).isNotNull();
-
-        Project testProject = todoistController.getProject(Long.parseLong(controllerProject.getId()));
-        assertThat(testProject).isEqualTo(controllerProject);
-    }
 
 }
