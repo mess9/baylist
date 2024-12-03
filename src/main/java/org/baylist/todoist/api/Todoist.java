@@ -45,9 +45,25 @@ public interface Todoist {
     // region DELETE
 
     void deleteProject(long projectId);
+
     void deleteSection(long sectionId);
+
     void deleteTask(long projectId);
 
     //endregion DELETE
+
+    // region UPDATE
+
+    void updateProject(Project project);
+
+    void updateSection(Section section);
+
+    void updateTask(Task task);
+
+    //endregion UPDATE
+
+    void closeTask(long taskId);
+
+    void reopenTask(long taskId);
 
 }
