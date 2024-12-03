@@ -249,4 +249,84 @@ public class TodoistController implements Todoist {
                 .retrieve()
                 .toBodilessEntity();
     }
+
+    @Override
+    public void updateProject(long projectId, String newName) {
+        String body = "{\"name\": \"" + newName + "\"}";
+        restClient
+                .post()
+                .uri(UriComponentsBuilder
+                        .fromPath("")
+                        .pathSegment(PROJECT_METHOD)
+                        .pathSegment(String.valueOf(projectId))
+                        .build()
+                        .toUriString())
+                .body(body)
+                .retrieve()
+                .toBodilessEntity();
+    }
+
+    @Override
+    public void updateSection(long sectionId, String newName) {
+        String body = "{\"name\": \"" + newName + "\"}";
+        restClient
+                .post()
+                .uri(UriComponentsBuilder
+                        .fromPath("")
+                        .pathSegment(SECTION_METHOD)
+                        .pathSegment(String.valueOf(sectionId))
+                        .build()
+                        .toUriString())
+                .body(body)
+                .retrieve()
+                .toBodilessEntity();
+    }
+
+    @Override
+    public void updateTask(long taskId, String newContent) {
+        String body = "{\"content\": \"" + newContent + "\"}";
+        restClient
+                .post()
+                .uri(UriComponentsBuilder
+                        .fromPath("")
+                        .pathSegment(TASK_METHOD)
+                        .pathSegment(String.valueOf(taskId))
+                        .build()
+                        .toUriString())
+                .body(body)
+                .retrieve()
+                .toBodilessEntity();
+
+    }
+
+    @Override
+    public void closeTask(long taskId) {
+        restClient
+                .post()
+                .uri(UriComponentsBuilder
+                        .fromPath("")
+                        .pathSegment(TASK_METHOD)
+                        .pathSegment(String.valueOf(taskId))
+                        .pathSegment("close")
+                        .build()
+                        .toUriString())
+                .retrieve()
+                .toBodilessEntity();
+    }
+
+    @Override
+    public void reopenTask(long taskId) {
+        restClient
+                .post()
+                .uri(UriComponentsBuilder
+                        .fromPath("")
+                        .pathSegment(TASK_METHOD)
+                        .pathSegment(String.valueOf(taskId))
+                        .pathSegment("reopen")
+                        .build()
+                        .toUriString())
+                .retrieve()
+                .toBodilessEntity();
+
+    }
 }

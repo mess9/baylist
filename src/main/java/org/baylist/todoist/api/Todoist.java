@@ -50,4 +50,16 @@ public interface Todoist {
 
     //endregion DELETE
 
+    // region UPDATE
+
+    void updateProject(long projectId, String newName);
+
+    void updateSection(long sectionId, String newName);
+    void updateTask(long taskId, String newContent);
+
+    //endregion UPDATE
+
+    void closeTask(long taskId);
+    void reopenTask(long taskId);
+
 }
