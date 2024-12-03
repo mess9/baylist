@@ -251,49 +251,46 @@ public class TodoistController implements Todoist {
     }
 
     @Override
-    public void updateProject(long projectId, String newName) {
-        String body = "{\"name\": \"" + newName + "\"}";
+    public void updateProject(Project project) {
         restClient
                 .post()
                 .uri(UriComponentsBuilder
                         .fromPath("")
                         .pathSegment(PROJECT_METHOD)
-                        .pathSegment(String.valueOf(projectId))
+                        .pathSegment(String.valueOf(project.getId()))
                         .build()
                         .toUriString())
-                .body(body)
+                .body(toJson(project))
                 .retrieve()
                 .toBodilessEntity();
     }
 
     @Override
-    public void updateSection(long sectionId, String newName) {
-        String body = "{\"name\": \"" + newName + "\"}";
+    public void updateSection(Section section) {
         restClient
                 .post()
                 .uri(UriComponentsBuilder
                         .fromPath("")
                         .pathSegment(SECTION_METHOD)
-                        .pathSegment(String.valueOf(sectionId))
+                        .pathSegment(String.valueOf(section.getId()))
                         .build()
                         .toUriString())
-                .body(body)
+                .body(toJson(section))
                 .retrieve()
                 .toBodilessEntity();
     }
 
     @Override
-    public void updateTask(long taskId, String newContent) {
-        String body = "{\"content\": \"" + newContent + "\"}";
+    public void updateTask(Task task) {
         restClient
                 .post()
                 .uri(UriComponentsBuilder
                         .fromPath("")
                         .pathSegment(TASK_METHOD)
-                        .pathSegment(String.valueOf(taskId))
+                        .pathSegment(String.valueOf(task.getId()))
                         .build()
                         .toUriString())
-                .body(body)
+                .body(toJson(task))
                 .retrieve()
                 .toBodilessEntity();
 
