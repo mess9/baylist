@@ -9,4 +9,9 @@ public class Storage {
 
     private List<ProjectDb> projects;
 
+    public boolean isEmpty() {
+        return projects == null || projects.isEmpty();
+    }
+
+
 }
