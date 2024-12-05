@@ -30,6 +30,8 @@ public class TodoistController implements Todoist {
 
     private final RestClient restClient;
 
+    //region GET
+
     @Override
     public List<Project> getProjects() { // done
         return restClient
@@ -73,7 +75,7 @@ public class TodoistController implements Todoist {
     }
 
     @Override
-    public List<Task> getTasksByProject(long index) { //done - check
+    public List<Task> getTasksByProject(long index) {
         return restClient
                 .get()
                 .uri(UriComponentsBuilder
@@ -88,7 +90,7 @@ public class TodoistController implements Todoist {
     }
 
     @Override
-    public List<Task> getTasksBySection(long index) { //done - check
+    public List<Task> getTasksBySection(long index) {
         return restClient
                 .get()
                 .uri(UriComponentsBuilder
@@ -103,7 +105,7 @@ public class TodoistController implements Todoist {
     }
 
     @Override
-    public List<Task> getTasksByLabel(String label) { //done-check
+    public List<Task> getTasksByLabel(String label) {
         return restClient
                 .get()
                 .uri(UriComponentsBuilder
@@ -118,7 +120,7 @@ public class TodoistController implements Todoist {
     }
 
     @Override
-    public List<Section> getSections() { //done - check
+    public List<Section> getSections() {
         return restClient
                 .get()
                 .uri(UriComponentsBuilder
@@ -132,7 +134,7 @@ public class TodoistController implements Todoist {
     }
 
     @Override
-    public List<Section> getSectionsByProject(long index) { //done - check
+    public List<Section> getSectionsByProject(long index) {
         return restClient
                 .get()
                 .uri(UriComponentsBuilder
@@ -147,7 +149,7 @@ public class TodoistController implements Todoist {
     }
 
     @Override
-    public List<Label> getLabels() { // TODO done - check
+    public List<Label> getLabels() {
         return restClient
                 .get()
                 .uri(UriComponentsBuilder
@@ -159,6 +161,10 @@ public class TodoistController implements Todoist {
                 .body(new ParameterizedTypeReference<>() {
                 });
     }
+
+    //endregion GET
+
+    //region CREATE
 
     @Override
     public Project createProject(Project project) {
@@ -207,6 +213,10 @@ public class TodoistController implements Todoist {
                 .getBody();
     }
 
+    //endregion CREATE
+
+    //region DELETE
+
     @Override
     public void deleteProject(long projectId) {
         restClient
@@ -249,6 +259,10 @@ public class TodoistController implements Todoist {
                 .retrieve()
                 .toBodilessEntity();
     }
+
+    //endregion DELETE
+
+    //region UPDATE
 
     @Override
     public void updateProject(Project project) {
@@ -295,6 +309,8 @@ public class TodoistController implements Todoist {
                 .toBodilessEntity();
 
     }
+
+    //endregion UPDATE
 
     @Override
     public void closeTask(long taskId) {

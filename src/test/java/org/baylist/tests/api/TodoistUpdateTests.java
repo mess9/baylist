@@ -1,10 +1,10 @@
 package org.baylist.tests.api;
 
+import org.baylist.tests.BaseTest;
 import org.baylist.todoist.controller.TodoistController;
 import org.baylist.todoist.dto.Project;
 import org.baylist.todoist.dto.Section;
 import org.baylist.todoist.dto.Task;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,33 +15,27 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
-public class TodoistUpdateTests {
+public class TodoistUpdateTests extends BaseTest {
+
     @Autowired
     TodoistController todoistController;
+
     Project project;
 
     @BeforeEach
-    void createProject() {
-        project = Project.builder()
-                .setName("Pupa")
-                .build();
-        project = todoistController.createProject(project);
-    }
-
-    @AfterEach
-    void deleteProject() {
-        todoistController.deleteProject(Long.parseLong(project.getId()));
+    void setUp() {
+        project = todoistController.getProjects().getFirst();
     }
 
     @Test
     public void updateProject() {
-        Project testProject = project;
-        testProject.setName("Lupa");
+        Project pupa = todoistController.createProject(Project.builder().setName("pupa").build());
+        pupa.setName("Lupa");
 
-        todoistController.updateProject(testProject);
+        todoistController.updateProject(pupa);
 
-        Project updatedProject = todoistController.getProject(Long.parseLong(testProject.getId()));
-        assertThat(testProject.getName()).isEqualTo(updatedProject.getName());
+        Project updatedProject = todoistController.getProject(Long.parseLong(pupa.getId()));
+        assertThat(pupa.getName()).isEqualTo(updatedProject.getName());
     }
 
     @Test

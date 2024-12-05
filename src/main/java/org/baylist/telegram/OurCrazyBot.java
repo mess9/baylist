@@ -1,8 +1,6 @@
 package org.baylist.telegram;
 
 import lombok.extern.slf4j.Slf4j;
-import org.baylist.todoist.service.TodoistService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.client.okhttp.OkHttpTelegramClient;
 import org.telegram.telegrambots.longpolling.BotSession;
@@ -19,15 +17,12 @@ import org.telegram.telegrambots.meta.generics.TelegramClient;
 public class OurCrazyBot implements SpringLongPollingBot, LongPollingSingleThreadUpdateConsumer {
 
     private final String TOKEN_TG = System.getenv("TOKEN_TG");
-
     private final TelegramClient telegramClient;
-    @Autowired
-    private TodoistService todoistService;
-//    @Autowired
-//    TodoistController todoistController;
+    private final TelegramChat telegramChat;
 
-    public OurCrazyBot() {
+    public OurCrazyBot(TelegramChat telegramChat) {
         telegramClient = new OkHttpTelegramClient(getBotToken());
+        this.telegramChat = telegramChat;
     }
 
     @Override
@@ -43,55 +38,22 @@ public class OurCrazyBot implements SpringLongPollingBot, LongPollingSingleThrea
     @Override
     public void consume(Update update) {
         if (update.hasMessage() && update.getMessage().hasText()) {
-            String message_text = update.getMessage().getText();
-            long chat_id = update.getMessage().getChatId();
+            telegramChat.chat(update, telegramClient);
 
-            log.info("get message - {}", message_text);
-//
-//            todoistService.fillProjectMap();
-//
-//            List<String> projectsNames = Storage.projects
-//                    .values()
-//                    .stream()
-//                    .map(Project::getName)
-//                    .toList();
-//
-//            StringBuilder sb = new StringBuilder();
-//            sb.append("Есть такие проекты: \n");
-//            projectsNames.forEach(m-> sb.append(m).append("\n"));
-//
-//            SendMessage message;
-//
-//            if (message_text.equalsIgnoreCase("Проекты")) {
-//                message = SendMessage.builder()
-//                        .chatId(chat_id)
-//                        .text(sb.toString())
-//                        .build();
-//
-//            } else if (projectsNames.contains(message_text)) {
-//                Project projectById = todoistService.getProjectById(Storage.projects.entrySet().stream().filter(e -> e.getValue().getName().equals(message_text)).findAny().orElseThrow().getKey());
-//                message = SendMessage.builder()
-//                        .chatId(chat_id)
-//                        .text("подробности по проекту: \n" + projectById.toString())
-//                        .build();
-//            } else {
-//                message = SendMessage.builder()
-//                        .chatId(chat_id)
-//                        .text("я отвечаю всегда однообразно")
-//                        .build();
-//            }
-//
-//            try {
-//                telegramClient.execute(message);
-//            } catch (TelegramApiException e) {
-//                log.error(e.getMessage());
-//            }
+            //1. получить текущее состояние из тудуиста (желательно делать один раз в начале разговора, или если там пусто)
+            //2. сделать кнопку - текущие задачи - при нажатии на которую будет выведена структура проекта buylist
+            //3. кнопочка - добавить задачи - и написать добавление задач в проект buylist
+            //3.5 кнопочка - добавить задачи - и написать добавление задач в проект buylist, с разбитием на категории(сравнивая по словарю)
+            // не нашедшееся в словаре записывать вне категории
+            //4. сделать команду которой можно дополнять словарь
+            //5. ...
+            //6. profit!
         }
     }
 
 
     @AfterBotRegistration
-    public void afterRegistration(BotSession botSession) {
+    public void afterRegistration(BotSession botSession) { //todo - разобраться бы что это такое и зачем.
         System.out.println("Registered bot running state is: " + botSession.isRunning());
     }
 }

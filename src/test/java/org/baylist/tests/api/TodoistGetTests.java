@@ -1,5 +1,6 @@
 package org.baylist.tests.api;
 
+import org.baylist.tests.BaseTest;
 import org.baylist.todoist.controller.TodoistController;
 import org.baylist.todoist.dto.Label;
 import org.baylist.todoist.dto.Project;
@@ -14,7 +15,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
-class TodoistGetTests {
+class TodoistGetTests extends BaseTest {
 
     @Autowired
     TodoistController todoistController;
