@@ -22,12 +22,12 @@ public class ProjectDb {
 
 
         StringBuilder sb = new StringBuilder();
-        sb.append("Проект - ").append(project.getName()).append("\n");
-        sb.append("  задачи:\n");
-        tasksWithoutSections.forEach(t -> sb.append("   - ").append(t.getContent()).append("\n"));
+        sb.append("проект - ").append(project.getName()).append("\n\n");
+        sb.append("  задачи:\n\n");
+        tasksWithoutSections.forEach(t -> sb.append("    - ").append(t.getContent()).append("\n"));
         sections.forEach(s -> {
-            sb.append("  ↓").append(s.getSection().getName()).append("\n");
-            s.getTasks().forEach(t -> sb.append("   - ").append(t.getContent()).append("\n"));
+            sb.append("\n").append(" ↘").append(s.getSection().getName()).append("\n\n");
+            s.getTasks().forEach(t -> sb.append("    - ").append(t.getContent()).append("\n"));
         });
 
         return sb.toString();

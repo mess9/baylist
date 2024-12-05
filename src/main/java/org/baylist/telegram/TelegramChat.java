@@ -9,6 +9,9 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
+import static org.baylist.util.log.TgLog.inputLog;
+import static org.baylist.util.log.TgLog.outputLog;
+
 @Component
 @Slf4j
 @AllArgsConstructor
@@ -20,15 +23,12 @@ public class TelegramChat {
     public void chat(Update update, TelegramClient telegramClient) {
         String message_text = update.getMessage().getText();
         long chat_id = update.getMessage().getChatId();
-        log.info("\nin chat - {}\n get message - {}", chat_id, message_text);
+        inputLog(update);
 
         if (todoist.storageIsEmpty()) {
             todoist.syncData();
         }
-
         SendMessage message;
-        String projectsName = todoist.getProjectsName();
-        System.out.println(projectsName);
 
         if (message_text.equalsIgnoreCase("Проекты")) {
             message = SendMessage.builder()
@@ -49,9 +49,9 @@ public class TelegramChat {
         }
 
         try {
-            telegramClient.execute(message);
+            telegramClient.execute(outputLog(message));
         } catch (TelegramApiException e) {
-            log.error(e.getMessage());
+            TelegramChat.log.error(e.getMessage());
         }
     }
 
