@@ -1,7 +1,6 @@
 package org.baylist.telegram;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.logging.log4j.message.Message;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.client.okhttp.OkHttpTelegramClient;
 import org.telegram.telegrambots.longpolling.BotSession;
@@ -61,64 +60,62 @@ public class OurCrazyBot implements SpringLongPollingBot, LongPollingSingleThrea
         if (update.hasMessage() && update.getMessage().hasText()) {
             long chatId = update.getMessage().getChatId();
 
-//            String id = update.getCallbackQuery().getId();
+//            InlineKeyboardButton button1 = new InlineKeyboardButton("Кнопка 1");
+//            button1.setCallbackData("command1");
+//            button1.validate();
+            InlineKeyboardButton button1 = InlineKeyboardButton.builder()
+                    .text("кнопка раз")
+                    .callbackData("data")
+                    .build();
+            InlineKeyboardButton button2 = new InlineKeyboardButton("Кнопка 2");
+            button2.setCallbackData("command2");
+
+            InlineKeyboardMarkup markup = new InlineKeyboardMarkup(List.of(new InlineKeyboardRow(button1, button2)));
+
+            SendMessage message = SendMessage.builder()
+                    .chatId(chatId)
+                    .text("Выберите одну из кнопок: ")
+                    .replyMarkup(markup)
+                    .build();
+
+            if (message.getText().equalsIgnoreCase("Кнопка 1")) {
+                message = SendMessage.builder()
+                        .chatId(chatId)
+                        .text("**хуй**")
+                        .replyMarkup(markup)
+                        .build();
+            }
+
+
+            try {
+                telegramClient.execute(message); // Отправляем сообщение
+            } catch (TelegramApiException e) {
+                log.error(e.getMessage());
+            }
+        } else if (update.hasCallbackQuery()) {
+
+            String id = update.getCallbackQuery().getId();
             String data = update.getCallbackQuery().getData();
             String chatInstance = update.getCallbackQuery().getChatInstance();
             String gameShortName = update.getCallbackQuery().getGameShortName();
 
+            System.out.println("id: " + id + " data: " + data + " chatInstance: " + chatInstance + " gameShortName: " + gameShortName);
 
-//            SendMessage sendMessage = SendMessage
-//                    .builder()
-//                    .chatId(chatId)
-//                    .text("id: " + id + " data: " + data + " chatInstance: " + chatInstance + " gameShortName: " + gameShortName)
-//                    .build();
-
-            // Создаем кнопку
-            InlineKeyboardButton button1 = new InlineKeyboardButton("Кнопка 1");
-            button1.setCallbackData("Ky-KY");
-//            button1.setUrl("https://ya.ru/");
-//                    .setCallbackData("button1")
-            InlineKeyboardButton button2 = new InlineKeyboardButton("Кнопка 2");
-            button2.setUrl("https://ya.ru/");
-//                    .setCallbackData("button2");
-
-            // Упаковываем кнопки в клавиатуру
-            InlineKeyboardMarkup markup = new InlineKeyboardMarkup(List.of(new InlineKeyboardRow(button1,button2)));
-
-            // Формируем сообщение
             SendMessage message = SendMessage.builder()
-                    .chatId(chatId)
-                    .text("Выберите одну из кнопок: "+ " data: " + data + " chatInstance: " + chatInstance + " gameShortName: " + gameShortName)
-                    .replyMarkup(markup)
+                    .chatId(update.getCallbackQuery().getMessage().getChatId())
+                    .text("**хуй**")
+//                    .replyMarkup(markup)
                     .build();
 
             try {
                 telegramClient.execute(message); // Отправляем сообщение
-                Thread.sleep(1000);
-//                telegramClient.execute(sendMessage); // Отправляем сообщение
             } catch (TelegramApiException e) {
-                e.printStackTrace(); // Обрабатываем возможные ошибки
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+                log.error(e.getMessage());
             }
         }
 
-    }
 
-//    public void processCallbackQuery(Update update) {
-//        String data = update.getCallbackQuery().getData();
-//        long chatId = update.getCallbackQuery().getMessage().getChatId();
-//
-//        switch (data) {
-//            case "button1":
-//                sendMessage(chatId, "Нажали на первую кнопку!");
-//                break;
-//            case "button2":
-//                sendMessage(chatId, "Нажали на вторую кнопку!");
-//                break;
-//        }
-//    }
-//
+    }
 
     @AfterBotRegistration
     public void afterRegistration(BotSession botSession) { //todo - разобраться бы что это такое и зачем.
