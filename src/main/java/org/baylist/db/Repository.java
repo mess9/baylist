@@ -50,8 +50,6 @@ public class Repository {
                 })
                 .toList();
         storage.setProjects(projectDbs);
-        System.out.println(projectDbs.size());
-        System.out.println(projectDbs);
     }
 
     public boolean isEmpty() {
@@ -69,5 +67,6 @@ public class Repository {
                 .findAny();
     }
 
+    //todo нужен метод diff - для проверки изменений на той или иной стороне
 
 }
