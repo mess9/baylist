@@ -1,11 +1,11 @@
-package org.baylist.todoist.controller;
+package org.baylist.todoist.api.controller;
 
 import lombok.AllArgsConstructor;
+import org.baylist.dto.todoist.Label;
+import org.baylist.dto.todoist.Project;
+import org.baylist.dto.todoist.Section;
+import org.baylist.dto.todoist.Task;
 import org.baylist.todoist.api.Todoist;
-import org.baylist.todoist.dto.Label;
-import org.baylist.todoist.dto.Project;
-import org.baylist.todoist.dto.Section;
-import org.baylist.todoist.dto.Task;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.client.RestClient;
@@ -30,10 +30,7 @@ public class TodoistController implements Todoist {
 
     private final RestClient restClient;
 
-    //todo создать имплементацию на контрактах
-    // создать имплементацию через sync api
-
-    //region GET
+//region GET
 
     @Override
     public List<Project> getProjects() { // done

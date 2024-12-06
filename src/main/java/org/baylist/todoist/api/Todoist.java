@@ -1,13 +1,18 @@
 package org.baylist.todoist.api;
 
-import org.baylist.todoist.dto.Label;
-import org.baylist.todoist.dto.Project;
-import org.baylist.todoist.dto.Section;
-import org.baylist.todoist.dto.Task;
+import org.baylist.dto.todoist.Label;
+import org.baylist.dto.todoist.Project;
+import org.baylist.dto.todoist.Section;
+import org.baylist.dto.todoist.Task;
 
 import java.util.List;
 
 public interface Todoist {
+
+
+    //todo
+    // 1. создать имплементацию на контрактах
+    // 2. создать имплементацию через sync api (но там уже не через этот интерфейс будет, а как-то иначе, хотя хз)
 
 
     //region GET

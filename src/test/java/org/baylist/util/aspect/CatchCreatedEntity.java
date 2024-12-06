@@ -3,9 +3,9 @@ package org.baylist.util.aspect;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
-import org.baylist.todoist.dto.Project;
-import org.baylist.todoist.dto.Section;
-import org.baylist.todoist.dto.Task;
+import org.baylist.dto.todoist.Project;
+import org.baylist.dto.todoist.Section;
+import org.baylist.dto.todoist.Task;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -19,7 +19,7 @@ public class CatchCreatedEntity {
     public static final List<Section> sections = new CopyOnWriteArrayList<>();
     public static final List<Task> tasks = new CopyOnWriteArrayList<>();
 
-    @Pointcut("execution(public * org.baylist.todoist.controller.TodoistController.createProject(..))")
+    @Pointcut("execution(public * org.baylist.todoist.api.controller.TodoistController.createProject(..))")
     public void createProject() {
     }
 
@@ -30,7 +30,7 @@ public class CatchCreatedEntity {
         }
     }
 
-    @Pointcut("execution(public * org.baylist.todoist.controller.TodoistController.createSection(..))")
+    @Pointcut("execution(public * org.baylist.todoist.api.controller.TodoistController.createSection(..))")
     public void createSection() {
     }
 
@@ -41,7 +41,7 @@ public class CatchCreatedEntity {
         }
     }
 
-    @Pointcut("execution(public * org.baylist.todoist.controller.TodoistController.createTask(..))")
+    @Pointcut("execution(public * org.baylist.todoist.api.controller.TodoistController.createTask(..))")
     public void createTask() {
     }
 

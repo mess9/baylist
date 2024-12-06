@@ -1,8 +1,8 @@
 package org.baylist.db;
 
-import org.baylist.todoist.dto.Project;
-import org.baylist.todoist.dto.Section;
-import org.baylist.todoist.dto.Task;
+import org.baylist.dto.todoist.Project;
+import org.baylist.dto.todoist.Section;
+import org.baylist.dto.todoist.Task;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

@@ -1,6 +1,6 @@
 package org.baylist.tests.storage;
 
-import org.baylist.todoist.service.TodoistService;
+import org.baylist.service.TodoistService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
