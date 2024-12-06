@@ -11,6 +11,8 @@ import java.util.Optional;
 @Component
 public class Repository {
 
+    // todo когда нибудь прикрутить реальную внешнюю монгу или постгрю для хранения состояний
+
     private final Storage storage = new Storage();
 
     public void fillStorage(List<Project> projects,

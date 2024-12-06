@@ -22,6 +22,7 @@ public class TelegramChat {
         long chat_id = update.getMessage().getChatId();
         inputLog(update);
 
+        // отключено для отладки в других местах, что бы тудуист лишний раз не дёргать
 //        if (todoist.storageIsEmpty()) {
 //            todoist.syncData();
 //        }

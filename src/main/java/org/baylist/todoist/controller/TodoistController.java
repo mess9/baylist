@@ -30,6 +30,9 @@ public class TodoistController implements Todoist {
 
     private final RestClient restClient;
 
+    //todo создать имплементацию на контрактах
+    // создать имплементацию через sync api
+
     //region GET
 
     @Override
