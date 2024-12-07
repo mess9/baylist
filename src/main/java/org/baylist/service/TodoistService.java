@@ -15,6 +15,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.baylist.dto.Constants.UNKNOWN_CATEGORY;
 
@@ -65,6 +67,13 @@ public class TodoistService {
             List<SectionDb> sectionsTodoist = repository.getSections();
             Optional<String> buyListProjectId = repository.getBuyListProjectId();
 
+            Stream<Set<String>> peek = inputMap.values().stream().peek(t -> repository.getBuyListProject()
+                    .get()
+                    .getTasks()
+                    .stream()
+                    .map(Task::getContent)
+                    .toList().forEach(t::remove));
+            inputMap.putIfAbsent(UNKNOWN_CATEGORY, peek.flatMap(m)));
             if (buyListProjectId.isPresent()) {
                 sendTasksToProject(inputMap, buyListProjectId.get(), sectionsTodoist);
                 return "список покупок был отправлен филу";
@@ -99,20 +108,17 @@ public class TodoistService {
         inputMap.forEach((sectionInput, taskList) -> {
             if (sectionInput.equals(UNKNOWN_CATEGORY)) {
                 sendTaskWithoutSection(taskList, buyListProjectId);
-            } else {
+            }
+            if (!sectionInput.equals(UNKNOWN_CATEGORY)) {
                 sectionsTodoist
                         .stream()
+                        .peek(s -> s.getTasks().stream().map(Task::getContent).toList().forEach(taskList::remove))
                         .map(SectionDb::getSection)
                         .forEach(sectionTodoist -> {
                             if (sectionTodoist.getName().equals(sectionInput)) {
                                 sendTasksBySection(
                                         taskList,
                                         sectionTodoist,
-                                        buyListProjectId);
-                            } else {
-                                sendTasksBySection(
-                                        taskList,
-                                        sendSection(sectionInput, buyListProjectId),
                                         buyListProjectId);
                             }
                         });
