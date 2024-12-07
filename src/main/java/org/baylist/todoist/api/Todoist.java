@@ -19,19 +19,19 @@ public interface Todoist {
 
     List<Project> getProjects();
 
-    Project getProject(long index);
+    Project getProject(Long index);
 
     List<Task> getTasks();
 
-    List<Task> getTasksByProject(long index);
+    List<Task> getTasksByProject(Long index);
 
-    List<Task> getTasksBySection(long index);
+    List<Task> getTasksBySection(Long index);
 
     List<Task> getTasksByLabel(String labels);
 
     List<Section> getSections();
 
-    List<Section> getSectionsByProject(long index);
+    List<Section> getSectionsByProject(Long index);
 
     List<Label> getLabels();
 
@@ -49,11 +49,11 @@ public interface Todoist {
 
     // region DELETE
 
-    void deleteProject(long projectId);
+    void deleteProject(Long projectId);
 
-    void deleteSection(long sectionId);
+    void deleteSection(Long sectionId);
 
-    void deleteTask(long taskId);
+    void deleteTask(Long taskId);
 
     //endregion DELETE
 
@@ -67,8 +67,8 @@ public interface Todoist {
 
     //endregion UPDATE
 
-    void closeTask(long taskId);
+    void closeTask(Long taskId);
 
-    void reopenTask(long taskId);
+    void reopenTask(Long taskId);
 
 }

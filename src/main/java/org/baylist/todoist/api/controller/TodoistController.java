@@ -47,7 +47,7 @@ public class TodoistController implements Todoist {
     }
 
     @Override
-    public Project getProject(long index) { //done
+    public Project getProject(Long index) { //done
         return restClient
                 .get()
                 .uri(UriComponentsBuilder
@@ -75,7 +75,7 @@ public class TodoistController implements Todoist {
     }
 
     @Override
-    public List<Task> getTasksByProject(long index) {
+    public List<Task> getTasksByProject(Long index) {
         return restClient
                 .get()
                 .uri(UriComponentsBuilder
@@ -90,7 +90,7 @@ public class TodoistController implements Todoist {
     }
 
     @Override
-    public List<Task> getTasksBySection(long index) {
+    public List<Task> getTasksBySection(Long index) {
         return restClient
                 .get()
                 .uri(UriComponentsBuilder
@@ -134,7 +134,7 @@ public class TodoistController implements Todoist {
     }
 
     @Override
-    public List<Section> getSectionsByProject(long index) {
+    public List<Section> getSectionsByProject(Long index) {
         return restClient
                 .get()
                 .uri(UriComponentsBuilder
@@ -218,7 +218,7 @@ public class TodoistController implements Todoist {
     //region DELETE
 
     @Override
-    public void deleteProject(long projectId) {
+    public void deleteProject(Long projectId) {
         restClient
                 .delete()
                 .uri(UriComponentsBuilder
@@ -232,7 +232,7 @@ public class TodoistController implements Todoist {
     }
 
     @Override
-    public void deleteSection(long sectionId) {
+    public void deleteSection(Long sectionId) {
         restClient
                 .delete()
                 .uri(UriComponentsBuilder
@@ -247,7 +247,7 @@ public class TodoistController implements Todoist {
 
 
     @Override
-    public void deleteTask(long taskId) {
+    public void deleteTask(Long taskId) {
         restClient
                 .delete()
                 .uri(UriComponentsBuilder
@@ -313,7 +313,7 @@ public class TodoistController implements Todoist {
     //endregion UPDATE
 
     @Override
-    public void closeTask(long taskId) {
+    public void closeTask(Long taskId) {
         restClient
                 .post()
                 .uri(UriComponentsBuilder
@@ -328,7 +328,7 @@ public class TodoistController implements Todoist {
     }
 
     @Override
-    public void reopenTask(long taskId) {
+    public void reopenTask(Long taskId) {
         restClient
                 .post()
                 .uri(UriComponentsBuilder

@@ -13,7 +13,7 @@
 
     <groupId>org.baylist</groupId>
     <artifactId>baylist</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.2</version>
     <name>baylist</name>
     <description>learn project</description>
 
@@ -61,7 +61,6 @@
             <groupId>com.fasterxml.jackson.dataformat</groupId>
             <artifactId>jackson-dataformat-yaml</artifactId>
         </dependency>
-
 
         <!--telegram-->
         <dependency>

@@ -11,13 +11,14 @@ import org.baylist.dto.todoist.Task;
 import org.baylist.todoist.api.Todoist;
 import org.springframework.stereotype.Service;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
+import static org.baylist.dto.Constants.BUYLIST_PROJECT;
 import static org.baylist.dto.Constants.UNKNOWN_CATEGORY;
 
 
@@ -30,9 +31,56 @@ public class TodoistService {
     private final DictionaryService dictionaryService;
     private final Repository repository;
 
+    public void syncBuyListData() {
+        log.info("request to todoist for get data by buylist project");
+        List<Project> projects = todoistController.getProjects();
+        Optional<Project> buylistProject = projects
+                .stream().filter(p -> p.getName().equalsIgnoreCase(BUYLIST_PROJECT))
+                .findAny();
+        if (buylistProject.isPresent()) {
+            Long projectId = Long.valueOf(buylistProject.get().getId());
+            List<Section> todoistBuylistSections = todoistController.getSectionsByProject(projectId);
+            List<Task> todoistBuylistTasks = todoistController.getTasksByProject(projectId);
+            repository.fillStorage(List.of(buylistProject.get()), todoistBuylistSections, todoistBuylistTasks);
+        } else {
+            log.error("buylist project not found");
+        }
+    }
 
-    public void syncData() {
-        log.info("request to todoist for get data");
+    public String getBuylistProject() {
+        syncBuyListData();
+        Optional<ProjectDb> projectByName = repository.getProjectByName(BUYLIST_PROJECT);
+        if (projectByName.isPresent()) {
+            return projectByName.get().toString();
+        } else {
+            return "Project not found";
+        }
+    }
+
+    public String sendTaskToTodoist(String input) {
+        if (validateInput(input)) {
+            Map<String, Set<String>> inputMap = dictionaryService.parseInputBuyList(input);
+            List<SectionDb> sectionsTodoist = repository.getSections();
+            Optional<ProjectDb> buyListProject = repository.getBuyListProject();
+
+            if (buyListProject.isPresent()) {
+                distinctNoCategoryTasks(inputMap, buyListProject);
+                sendTasksToProject(inputMap, buyListProject.get().getProject().getId(), sectionsTodoist);
+                syncBuyListData(); //todo возможно стоит придумать какой то флаг терминальной операции(хз вообще) после которого будет автосинк, что бы не пихать его везде
+                return "список покупок был отправлен филу\n" + getBuylistProject();
+            } else {
+                Project buylist = todoistController.createProject(Project.builder().setName(BUYLIST_PROJECT).build());
+                sendTasksToProject(inputMap, buylist.getId(), sectionsTodoist);
+                syncBuyListData();
+                return "список покупок был филу отправлен\n" + getBuylistProject();
+            }
+        } else {
+            return "что-то коряво написано, не могу разобрать";
+        }
+    }
+
+    public void syncAllData() { //todo временно не используется, т.к. по сути боту оно пока не надо
+        log.info("request to todoist for get all data");
         List<Project> projects = todoistController.getProjects();
         List<Section> sections = todoistController.getSections();
         List<Task> tasks = todoistController.getTasks();
@@ -41,6 +89,7 @@ public class TodoistService {
     }
 
     public String getProjectByName(String name) {
+        syncBuyListData();
         Optional<ProjectDb> projectByName = repository.getProjectByName(name.toLowerCase());
         if (projectByName.isPresent()) {
             return projectByName.get().toString();
@@ -61,30 +110,21 @@ public class TodoistService {
         return sb.toString();
     }
 
-    public String sendTaskToTodoist(String input) {
-        if (validateInput(input)) {
-            Map<String, Set<String>> inputMap = dictionaryService.parseInputBuyList(input);
-            List<SectionDb> sectionsTodoist = repository.getSections();
-            Optional<String> buyListProjectId = repository.getBuyListProjectId();
 
-            Stream<Set<String>> peek = inputMap.values().stream().peek(t -> repository.getBuyListProject()
-                    .get()
-                    .getTasks()
-                    .stream()
-                    .map(Task::getContent)
-                    .toList().forEach(t::remove));
-            inputMap.putIfAbsent(UNKNOWN_CATEGORY, peek.flatMap(m)));
-            if (buyListProjectId.isPresent()) {
-                sendTasksToProject(inputMap, buyListProjectId.get(), sectionsTodoist);
-                return "список покупок был отправлен филу";
-            } else {
-                Project buylist = todoistController.createProject(Project.builder().setName("buylist").build());
-                sendTasksToProject(inputMap, buylist.getId(), sectionsTodoist);
-                return "список покупок был филу отправлен";
-            }
-        } else {
-            return "что-то коряво написано, не могу разобрать";
-        }
+    private void distinctNoCategoryTasks(Map<String, Set<String>> inputMap, Optional<ProjectDb> buyListProject) {
+        buyListProject.ifPresent(p -> inputMap
+                .putIfAbsent(UNKNOWN_CATEGORY, inputMap
+                        .values()
+                        .stream()
+                        .peek(t -> p
+                                .getTasks()
+                                .stream()
+                                .map(Task::getContent)
+                                .toList()
+                                .forEach(t::remove))
+                        .flatMap(Collection::stream)
+                        .collect(Collectors.toSet()))
+        );
     }
 
     public String clearBuyList() {
@@ -92,6 +132,7 @@ public class TodoistService {
         if (buyListProject.isPresent()) {
             ProjectDb project = buyListProject.get();
             project.getTasks().forEach(t -> todoistController.deleteTask(Long.parseLong(t.getId())));
+            syncBuyListData();
             return "список покупок очищен";
         } else {
             return "проекта со списком покупок не существует";

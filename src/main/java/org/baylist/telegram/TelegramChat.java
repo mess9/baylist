@@ -33,15 +33,20 @@ public class TelegramChat {
         inputLog(update);
 
         if (todoist.storageIsEmpty()) {
-            todoist.syncData();
+            todoist.syncBuyListData();
         }
         SendMessage message;
         String text;
 
-        if (message_text.equals("/clear")) {
-            text = todoist.clearBuyList();
-        } else {
-            text = todoist.sendTaskToTodoist(message_text);
+        //todo для обработки команд применить https://refactoring.guru/ru/design-patterns/chain-of-responsibility/java/example
+        switch (message_text) {
+            case "/clear" -> text = todoist.clearBuyList(); //todo спрашивать подтверждение действия кнопками
+            case "/view" -> text = todoist.getBuylistProject();
+            case "/sync" -> {
+                todoist.syncBuyListData();
+                text = "данные синхронизированы с todoist";
+            }
+            default -> text = todoist.sendTaskToTodoist(message_text);
         }
 
 

@@ -22,10 +22,12 @@ public class TgLog {
     }
 
     public static SendMessage outputLog(SendMessage message) {
+        int qtyCharToCutMessage = 100;
         String chatId = message.getChatId();
         String text = message.getText();
-        if (text.length() > 59) {
-            text = text.substring(0, 100) + "...";
+        //todo удалить из вывода пустые строки
+        if (text.length() > qtyCharToCutMessage) {
+            text = text.substring(0, qtyCharToCutMessage) + "...";
         }
         log.info(" -> Message to chat id - {}, \n Text - {}",
                 chatId,
