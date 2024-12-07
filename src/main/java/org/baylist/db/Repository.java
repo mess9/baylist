@@ -5,8 +5,11 @@ import org.baylist.dto.todoist.Section;
 import org.baylist.dto.todoist.Task;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import static org.baylist.dto.Constants.BUYLIST_PROJECT;
 
 @Component
 public class Repository {
@@ -66,6 +69,29 @@ public class Repository {
         return storage.getProjects()
                 .stream()
                 .filter(p -> p.getProject().getName().equalsIgnoreCase(name))
+                .findAny();
+    }
+
+    public List<SectionDb> getSections() {
+        return storage.getProjects()
+                .stream().filter(p -> p.getProject().getName().equals(BUYLIST_PROJECT))
+                .map(ProjectDb::getSections)
+                .findAny()
+                .orElse(new ArrayList<>());
+    }
+
+    public Optional<String> getBuyListProjectId() {
+        return storage.getProjects()
+                .stream()
+                .filter(p -> p.getProject().getName().equals(BUYLIST_PROJECT))
+                .map(p -> p.getProject().getId())
+                .findAny();
+    }
+
+    public Optional<ProjectDb> getBuyListProject() {
+        return storage.getProjects()
+                .stream()
+                .filter(project -> project.getProject().getName().equals(BUYLIST_PROJECT))
                 .findAny();
     }
 

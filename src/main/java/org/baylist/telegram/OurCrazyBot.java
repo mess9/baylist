@@ -61,7 +61,7 @@ public class OurCrazyBot implements SpringLongPollingBot, LongPollingSingleThrea
 
         if (update.hasMessage() && update.getMessage().hasText()) {
             telegramChat.chat(update, telegramClient);
-            button.buttons(update, telegramClient); //возможно кнопки следует всунуть в чат, а не сюда. пока хз, пока они нужны только в рамках п.2
+//            button.buttons(update, telegramClient); //возможно кнопки следует всунуть в чат, а не сюда. пока хз, пока они нужны только в рамках п.2
 
         }
 
