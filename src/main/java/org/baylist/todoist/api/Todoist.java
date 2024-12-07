@@ -53,7 +53,7 @@ public interface Todoist {
 
     void deleteSection(long sectionId);
 
-    void deleteTask(long projectId);
+    void deleteTask(long taskId);
 
     //endregion DELETE
 

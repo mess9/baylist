@@ -14,7 +14,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class TodoistCreateTests extends BaseTest {
+public class TodoistCreateTest extends BaseTest {
 
     @Autowired
     Todoist todoistController;
