@@ -1,4 +1,4 @@
-package org.baylist.todoist.dto;
+package org.baylist.dto.todoist;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;

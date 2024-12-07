@@ -1,13 +1,13 @@
-package org.baylist.todoist.service;
+package org.baylist.service;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.baylist.db.ProjectDb;
 import org.baylist.db.Repository;
-import org.baylist.todoist.controller.TodoistController;
-import org.baylist.todoist.dto.Project;
-import org.baylist.todoist.dto.Section;
-import org.baylist.todoist.dto.Task;
+import org.baylist.dto.todoist.Project;
+import org.baylist.dto.todoist.Section;
+import org.baylist.dto.todoist.Task;
+import org.baylist.todoist.api.Todoist;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,7 +19,7 @@ import java.util.Optional;
 @Slf4j
 public class TodoistService {
 
-    private final TodoistController todoistController;
+    private final Todoist todoistController;
     private final Repository repository;
 
 

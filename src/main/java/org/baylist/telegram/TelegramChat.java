@@ -2,7 +2,7 @@ package org.baylist.telegram;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.baylist.todoist.service.TodoistService;
+import org.baylist.service.TodoistService;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
@@ -22,6 +22,7 @@ public class TelegramChat {
         long chat_id = update.getMessage().getChatId();
         inputLog(update);
 
+        // отключено для отладки в других местах, что бы тудуист лишний раз не дёргать
 //        if (todoist.storageIsEmpty()) {
 //            todoist.syncData();
 //        }

@@ -1,8 +1,8 @@
 package org.baylist.db;
 
 import lombok.Data;
-import org.baylist.todoist.dto.Project;
-import org.baylist.todoist.dto.Task;
+import org.baylist.dto.todoist.Project;
+import org.baylist.dto.todoist.Task;
 
 import java.util.List;
 

@@ -1,11 +1,11 @@
 package org.baylist.tests.api;
 
+import org.baylist.dto.todoist.Label;
+import org.baylist.dto.todoist.Project;
+import org.baylist.dto.todoist.Section;
+import org.baylist.dto.todoist.Task;
 import org.baylist.tests.BaseTest;
-import org.baylist.todoist.controller.TodoistController;
-import org.baylist.todoist.dto.Label;
-import org.baylist.todoist.dto.Project;
-import org.baylist.todoist.dto.Section;
-import org.baylist.todoist.dto.Task;
+import org.baylist.todoist.api.Todoist;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -18,7 +18,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 class TodoistGetTests extends BaseTest {
 
     @Autowired
-    TodoistController todoistController;
+    Todoist todoistController;
+
 
     @Test
     void getAllProjects() {

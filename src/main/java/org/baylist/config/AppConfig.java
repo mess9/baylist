@@ -15,6 +15,7 @@ public class AppConfig {
     @Bean
     public RestClient todoistRestClient(@Value("${todoist.baseUrl}") String baseUrl,
                                         @Value("${todoist.token}") String token) {
+        //todo прикрутить логгирование ответов
         return RestClient
                 .builder()
                 .baseUrl(baseUrl)
