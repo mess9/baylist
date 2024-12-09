@@ -4,6 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
+import static org.baylist.util.log.LogUtil.reduceEmptyLines;
+
 @Slf4j
 public class TgLog {
 
@@ -22,10 +24,10 @@ public class TgLog {
     }
 
     public static SendMessage outputLog(SendMessage message) {
-        int qtyCharToCutMessage = 100;
+        int qtyCharToCutMessage = 150;
         String chatId = message.getChatId();
         String text = message.getText();
-        //todo удалить из вывода пустые строки
+        text = reduceEmptyLines(text);
         if (text.length() > qtyCharToCutMessage) {
             text = text.substring(0, qtyCharToCutMessage) + "...";
         }
@@ -34,5 +36,6 @@ public class TgLog {
                 text);
         return message;
     }
+
 
 }

@@ -5,12 +5,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.baylist.db.ProjectDb;
 import org.baylist.db.Repository;
 import org.baylist.db.SectionDb;
+import org.baylist.dto.telegram.Commands;
 import org.baylist.dto.todoist.Project;
 import org.baylist.dto.todoist.Section;
 import org.baylist.dto.todoist.Task;
 import org.baylist.todoist.api.Todoist;
 import org.springframework.stereotype.Service;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -57,7 +60,7 @@ public class TodoistService {
         }
     }
 
-    public String sendTaskToTodoist(String input) {
+    public SendMessage sendTaskToTodoist(String input, SendMessage message) {
         if (validateInput(input)) {
             Map<String, Set<String>> inputMap = dictionaryService.parseInputBuyList(input);
             List<SectionDb> sectionsTodoist = repository.getSections();
@@ -67,19 +70,23 @@ public class TodoistService {
                 distinctNoCategoryTasks(inputMap, buyListProject);
                 sendTasksToProject(inputMap, buyListProject.get().getProject().getId(), sectionsTodoist);
                 syncBuyListData(); //todo возможно стоит придумать какой то флаг терминальной операции(хз вообще) после которого будет автосинк, что бы не пихать его везде
-                return "список покупок был отправлен филу\n" + getBuylistProject();
+                message.setText("список покупок был отправлен филу\n" + getBuylistProject());
+                message.setParseMode("html");
+                return message;
             } else {
                 Project buylist = todoistController.createProject(Project.builder().setName(BUYLIST_PROJECT).build());
                 sendTasksToProject(inputMap, buylist.getId(), sectionsTodoist);
                 syncBuyListData();
-                return "список покупок был филу отправлен\n" + getBuylistProject();
+                message.setText("список покупок был филу отправлен\n" + getBuylistProject());
+                return message;
             }
         } else {
-            return "что-то коряво написано, не могу разобрать";
+            message.setText("что-то коряво написано, не могу разобрать");
+            return message;
         }
     }
 
-    public void syncAllData() { //todo временно не используется, т.к. по сути боту оно пока не надо
+    public void syncAllData() { //временно не используется, так как по сути боту оно пока не надо
         log.info("request to todoist for get all data");
         List<Project> projects = todoistController.getProjects();
         List<Section> sections = todoistController.getSections();
@@ -162,13 +169,15 @@ public class TodoistService {
                                         sectionTodoist,
                                         buyListProjectId);
                             }
-                        });
+                        }); //todo а если такой секции ещё нет в проекте - её надо бы создать там.
             }
         });
     }
 
     private boolean validateInput(String input) {
-        return !input.isEmpty(); //todo написать нормальную валидацию, но надо придумать примеров
+        return input.length() > 3 &&
+                Arrays.stream(Commands.values()).noneMatch(c -> input.contains(c.getCommand()));
+        //вероятно в будущем тут будет добавлен ещё ряд условий
     }
 
     private void sendTaskWithoutSection(Set<String> taskList, String buyListProjectId) {

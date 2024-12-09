@@ -14,6 +14,7 @@ import java.util.Map;
 
 import static org.baylist.config.AppConfig.RESPONSE_LOG;
 import static org.baylist.util.convert.InputStreamConverter.inputStreamToString;
+import static org.baylist.util.log.LogUtil.reduceEmptyLines;
 
 @Slf4j
 public class RestLog implements ClientHttpRequestInterceptor {
@@ -86,7 +87,7 @@ public class RestLog implements ClientHttpRequestInterceptor {
         if (!requestBody.isEmpty()) {
             sb.append("Request Body =>\n").append(requestBody);
         }
-        log.info(sb.toString());
+        log.info(reduceEmptyLines(sb));
     }
 
 }

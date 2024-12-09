@@ -88,8 +88,6 @@ public class ToJson {
     }
 
     public static <T> List<T> fromJsonList(String string, Class<T> valueType) {
-        System.out.println("sout");
-        System.out.println(string);
         List<T> list = null;
         if (string == null || string.isEmpty()) {
             throw new IllegalArgumentException("JSON array cannot be null or empty");

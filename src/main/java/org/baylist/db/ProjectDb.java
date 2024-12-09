@@ -15,15 +15,15 @@ public class ProjectDb {
     private List<SectionDb> sections;
 
     @Override
-    public String toString() { //todo прикрутить красивый markdown вывод
+    public String toString() {
         List<Task> tasksWithoutSections = getTasksWithoutSection();
         StringBuilder sb = new StringBuilder();
-        sb.append(project.getName()).append("\n");
-        sb.append("  задачи не нашедшие категорий:").append("\n");
-        tasksWithoutSections.forEach(t -> sb.append("    - ").append(t.getContent()).append("\n"));
+        sb.append("<b>").append(project.getName()).append("</b>").append("\n");
+        sb.append("  <code>задачи не нашедшие категорий:</code>").append("\n");
+        tasksWithoutSections.forEach(t -> sb.append("    - ").append("<i>").append(t.getContent()).append("</i>").append("\n"));
         sections.forEach(s -> {
-            sb.append("\n").append(" ↘").append(s.getSection().getName()).append("\n");
-            s.getTasks().forEach(t -> sb.append("      - ").append(t.getContent()).append("\n"));
+            sb.append("\n").append(" ↘").append("<code>").append(s.getSection().getName()).append("</code>").append("\n");
+            s.getTasks().forEach(t -> sb.append("      - ").append("<i>").append(t.getContent()).append("</i>").append("\n"));
         });
 
         return sb.toString();

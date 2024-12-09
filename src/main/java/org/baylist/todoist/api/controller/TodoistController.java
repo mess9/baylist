@@ -35,7 +35,7 @@ public class TodoistController implements Todoist {
 
     private final RestClient restClient;
 
-//region GET
+    //region GET
 
     @Override
     public List<Project> getProjects() { // done
@@ -66,6 +66,9 @@ public class TodoistController implements Todoist {
                         .build()
                         .toUriString())
                 .retrieve()
+                .onStatus(HttpStatusCode::isError, ((request, response) -> {
+                    throw new TodoistApiException(response);
+                }))
                 .body(Project.class);
     }
 
@@ -79,6 +82,9 @@ public class TodoistController implements Todoist {
                         .build()
                         .toUriString())
                 .retrieve()
+                .onStatus(HttpStatusCode::isError, ((request, response) -> {
+                    throw new TodoistApiException(response);
+                }))
                 .body(new ParameterizedTypeReference<>() {
                 });
     }
