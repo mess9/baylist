@@ -31,7 +31,9 @@ class TodoistGetTest extends BaseTest {
     @Test
     void getProjectById() {
         List<Project> projects = todoistController.getProjects();
-        Project project = todoistController.getProject(Long.parseLong(projects.getFirst().getId()));
+        System.out.println(projects);
+        long l = Long.parseLong(projects.getFirst().getId());
+        Project project = todoistController.getProject(l);
 
         assertThat(project).isNotNull();
     }

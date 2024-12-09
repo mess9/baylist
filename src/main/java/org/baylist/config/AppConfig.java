@@ -11,11 +11,11 @@ import org.springframework.web.client.RestClient;
 @Configuration
 public class AppConfig {
 
+    public static final boolean RESPONSE_LOG = false;
 
-    @Bean
+    @Bean //todo добавить реализацию на RestTemplate
     public RestClient todoistRestClient(@Value("${todoist.baseUrl}") String baseUrl,
                                         @Value("${todoist.token}") String token) {
-        //todo прикрутить логгирование ответов
         return RestClient
                 .builder()
                 .baseUrl(baseUrl)
@@ -27,5 +27,7 @@ public class AppConfig {
                 .build();
     }
 
-
 }
+
+
+

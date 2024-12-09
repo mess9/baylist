@@ -18,6 +18,7 @@ import static org.baylist.util.log.TgLog.outputLog;
 public class TelegramChat {
 
     private TodoistService todoist;
+    private Command command;
 
     private static void sendMessage(TelegramClient telegramClient, SendMessage message) {
         try {
@@ -28,7 +29,7 @@ public class TelegramChat {
     }
 
     public void chat(Update update, TelegramClient telegramClient) {
-        String message_text = update.getMessage().getText();
+        String updateMessage = update.getMessage().getText();
         long chat_id = update.getMessage().getChatId();
         inputLog(update);
 
@@ -36,19 +37,13 @@ public class TelegramChat {
             todoist.syncBuyListData();
         }
         SendMessage message;
-        String text;
+        String text = "";
 
-        //todo для обработки команд применить https://refactoring.guru/ru/design-patterns/chain-of-responsibility/java/example
-        switch (message_text) {
-            case "/clear" -> text = todoist.clearBuyList(); //todo спрашивать подтверждение действия кнопками
-            case "/view" -> text = todoist.getBuylistProject();
-            case "/sync" -> {
-                todoist.syncBuyListData();
-                text = "данные синхронизированы с todoist";
-            }
-            default -> text = todoist.sendTaskToTodoist(message_text);
+        //todo для обработки чата применить https://refactoring.guru/ru/design-patterns/chain-of-responsibility/java/example
+        text = command.commandHandler(updateMessage);
+        if (text.isEmpty()) {
+            text = todoist.sendTaskToTodoist(updateMessage);
         }
-
 
         message = SendMessage.builder()
                 .chatId(chat_id)
