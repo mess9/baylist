@@ -95,6 +95,5 @@ public class Repository {
                 .findAny();
     }
 
-    //todo нужен метод diff - для проверки изменений на той или иной стороне
 
 }

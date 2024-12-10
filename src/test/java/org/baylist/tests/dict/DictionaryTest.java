@@ -32,4 +32,16 @@ public class DictionaryTest extends BaseTest {
         System.out.println(stringSetMap);
     }
 
+    @Test
+    void parse2() {
+        Map<String, Set<String>> stringSetMap = dictionaryService.parseInputBuyList("""
+                вб
+                морковка
+                фанера
+                вб
+                """);
+        System.out.println("---------");
+        System.out.println(stringSetMap);
+    }
+
 }

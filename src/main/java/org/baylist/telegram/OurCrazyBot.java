@@ -13,6 +13,8 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
+import static org.baylist.util.log.TgLog.outputLog;
+
 
 @Component
 @Slf4j
@@ -29,6 +31,14 @@ public class OurCrazyBot implements SpringLongPollingBot, LongPollingSingleThrea
         this.button = button;
     }
 
+    public static void sendMessageToTelegram(SendMessage message, TelegramClient telegramClient) {
+        try {
+            telegramClient.execute(message); // Отправляем сообщение
+        } catch (TelegramApiException e) {
+            log.error(e.getMessage());
+        }
+    }
+
     @Override
     public String getBotToken() {
         return TOKEN_TG;
@@ -39,38 +49,52 @@ public class OurCrazyBot implements SpringLongPollingBot, LongPollingSingleThrea
         return this;
     }
 
-    public static void sendMessage(SendMessage message, TelegramClient telegramClient) {
-        try {
-            telegramClient.execute(message); // Отправляем сообщение
-        } catch (TelegramApiException e) {
-            log.error(e.getMessage());
-        }
-    }
-
     @Override
     public void consume(Update update) {
+        SendMessage message = null;
         // todo
-        //  1. получить текущее состояние из тудуиста (желательно делать один раз в начале разговора, или если там пусто) - done
-        //  2. сделать кнопку - текущие задачи - при нажатии на которую будет выведена структура проекта buylist
-        //  3. кнопочка - добавить задачи - и написать добавление задач в проект buylist
-        //  3.5 кнопочка - добавить задачи - и написать добавление задач в проект buylist, с разбитием на категории(сравнивая по словарю)
-        //  не нашедшееся в словаре записывать вне категории
-        //  4. сделать команду которой можно дополнять словарь
-        //  5. ...
-        //  6. profit!
+        //  4. сделать команду/кнопку которой можно дополнять словарь
+        //  13. при добавлении новых категорий, производить перемещение внекатегорийных задач в добавленную категорию
+        //  7. нотификации о том что в тудуист кто-то что-то добавил (нужна бд)
+        //  8. инлайн способ взаимодействия
+        //  9. возможность работать не только с филом, а разделение на пользователей (нужна бд)
+        //  10. кнопки и состояния чата для большей интерактивности
+        //  11. нотификации о том что было бы неплохо таки сходить
+        //  12. прикрутить ai, шоб совсем модно было
+
 
         if (update.hasMessage() && update.getMessage().hasText()) {
-            telegramChat.chat(update, telegramClient);
-//            button.buttons(update, telegramClient); //возможно кнопки следует всунуть в чат, а не сюда. пока хз, пока они нужны только в рамках п.2
-
+            message = emptySendMessage(update);
+            message = telegramChat.chat(update, message);
         }
+        if (update.hasCallbackQuery()) {
+            // тут будет про кнопки
+        }
+//        button.buttons(update, telegramClient);
 
+        sendMessageToTelegram(message);
+    }
 
+    private SendMessage emptySendMessage(Update update) {
+        if (update.hasMessage() && update.getMessage().hasText()) {
+            return SendMessage.builder().text("").chatId(update.getMessage().getChatId()).build();
+        } else {
+            return SendMessage.builder().text("").chatId(update.getCallbackQuery().getMessage().getChatId()).build();
+        }
     }
 
     @AfterBotRegistration
     public void afterRegistration(BotSession botSession) { //todo - разобраться бы что это такое и зачем.
         System.out.println("Registered bot running state is: " + botSession.isRunning());
+    }
+
+    //private
+    private void sendMessageToTelegram(SendMessage message) {
+        try {
+            telegramClient.execute(outputLog(message));
+        } catch (TelegramApiException e) {
+            log.error(e.getMessage());
+        }
     }
 
 

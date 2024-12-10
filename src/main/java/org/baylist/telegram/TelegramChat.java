@@ -6,11 +6,8 @@ import org.baylist.service.TodoistService;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 import static org.baylist.util.log.TgLog.inputLog;
-import static org.baylist.util.log.TgLog.outputLog;
 
 @Component
 @Slf4j
@@ -18,38 +15,23 @@ import static org.baylist.util.log.TgLog.outputLog;
 public class TelegramChat {
 
     private TodoistService todoist;
+    private Command command;
 
-    private static void sendMessage(TelegramClient telegramClient, SendMessage message) {
-        try {
-            telegramClient.execute(outputLog(message));
-        } catch (TelegramApiException e) {
-            TelegramChat.log.error(e.getMessage());
-        }
-    }
-
-    public void chat(Update update, TelegramClient telegramClient) {
-        String message_text = update.getMessage().getText();
-        long chat_id = update.getMessage().getChatId();
+    public SendMessage chat(Update update, SendMessage message) {
+        String updateMessage = update.getMessage().getText();
         inputLog(update);
 
         if (todoist.storageIsEmpty()) {
-            todoist.syncData();
-        }
-        SendMessage message;
-        String text;
-
-        if (message_text.equals("/clear")) {
-            text = todoist.clearBuyList();
-        } else {
-            text = todoist.sendTaskToTodoist(message_text);
+            todoist.syncBuyListData();
         }
 
-
-        message = SendMessage.builder()
-                .chatId(chat_id)
-                .text(text)
-                .build();
-        sendMessage(telegramClient, message);
+        //todo для обработки чата применить https://refactoring.guru/ru/design-patterns/chain-of-responsibility/java/example
+        message = command.commandHandler(updateMessage, message);
+        if (message.getText().isEmpty()) {
+            message = todoist.sendTaskToTodoist(updateMessage, message);
+        }
+        return message;
     }
+
 
 }

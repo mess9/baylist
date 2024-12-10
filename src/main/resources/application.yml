@@ -1,7 +1,12 @@
-#logging:
-#  level:
+logging:
+  level:
+    root: info
 #    root: debug
+
 
 todoist:
   baseUrl: https://api.todoist.com/rest/v2
   token: ${TOKEN_TODOIST}
+
+restClient:
+  responseLog: true
