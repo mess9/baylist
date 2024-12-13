@@ -1,26 +1,15 @@
 steps:
-  - name: 'gcr.io/cloudbuild/docker'
-    args:
-      - 'build'
-      - '-t'
-      - 'gcr.io/key-charmer-444222-i1/buylist:latest'
-      - '.'
-  - name: 'gcr.io/cloudbuild/docker'
-    args:
-      - 'push'
-      - 'gcr.io/key-charmer-444222-i1/buylist:latest'
-  - name: 'gcr.io/cloudbuild/docker'
-    args:
-      - 'run'
-      - '-d'
-      - '-p'
-      - '8080:8080'
-      - '--name'
-      - 'buylist'
-      - 'gcr.io/key-charmer-444222-i1/buylist:latest'
+  - name: maven:3.9.9-amazoncorretto-21-alpine
+    entrypoint: mvn
+    args: [ 'package', '-DskipTests' ]
 
-images:
-  - 'gcr.io/key-charmer-444222-i1/buylist:latest'
+artifacts:
+  mavenArtifacts:
+    - repository: 'https://europe-west6-maven.pkg.dev/key-charmer-444222-i1/cloud-run-source-deploy'
+      path: '/app.jar'
+      artifactId: 'buylist'
+      groupId: 'org.baylist'
+      version: '0.0.2'
 
 timeout: '1200s'
 
