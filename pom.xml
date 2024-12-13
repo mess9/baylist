@@ -21,6 +21,7 @@
     <properties>
         <java.version>21</java.version>
         <telegram.api.version>7.10.0</telegram.api.version>
+        <jackson.version>2.18.1</jackson.version>
         <aspectj.version>1.9.22.1</aspectj.version>
         <allure.version>2.28.0</allure.version>
         <allure-maven.version>2.12.0</allure-maven.version>
@@ -37,6 +38,18 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+
+        <!--DB-->
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <!--            <version>42.7.4</version>-->
+        </dependency>
+
 
         <!--utils-->
         <dependency>
@@ -47,7 +60,7 @@
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-jsr310</artifactId>
-            <version>2.18.1</version>
+            <version>${jackson.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -90,6 +103,7 @@
             <artifactId>assertj-core</artifactId>
             <scope>test</scope>
         </dependency>
+
         <!--allure-->
         <dependency>
             <groupId>io.qameta.allure</groupId>

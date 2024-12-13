@@ -5,13 +5,25 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.web.client.RestClient;
+
+import javax.sql.DataSource;
 
 @EnableAspectJAutoProxy
 @Configuration
 public class AppConfig {
 
     public static final boolean RESPONSE_LOG = false;
+    @Value("${spring.datasource.url}")
+    private String datasourceUrl;
+    @Value("${spring.datasource.username}")
+    private String datasourceUsername;
+    @Value("${spring.datasource.password}")
+    private String datasourcePassword;
+    @Value("${spring.datasource.driver-class-name}")
+    private String datasourceDriverClassName;
+
 
     @Bean //todo добавить реализацию на RestTemplate
     public RestClient todoistRestClient(@Value("${todoist.baseUrl}") String baseUrl,
@@ -25,6 +37,16 @@ public class AppConfig {
                 })
                 .requestInterceptor(new RestLog())
                 .build();
+    }
+
+    @Bean
+    public DataSource dataSource() {
+        DriverManagerDataSource dataSource = new DriverManagerDataSource();
+        dataSource.setDriverClassName(datasourceDriverClassName);
+        dataSource.setUrl(datasourceUrl);
+        dataSource.setUsername(datasourceUsername);
+        dataSource.setPassword(datasourcePassword);
+        return dataSource;
     }
 
 }
