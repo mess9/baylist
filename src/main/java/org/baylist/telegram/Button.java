@@ -10,7 +10,7 @@ import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 import java.util.List;
 
-//import static org.baylist.telegram.OurCrazyBot.sendMessageToTelegram;
+import static org.baylist.telegram.OurCrazyBot.sendMessageToTelegram;
 
 @Component
 public class Button {
@@ -99,7 +99,7 @@ public class Button {
                     .replyMarkup(markup)
                     .build();
 
-//            sendMessageToTelegram(message, telegramClient);
+            sendMessageToTelegram(message, telegramClient);
         }
 
 
@@ -117,7 +117,7 @@ public class Button {
                     .text("**хуй**")
                     .build();
 
-//            sendMessageToTelegram(message, telegramClient);
+            sendMessageToTelegram(message, telegramClient);
         }
     }
 
