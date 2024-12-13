@@ -8,10 +8,7 @@ public class BayListApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(BayListApplication.class, args);
-		System.out.println("Hello World!");
-		System.out.println("Hello World!");
-		System.out.println("Hello World!");
-		System.out.println("Hello World!");
+		System.out.println("buylist started");
 	}
 
 
