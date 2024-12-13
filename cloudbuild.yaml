@@ -2,14 +2,9 @@ steps:
   - name: maven:3.9.9-amazoncorretto-21-alpine
     entrypoint: mvn
     args: [ 'package', '-DskipTests' ]
-
-artifacts:
-  mavenArtifacts:
-    - repository: 'https://europe-west6-maven.pkg.dev/key-charmer-444222-i1/cloud-run-source-deploy'
-      path: 'baylist-0.0.2.jar'
-      artifactId: 'buylist'
-      groupId: 'org.baylist'
-      version: '0.0.2'
+  - name: gcr.io/cloud-builders/docker
+    args: [ 'build', '-t', 'europe-west6-docker.pkg.dev/key-charmer-444222-i1/cloud-run-source-deploy/buylist', '--build-arg=JAR_FILE=target/buylist', '.' ]
+images: [ 'europe-west6-docker.pkg.dev/key-charmer-444222-i1/cloud-run-source-deploy/buylist' ]
 
 timeout: '1200s'
 
