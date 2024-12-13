@@ -10,3 +10,26 @@ todoist:
 
 restClient:
   responseLog: true
+
+dictionary:
+  path: /app/resources/dict/dictionary.yml
+
+management:
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+livenessProbe:
+  httpGet:
+    path: /actuator/health/liveness
+    port: 8080
+  failureThreshold: 3
+  periodSeconds: 10
+
+readinessProbe:
+  httpGet:
+    path: /actuator/health/readiness
+    port: 8080
+  failureThreshold: 5
+  periodSeconds: 5
