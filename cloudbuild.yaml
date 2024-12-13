@@ -25,7 +25,7 @@ images:
 timeout: '1200s'
 
 options:
-  logging: NONE
+  logging: CLOUD_LOGGING_ONLY
 
 # Optional: Use a custom service account for build steps
 serviceAccount: 'projects/key-charmer-444222-i1/serviceAccounts/339598143858-compute@developer.gserviceaccount.com'
