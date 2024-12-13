@@ -1,0 +1,31 @@
+steps:
+  - name: 'gcr.io/cloudbuild/docker'
+    args:
+      - 'build'
+      - '-t'
+      - 'gcr.io/key-charmer-444222-i1/buylist:latest'
+      - '.'
+  - name: 'gcr.io/cloudbuild/docker'
+    args:
+      - 'push'
+      - 'gcr.io/key-charmer-444222-i1/buylist:latest'
+  - name: 'gcr.io/cloudbuild/docker'
+    args:
+      - 'run'
+      - '-d'
+      - '-p'
+      - '8080:8080'
+      - '--name'
+      - 'buylist'
+      - 'gcr.io/key-charmer-444222-i1/buylist:latest'
+
+images:
+  - 'gcr.io/key-charmer-444222-i1/buylist:latest'
+
+timeout: '1200s'
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+
+# Optional: Use a custom service account for build steps
+serviceAccount: 'projects/key-charmer-444222-i1/serviceAccounts/339598143858-compute@developer.gserviceaccount.com'
