@@ -6,7 +6,7 @@ steps:
 artifacts:
   mavenArtifacts:
     - repository: 'https://europe-west6-maven.pkg.dev/key-charmer-444222-i1/cloud-run-source-deploy'
-      path: 'app.jar'
+      path: 'baylist-0.0.2.jar'
       artifactId: 'buylist'
       groupId: 'org.baylist'
       version: '0.0.2'
