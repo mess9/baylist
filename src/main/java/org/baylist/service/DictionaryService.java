@@ -3,10 +3,12 @@ package org.baylist.service;
 import lombok.Getter;
 import org.baylist.dto.dict.BuyCategoryDict;
 import org.baylist.exception.DictionaryException;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -21,23 +23,22 @@ import static org.baylist.util.convert.ToJson.fromYaml;
 @Component
 public class DictionaryService {
 
-    private static final String dictFilePath = "src/main/resources/dict/dictionary.yml";
-    private final BuyCategoryDict buyCategoryDict;
+    private static final String dictFilePath = "dict/dictionary.yml";
+    //    private static final String dictFilePath = "src/main/resources/dict/dictionary.yml";
+    private BuyCategoryDict buyCategoryDict;
 
     //todo добавить механизм пополнения словарика из телеги
 
     public DictionaryService() {
         try {
-            try {
-                buyCategoryDict = fromYaml(Files.readString(Path.of(dictFilePath)), BuyCategoryDict.class);
-            } catch (Exception e) {
-                throw new DictionaryException("invalid yaml\n" + e.getMessage());
-            }
+            ClassPathResource resource = new ClassPathResource(dictFilePath);
+            Path path = Paths.get(resource.getURI());
+            buyCategoryDict = fromYaml(Files.readString(path), BuyCategoryDict.class);
         } catch (Exception e) {
-            throw new DictionaryException("dictionary not found\n" + e.getMessage());
+            throw new DictionaryException("invalid yaml\n" + e.getMessage());
         }
-
     }
+
 
     public Map<String, Set<String>> parseInputBuyList(String input) {
         Map<String, Set<String>> buyList = new HashMap<>();
