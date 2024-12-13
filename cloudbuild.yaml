@@ -4,7 +4,19 @@ steps:
     args: [ 'package', '-DskipTests' ]
   - name: gcr.io/cloud-builders/docker
     args: [ 'build', '-t', 'europe-west6-docker.pkg.dev/key-charmer-444222-i1/cloud-run-source-deploy/buylist', '--build-arg=JAR_FILE=target/buylist', '.' ]
-images: [ 'europe-west6-docker.pkg.dev/key-charmer-444222-i1/cloud-run-source-deploy/buylist' ]
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [ 'build', '-t', 'gcr.io/key-charmer-444222-i1/buylist', '.' ]
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [ 'push', 'gcr.io/key-charmer-444222-i1/buylist' ]
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args: [ 'run', 'deploy', 'buylist', '--image', 'gcr.io/key-charmer-444222-i1/buylist', '--region', 'europe-west6' ]
+images:
+  - europe-west6-docker.pkg.dev/key-charmer-444222-i1/cloud-run-source-deploy/buylist
+  - gcr.io/key-charmer-444222-i1/buylist
+
+
+
 
 timeout: '1200s'
 
