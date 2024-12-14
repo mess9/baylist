@@ -57,7 +57,7 @@ public class AppConfig {
             System.out.println(googleConnect);
             dataSource.setUrl(googleConnect);
             System.out.println("local");
-            dataSource.setUrl(datasourceUrl);
+//            dataSource.setUrl(datasourceUrl);
 
         dataSource.setDriverClassName(datasourceDriverClassName);
         dataSource.setUsername(datasourceUsername);
