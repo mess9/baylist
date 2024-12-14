@@ -43,26 +43,26 @@ public class AppConfig {
 
     @Bean
     public DataSource dataSource() {
+        String environment = System.getenv("ENVIRONMENT");
+        if (environment != null && environment.equals("cloud")) {
+
+        }
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
         System.out.println("коннект к базе данных");
         System.out.println(datasourceUrl);
         System.out.println(datasourceUrlCloud);
-        String environment = System.getenv("ENVIRONMENT");
-        if (environment != null && environment.equals("cloud")) {
-            System.out.println("cloud");
             String googleConnect = "jdbc:postgresql://" +
-                    System.getenv("INSTANCE_HOST") + ":" +
-                    System.getenv("DB_PORT") + "/buylistdb";
+                    "key-charmer-444222-i1:europe-west6:buylistdb"
+                    + "/buylistdb";
             System.out.println(googleConnect);
             dataSource.setUrl(googleConnect);
-        } else {
             System.out.println("local");
             dataSource.setUrl(datasourceUrl);
-        }
 
         dataSource.setDriverClassName(datasourceDriverClassName);
         dataSource.setUsername(datasourceUsername);
         dataSource.setPassword(datasourcePassword);
+
         return dataSource;
     }
 
