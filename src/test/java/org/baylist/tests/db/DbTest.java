@@ -1,7 +1,7 @@
 package org.baylist.tests.db;
 
-import org.baylist.db.YourEntityRepository;
-import org.baylist.dto.db.YourEntity;
+import org.baylist.db.entity.Entity;
+import org.baylist.db.repo.EntityRepository;
 import org.baylist.tests.BaseTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,13 +9,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class DbTest extends BaseTest {
 
     @Autowired
-    YourEntityRepository yourEntityRepository;
+    EntityRepository entityRepository;
 
     @Test
     void test() {
-        YourEntity yourEntity = new YourEntity();
-        yourEntity.setName("test");
-        yourEntityRepository.save(yourEntity);
+        Entity entity = new Entity();
+        entity.setName("test");
+        entityRepository.save(entity);
 
     }
 

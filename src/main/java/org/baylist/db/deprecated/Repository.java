@@ -1,4 +1,4 @@
-package org.baylist.db;
+package org.baylist.db.deprecated;
 
 import org.baylist.dto.todoist.Project;
 import org.baylist.dto.todoist.Section;

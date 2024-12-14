@@ -2,9 +2,9 @@ package org.baylist.service;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.baylist.db.ProjectDb;
-import org.baylist.db.Repository;
-import org.baylist.db.SectionDb;
+import org.baylist.db.deprecated.ProjectDb;
+import org.baylist.db.deprecated.Repository;
+import org.baylist.db.deprecated.SectionDb;
 import org.baylist.dto.telegram.Commands;
 import org.baylist.dto.todoist.Project;
 import org.baylist.dto.todoist.Section;

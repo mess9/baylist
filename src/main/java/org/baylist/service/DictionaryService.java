@@ -1,6 +1,10 @@
 package org.baylist.service;
 
 import lombok.Getter;
+import org.baylist.db.entity.Category;
+import org.baylist.db.entity.Variant;
+import org.baylist.db.repo.CategoryRepository;
+import org.baylist.db.repo.VariantRepository;
 import org.baylist.dto.dict.BuyCategoryDict;
 import org.baylist.exception.DictionaryException;
 import org.springframework.core.io.ClassPathResource;
@@ -24,16 +28,22 @@ import static org.baylist.util.convert.ToJson.fromYaml;
 public class DictionaryService {
 
     private static final String dictFilePath = "dict/dictionary.yml";
+    private CategoryRepository categoryRepository;
+    private VariantRepository variantRepository;
     //    private static final String dictFilePath = "src/main/resources/dict/dictionary.yml";
     private BuyCategoryDict buyCategoryDict;
 
     //todo добавить механизм пополнения словарика из телеги
 
-    public DictionaryService() {
+    public DictionaryService(
+            CategoryRepository categoryRepository,
+            VariantRepository variantRepository) {
         try {
             ClassPathResource resource = new ClassPathResource(dictFilePath);
             Path path = Paths.get(resource.getURI());
             buyCategoryDict = fromYaml(Files.readString(path), BuyCategoryDict.class);
+            this.categoryRepository = categoryRepository;
+            this.variantRepository = variantRepository;
         } catch (Exception e) {
             throw new DictionaryException("invalid yaml\n" + e.getMessage());
         }
@@ -55,6 +65,28 @@ public class DictionaryService {
         });
 
         return buyList;
+    }
+
+    public void fillCategoriesFromDictFile() {
+        buyCategoryDict.getDict().forEach((category, words) -> {
+            Category dbCategory = categoryRepository.findByName(category);
+            if (dbCategory == null) {
+                dbCategory = new Category();
+                dbCategory.setName(category);
+                dbCategory = categoryRepository.save(dbCategory);
+            }
+            Category finalDbCategory = dbCategory;
+            words.forEach(word -> {
+                Variant dbVariant = variantRepository.findByNameAndCategoryId(word, finalDbCategory.getId());
+                if (dbVariant == null) {
+                    dbVariant = new Variant();
+                    dbVariant.setName(word);
+                    dbVariant.setCategory(finalDbCategory);
+                    variantRepository.save(dbVariant);
+                }
+            });
+        });
+
     }
 
     private List<String> splitInput(String input) {

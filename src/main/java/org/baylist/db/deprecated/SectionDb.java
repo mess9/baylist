@@ -1,4 +1,4 @@
-package org.baylist.db;
+package org.baylist.db.deprecated;
 
 import lombok.Data;
 import org.baylist.dto.todoist.Section;

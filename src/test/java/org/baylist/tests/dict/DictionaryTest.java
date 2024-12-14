@@ -44,4 +44,9 @@ public class DictionaryTest extends BaseTest {
         System.out.println(stringSetMap);
     }
 
+    @Test
+    void fillDb() {
+        dictionaryService.fillCategoriesFromDictFile();
+    }
+
 }
