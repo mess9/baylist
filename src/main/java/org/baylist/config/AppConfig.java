@@ -17,6 +17,8 @@ public class AppConfig {
     public static final boolean RESPONSE_LOG = false;
     @Value("${spring.datasource.url}")
     private String datasourceUrl;
+    @Value("${spring.datasource.urlCloud}")
+    private String datasourceUrlCloud;
     @Value("${spring.datasource.username}")
     private String datasourceUsername;
     @Value("${spring.datasource.password}")
@@ -42,8 +44,14 @@ public class AppConfig {
     @Bean
     public DataSource dataSource() {
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
+        String environment = System.getenv("ENVIRONMENT");
+        if (environment != null && environment.equals("cloud")) {
+            dataSource.setUrl(datasourceUrlCloud);
+        } else {
+            dataSource.setUrl(datasourceUrl);
+        }
+
         dataSource.setDriverClassName(datasourceDriverClassName);
-        dataSource.setUrl(datasourceUrl);
         dataSource.setUsername(datasourceUsername);
         dataSource.setPassword(datasourcePassword);
         return dataSource;

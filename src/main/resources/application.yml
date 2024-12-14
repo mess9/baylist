@@ -16,6 +16,7 @@ spring:
       - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
   datasource:
     url: jdbc:postgresql://34.32.11.131:5432/testdb
+    urlCloud: jdbc:postgresql://10.126.129.3:5432/testdb
     username: postdb
     password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
