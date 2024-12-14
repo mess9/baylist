@@ -74,7 +74,7 @@ public class AppConfig {
         if (environment != null && environment.equals("cloud")) {
             HikariConfig config = new HikariConfig();
 
-            config.setJdbcUrl("jdbc:postgresql://127.0.0.1:5432/buylistdb");
+            config.setJdbcUrl("jdbc:postgresql:///buylistdb");
             config.setUsername(datasourceUsername);
             config.setPassword(datasourcePassword);
             config.setDriverClassName(datasourceDriverClassName);
