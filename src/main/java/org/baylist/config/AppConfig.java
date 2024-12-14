@@ -1,5 +1,7 @@
 package org.baylist.config;
 
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 import org.baylist.util.log.RestLog;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -41,29 +43,56 @@ public class AppConfig {
                 .build();
     }
 
+//    @Bean
+//    public DataSource dataSource() {
+//        String environment = System.getenv("ENVIRONMENT");
+//        if (environment != null && environment.equals("cloud")) {
+//
+//        }
+//        DriverManagerDataSource dataSource = new DriverManagerDataSource();
+//        System.out.println("коннект к базе данных");
+//        System.out.println(datasourceUrl);
+//        System.out.println(datasourceUrlCloud);
+//            String googleConnect = "jdbc:postgresql://" +
+//                    "key-charmer-444222-i1:europe-west6:buylistdb"
+//                    + "/buylistdb";
+//            System.out.println(googleConnect);
+//            dataSource.setUrl(googleConnect);
+//            System.out.println("local");
+////            dataSource.setUrl(datasourceUrl);
+//
+//        dataSource.setDriverClassName(datasourceDriverClassName);
+//        dataSource.setUsername(datasourceUsername);
+//        dataSource.setPassword(datasourcePassword);
+//
+//        return dataSource;
+//    }
+
     @Bean
     public DataSource dataSource() {
         String environment = System.getenv("ENVIRONMENT");
         if (environment != null && environment.equals("cloud")) {
+            HikariConfig config = new HikariConfig();
 
+            config.setJdbcUrl("jdbc:postgresql:///buylistdb");
+            config.setUsername(datasourceUsername);
+            config.setPassword(datasourcePassword);
+            config.setDriverClassName(datasourceDriverClassName);
+            config.addDataSourceProperty("socketFactory", "com.google.cloud.sql.postgres.SocketFactory");
+            config.addDataSourceProperty("cloudSqlInstance", System.getenv("INSTANCE_CONNECTION_NAME"));
+            config.addDataSourceProperty("ipTypes", "PUBLIC,PRIVATE");
+
+            return new HikariDataSource(config);
+        } else {
+            DriverManagerDataSource dataSource = new DriverManagerDataSource();
+
+            dataSource.setUrl(datasourceUrl);
+            dataSource.setDriverClassName(datasourceDriverClassName);
+            dataSource.setUsername(datasourceUsername);
+            dataSource.setPassword(datasourcePassword);
+
+            return dataSource;
         }
-        DriverManagerDataSource dataSource = new DriverManagerDataSource();
-        System.out.println("коннект к базе данных");
-        System.out.println(datasourceUrl);
-        System.out.println(datasourceUrlCloud);
-            String googleConnect = "jdbc:postgresql://" +
-                    "key-charmer-444222-i1:europe-west6:buylistdb"
-                    + "/buylistdb";
-            System.out.println(googleConnect);
-            dataSource.setUrl(googleConnect);
-            System.out.println("local");
-//            dataSource.setUrl(datasourceUrl);
-
-        dataSource.setDriverClassName(datasourceDriverClassName);
-        dataSource.setUsername(datasourceUsername);
-        dataSource.setPassword(datasourcePassword);
-
-        return dataSource;
     }
 
 }
