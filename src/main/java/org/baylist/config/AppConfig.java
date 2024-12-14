@@ -50,7 +50,11 @@ public class AppConfig {
         String environment = System.getenv("ENVIRONMENT");
         if (environment != null && environment.equals("cloud")) {
             System.out.println("cloud");
-            dataSource.setUrl(datasourceUrlCloud);
+            String googleConnect = "jdbc:postgresql://" +
+                    System.getenv("INSTANCE_HOST") + ":" +
+                    System.getenv("DB_PORT") + "/buylistdb";
+            System.out.println(googleConnect);
+            dataSource.setUrl(googleConnect);
         } else {
             System.out.println("local");
             dataSource.setUrl(datasourceUrl);
