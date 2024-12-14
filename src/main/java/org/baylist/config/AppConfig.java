@@ -19,8 +19,6 @@ public class AppConfig {
     public static final boolean RESPONSE_LOG = false;
     @Value("${spring.datasource.url}")
     private String datasourceUrl;
-    @Value("${spring.datasource.urlCloud}")
-    private String datasourceUrlCloud;
     @Value("${spring.datasource.username}")
     private String datasourceUsername;
     @Value("${spring.datasource.password}")
@@ -42,31 +40,6 @@ public class AppConfig {
                 .requestInterceptor(new RestLog())
                 .build();
     }
-
-//    @Bean
-//    public DataSource dataSource() {
-//        String environment = System.getenv("ENVIRONMENT");
-//        if (environment != null && environment.equals("cloud")) {
-//
-//        }
-//        DriverManagerDataSource dataSource = new DriverManagerDataSource();
-//        System.out.println("коннект к базе данных");
-//        System.out.println(datasourceUrl);
-//        System.out.println(datasourceUrlCloud);
-//            String googleConnect = "jdbc:postgresql://" +
-//                    "key-charmer-444222-i1:europe-west6:buylistdb"
-//                    + "/buylistdb";
-//            System.out.println(googleConnect);
-//            dataSource.setUrl(googleConnect);
-//            System.out.println("local");
-////            dataSource.setUrl(datasourceUrl);
-//
-//        dataSource.setDriverClassName(datasourceDriverClassName);
-//        dataSource.setUsername(datasourceUsername);
-//        dataSource.setPassword(datasourcePassword);
-//
-//        return dataSource;
-//    }
 
     @Bean
     public DataSource dataSource() {
