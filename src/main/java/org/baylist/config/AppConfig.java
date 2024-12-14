@@ -74,13 +74,13 @@ public class AppConfig {
         if (environment != null && environment.equals("cloud")) {
             HikariConfig config = new HikariConfig();
 
-            config.setJdbcUrl("jdbc:postgresql:///buylistdb");
+            config.setJdbcUrl("jdbc:postgresql://127.0.0.1:5432/buylistdb");
             config.setUsername(datasourceUsername);
             config.setPassword(datasourcePassword);
             config.setDriverClassName(datasourceDriverClassName);
-            config.addDataSourceProperty("socketFactory", "com.google.cloud.sql.postgres.SocketFactory");
-            config.addDataSourceProperty("cloudSqlInstance", System.getenv("INSTANCE_CONNECTION_NAME"));
-            config.addDataSourceProperty("ipTypes", "PUBLIC,PRIVATE");
+//            config.addDataSourceProperty("socketFactory", "com.google.cloud.sql.postgres.SocketFactory");
+//            config.addDataSourceProperty("cloudSqlInstance", System.getenv("INSTANCE_CONNECTION_NAME"));
+//            config.addDataSourceProperty("ipTypes", "PUBLIC,PRIVATE");
 
             return new HikariDataSource(config);
         } else {
