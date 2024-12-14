@@ -78,9 +78,9 @@ public class AppConfig {
             config.setUsername(datasourceUsername);
             config.setPassword(datasourcePassword);
             config.setDriverClassName(datasourceDriverClassName);
-//            config.addDataSourceProperty("socketFactory", "com.google.cloud.sql.postgres.SocketFactory");
-//            config.addDataSourceProperty("cloudSqlInstance", System.getenv("INSTANCE_CONNECTION_NAME"));
-//            config.addDataSourceProperty("ipTypes", "PUBLIC,PRIVATE");
+            config.addDataSourceProperty("socketFactory", "com.google.cloud.sql.postgres.SocketFactory");
+            config.addDataSourceProperty("cloudSqlInstance", System.getenv("INSTANCE_CONNECTION_NAME"));
+            config.addDataSourceProperty("ipTypes", "PUBLIC,PRIVATE");
 
             return new HikariDataSource(config);
         } else {
