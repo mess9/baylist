@@ -44,10 +44,15 @@ public class AppConfig {
     @Bean
     public DataSource dataSource() {
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
+        System.out.println("коннект к базе данных");
+        System.out.println(datasourceUrl);
+        System.out.println(datasourceUrlCloud);
         String environment = System.getenv("ENVIRONMENT");
         if (environment != null && environment.equals("cloud")) {
+            System.out.println("cloud");
             dataSource.setUrl(datasourceUrlCloud);
         } else {
+            System.out.println("local");
             dataSource.setUrl(datasourceUrl);
         }
 
