@@ -4,8 +4,6 @@ import lombok.AllArgsConstructor;
 import org.baylist.dto.telegram.Callbacks;
 import org.baylist.service.TodoistService;
 import org.springframework.stereotype.Component;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.objects.Update;
 
 import static org.baylist.util.log.TgLog.inputLogButton;
 
@@ -23,26 +21,23 @@ public class Button {
 	// - в название влезает 56 символов
 	// - 41 символ если с телефона
 
-	public SendMessage buttons(Update update) {
-		String data = update.getCallbackQuery().getData();
-		SendMessage message = SendMessage.builder().text("").chatId(update.getCallbackQuery().getMessage().getChatId()).build();
-		inputLogButton(update);
+	public void buttons(ChatState chatState) {
+		String data = chatState.getUpdate().getCallbackQuery().getData();
+		inputLogButton(chatState.getUpdate());
 
 		if (data.equals(Callbacks.CANCEL.getCallbackData())) {
-			cancel(message);
+			cancel(chatState);
 		} else if (data.equals(Callbacks.APPROVE.getCallbackData())) {
-			approve(message);
+			approve(chatState);
 		}
-
-		return message;
 	}
 
-	private void cancel(SendMessage message) {
-		message.setText("ну ошибся, бывает, со всеми случается, не переживай ты так");
+	private void cancel(ChatState chatState) {
+		chatState.getMessage().setText("ну ошибся, бывает, со всеми случается, не переживай ты так");
 	}
 
-	private void approve(SendMessage message) {
-		message.setText(todoist.clearBuyList());
+	private void approve(ChatState chatState) {
+		chatState.getMessage().setText(todoist.clearBuyList());
 	}
 }
 

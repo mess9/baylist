@@ -23,7 +23,8 @@ import static org.baylist.util.convert.ToJson.toJson;
 @Controller
 @AllArgsConstructor
 public class TodoistController implements Todoist {
-    //todo механизм ретраев неудачных вопросов
+
+    //todo механизм ретраев неудачных запросов
     private static final String PROJECT_METHOD = "projects";
     private static final String TASK_METHOD = "tasks";
     private static final String SECTION_METHOD = "sections";
@@ -406,6 +407,6 @@ public class TodoistController implements Todoist {
                     throw new TodoistApiException(response);
                 }))
                 .toBodilessEntity();
-
     }
+
 }

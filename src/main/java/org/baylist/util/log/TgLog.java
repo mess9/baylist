@@ -44,7 +44,7 @@ public class TgLog {
         if (text.length() > qtyCharToCutMessage) {
             text = text.substring(0, qtyCharToCutMessage) + "...";
         }
-        log.info(" -> Message to chat id - {}, \n Text - {}",
+	    log.info(" -> Answer to chat id - {}, \n Text - {}",
                 chatId,
                 text);
         return message;

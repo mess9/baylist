@@ -38,7 +38,7 @@ public class OurCrazyBot implements SpringLongPollingBot, LongPollingSingleThrea
 
 	@Override
 	public void consume(Update update) {
-		SendMessage message = null;
+		ChatState chatState = new ChatState(update);
 		// todo
 		//  4. сделать команду/кнопку которой можно дополнять словарь
 		//  13. при добавлении новых категорий, производить перемещение внекатегорийных задач в добавленную категорию
@@ -50,13 +50,13 @@ public class OurCrazyBot implements SpringLongPollingBot, LongPollingSingleThrea
 		//  12. прикрутить ai, шоб совсем модно было
 
 
-		if (update.hasMessage() && update.getMessage().hasText()) {
-			message = telegramChat.chat(update);
-		} else if (update.hasCallbackQuery()) {
-			message = button.buttons(update);
+		if (chatState.getUpdate().hasMessage() && chatState.getUpdate().getMessage().hasText()) {
+			telegramChat.chat(chatState);
+		} else if (chatState.getUpdate().hasCallbackQuery()) {
+			button.buttons(chatState);
 		}
 
-		sendMessageToTelegram(message);
+		sendMessageToTelegram(chatState.getMessage());
 	}
 
 	//private

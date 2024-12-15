@@ -4,9 +4,7 @@ import lombok.AllArgsConstructor;
 import org.baylist.dto.telegram.Callbacks;
 import org.baylist.dto.telegram.Commands;
 import org.baylist.service.TodoistService;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardRow;
@@ -20,23 +18,22 @@ public class Command {
 
 	private TodoistService todoist;
 
-	public SendMessage commandHandler(String updateMessage, SendMessage message) {
+	public void commandHandler(ChatState chatState) {
+		String updateMessage = chatState.getUpdate().getMessage().getText();
 		if (Arrays.stream(Commands.values()).anyMatch(c -> c.getCommand().equals(updateMessage))) {
 			if (updateMessage.equals(Commands.CLEAR.getCommand())) {
-				return clear(message);
+				clear(chatState);
 			} else if (updateMessage.equals(Commands.VIEW.getCommand())) {
-				return view(message);
+				view(chatState);
 			} else if (updateMessage.equals(Commands.SYNC.getCommand())) {
-				return sync(message);
+				sync(chatState);
 			} else if (updateMessage.equals(Commands.START.getCommand())) {
-				return start(message);
+				start(chatState);
 			}
 		}
-		return notCommand(message);
 	}
 
-	@NotNull
-	private SendMessage clear(SendMessage message) {
+	private void clear(ChatState chatState) {
 		InlineKeyboardMarkup markup = new InlineKeyboardMarkup(List.of(
 				new InlineKeyboardRow(InlineKeyboardButton.builder()
 						.text("СЖЕЧЬ ИХ ВСЕХ!")
@@ -46,28 +43,24 @@ public class Command {
 								.text("неа, не надо")
 								.callbackData(Callbacks.CANCEL.getCallbackData())
 								.build())));
-		message.setText("удалить вообще все незакрытые задачи?");
-		message.setReplyMarkup(markup);
-		return message;
+		chatState.getMessage().setText("удалить вообще все незакрытые задачи?");
+		chatState.getMessage().setReplyMarkup(markup);
 	}
 
-	@NotNull
-	private SendMessage view(SendMessage message) {
-		message.setText(todoist.getBuylistProject());
-		message.setParseMode("html");
-		return message;
+	private void view(ChatState chatState) {
+		chatState.getMessage().setText(todoist.getBuylistProject());
+		chatState.getMessage().setParseMode("html");
+		chatState.setCommandIsProcess(true);
 	}
 
-	@NotNull
-	private SendMessage sync(SendMessage message) {
+	private void sync(ChatState chatState) {
 		todoist.syncBuyListData();
-		message.setText("данные синхронизированы с todoist");
-		return message;
+		chatState.getMessage().setText("данные синхронизированы с todoist");
+		chatState.setCommandIsProcess(true);
 	}
 
-	@NotNull
-	private SendMessage start(SendMessage message) {
-		message.setText("""
+	private void start(ChatState chatState) {
+		chatState.getMessage().setText("""
 				yay!, приветствую.
 				этот бот написал филом, что бы отправлять ему список покупок
 				
@@ -77,12 +70,6 @@ public class Command {
 				 ня)
 				с любовью. фил.
 				""");
-		return message;
-	}
-
-	@NotNull
-	private SendMessage notCommand(SendMessage message) {
-		message.setText("");
-		return message;
+		chatState.setCommandIsProcess(true);
 	}
 }
