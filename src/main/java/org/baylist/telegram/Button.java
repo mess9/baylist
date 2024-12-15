@@ -2,6 +2,7 @@ package org.baylist.telegram;
 
 import lombok.AllArgsConstructor;
 import org.baylist.dto.telegram.Callbacks;
+import org.baylist.dto.telegram.ChatState;
 import org.baylist.service.TodoistService;
 import org.springframework.stereotype.Component;
 
@@ -29,6 +30,8 @@ public class Button {
 			cancel(chatState);
 		} else if (data.equals(Callbacks.APPROVE.getCallbackData())) {
 			approve(chatState);
+		} else if (data.equals(Callbacks.VIEW.getCallbackData())) {
+			view(chatState);
 		}
 	}
 
@@ -38,6 +41,11 @@ public class Button {
 
 	private void approve(ChatState chatState) {
 		chatState.getMessage().setText(todoist.clearBuyList());
+	}
+
+	private void view(ChatState chatState) {
+		chatState.getMessage().setText(todoist.getBuylistProject());
+		chatState.getMessage().setParseMode("html");
 	}
 }
 

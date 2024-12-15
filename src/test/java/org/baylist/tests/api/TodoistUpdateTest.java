@@ -1,8 +1,8 @@
 package org.baylist.tests.api;
 
-import org.baylist.dto.todoist.Project;
-import org.baylist.dto.todoist.Section;
-import org.baylist.dto.todoist.Task;
+import org.baylist.dto.todoist.api.Project;
+import org.baylist.dto.todoist.api.Section;
+import org.baylist.dto.todoist.api.Task;
 import org.baylist.tests.BaseTest;
 import org.baylist.todoist.api.Todoist;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,7 +29,7 @@ public class TodoistUpdateTest extends BaseTest {
     @Test
     @Disabled("тест регулярно падает, надо бы починить")
     public void updateProject() {
-        Project pupa = todoistController.createProject(Project.builder().setName("pupa").build());
+        Project pupa = todoistController.createProject(Project.builder().name("pupa").build());
         pupa.setName("Lupa");
 
         todoistController.updateProject(pupa);
@@ -41,8 +41,8 @@ public class TodoistUpdateTest extends BaseTest {
     @Test
     public void updateSection() {
         Section section = Section.builder()
-                .setName("Test")
-                .setProjectId(project.getId())
+                .name("Test")
+                .projectId(project.getId())
                 .build();
         Section createdSection = todoistController.createSection(section);
 
@@ -70,8 +70,8 @@ public class TodoistUpdateTest extends BaseTest {
     @Test
     public void updateTask() {
         Task newTask = Task.builder()
-                .xyiContent("Новая таска")
-                .xyiProjectId(String.valueOf(project.getId()))
+                .content("Новая таска")
+                .projectId(String.valueOf(project.getId()))
                 .build();
 
         Task createdTask = todoistController.createTask(newTask);

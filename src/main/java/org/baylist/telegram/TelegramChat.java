@@ -2,6 +2,7 @@ package org.baylist.telegram;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.baylist.dto.telegram.ChatState;
 import org.baylist.service.TodoistService;
 import org.springframework.stereotype.Component;
 
@@ -25,7 +26,7 @@ public class TelegramChat {
         //todo для обработки чата применить https://refactoring.guru/ru/design-patterns/chain-of-responsibility/java/example
         command.commandHandler(chatState);
         if (!chatState.isCommandIsProcess()) {
-            todoist.sendTaskToTodoist(chatState);
+            todoist.sendTasksToTodoist(chatState);
         }
     }
 

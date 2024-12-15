@@ -2,6 +2,7 @@ package org.baylist.telegram;
 
 import lombok.AllArgsConstructor;
 import org.baylist.dto.telegram.Callbacks;
+import org.baylist.dto.telegram.ChatState;
 import org.baylist.dto.telegram.Commands;
 import org.baylist.service.TodoistService;
 import org.springframework.stereotype.Component;

@@ -14,8 +14,7 @@ public class TodoistApiException extends RuntimeException {
     private static String logResponse(ClientHttpResponse response) {
         try {
             return responseLog(response);
-        } catch (
-                IOException e) { // Логируем исключение, если возникла ошибка при логировании тела ответа
+        } catch (IOException e) {
             return "Failed to log response: " + e.getMessage();
         }
     }

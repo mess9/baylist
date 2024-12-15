@@ -1,10 +1,10 @@
 package org.baylist.todoist.api.controller;
 
 import lombok.AllArgsConstructor;
-import org.baylist.dto.todoist.Label;
-import org.baylist.dto.todoist.Project;
-import org.baylist.dto.todoist.Section;
-import org.baylist.dto.todoist.Task;
+import org.baylist.dto.todoist.api.Label;
+import org.baylist.dto.todoist.api.Project;
+import org.baylist.dto.todoist.api.Section;
+import org.baylist.dto.todoist.api.Task;
 import org.baylist.exception.TodoistApiException;
 import org.baylist.todoist.api.Todoist;
 import org.springframework.core.ParameterizedTypeReference;

@@ -1,4 +1,4 @@
-package org.baylist.dto.todoist;
+package org.baylist.dto.todoist.api;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -6,7 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 
 @Data
-@Builder(setterPrefix = "set")
+@Builder
 public class Project {
 
     @JsonCreator

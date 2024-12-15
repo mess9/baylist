@@ -3,9 +3,9 @@ package org.baylist.util.aspect;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
-import org.baylist.dto.todoist.Project;
-import org.baylist.dto.todoist.Section;
-import org.baylist.dto.todoist.Task;
+import org.baylist.dto.todoist.api.Project;
+import org.baylist.dto.todoist.api.Section;
+import org.baylist.dto.todoist.api.Task;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

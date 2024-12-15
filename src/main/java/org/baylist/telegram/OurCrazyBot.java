@@ -1,6 +1,7 @@
 package org.baylist.telegram;
 
 import lombok.extern.slf4j.Slf4j;
+import org.baylist.dto.telegram.ChatState;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.client.okhttp.OkHttpTelegramClient;
 import org.telegram.telegrambots.longpolling.BotSession;

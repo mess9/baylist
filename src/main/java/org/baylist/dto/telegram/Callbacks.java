@@ -9,6 +9,7 @@ public enum Callbacks {
 
 	APPROVE("approve"),
 	CANCEL("галя отмена"),
+	VIEW("view"),
 	;
 
 

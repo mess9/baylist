@@ -1,8 +1,8 @@
-package org.baylist.db.deprecated;
+package org.baylist.dto.todoist;
 
 import lombok.Data;
-import org.baylist.dto.todoist.Section;
-import org.baylist.dto.todoist.Task;
+import org.baylist.dto.todoist.api.Section;
+import org.baylist.dto.todoist.api.Task;
 
 import java.util.List;
 
