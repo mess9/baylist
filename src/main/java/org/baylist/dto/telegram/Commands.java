@@ -11,6 +11,7 @@ public enum Commands {
     CLEAR("/clear"),
     VIEW("/view"),
     SYNC("/sync"),
+    REPORT("/report"), //todo добавить обратную связь, что бы бот пересылал мне сообщение
     ;
 
     private final String command;

@@ -1,9 +1,9 @@
 package org.baylist.todoist.api;
 
-import org.baylist.dto.todoist.Label;
-import org.baylist.dto.todoist.Project;
-import org.baylist.dto.todoist.Section;
-import org.baylist.dto.todoist.Task;
+import org.baylist.dto.todoist.api.Label;
+import org.baylist.dto.todoist.api.Project;
+import org.baylist.dto.todoist.api.Section;
+import org.baylist.dto.todoist.api.Task;
 
 import java.util.List;
 

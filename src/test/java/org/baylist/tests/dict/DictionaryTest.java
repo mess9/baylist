@@ -1,6 +1,7 @@
 package org.baylist.tests.dict;
 
-import org.baylist.dto.dict.BuyCategoryDict;
+import org.assertj.core.api.SoftAssertions;
+import org.assertj.core.api.junit.jupiter.InjectSoftAssertions;
 import org.baylist.service.DictionaryService;
 import org.baylist.tests.BaseTest;
 import org.junit.jupiter.api.Test;
@@ -14,10 +15,16 @@ public class DictionaryTest extends BaseTest {
     @Autowired
     DictionaryService dictionaryService;
 
+    @InjectSoftAssertions
+    private SoftAssertions s;
+
     @Test
     void getDictionary() {
-        BuyCategoryDict buyCategoryDict = dictionaryService.getBuyCategoryDict();
-        System.out.println(buyCategoryDict);
+        var buyCategoryDict = dictionaryService.getDict();
+
+        s.assertThat(buyCategoryDict.keySet()).hasSizeGreaterThan(3);
+        s.assertThat(buyCategoryDict.values()).hasSizeGreaterThan(3);
+        s.assertThat(buyCategoryDict.values().stream().flatMap(Set::stream).toList()).hasSizeGreaterThan(40);
     }
 
     @Test
@@ -28,8 +35,10 @@ public class DictionaryTest extends BaseTest {
                 фанера
                 вб
                 """);
-        System.out.println("---------");
-        System.out.println(stringSetMap);
+
+        s.assertThat(stringSetMap.get("овощи")).hasSize(2);
+        s.assertThat(stringSetMap.get("other")).hasSize(1);
+        s.assertThat(stringSetMap.get("пункты выдачи")).hasSize(1);
     }
 
     @Test
@@ -40,8 +49,11 @@ public class DictionaryTest extends BaseTest {
                 фанера
                 вб
                 """);
-        System.out.println("---------");
-        System.out.println(stringSetMap);
+
+        s.assertThat(stringSetMap.get("овощи")).hasSize(1);
+        s.assertThat(stringSetMap.get("other")).hasSize(1);
+        s.assertThat(stringSetMap.get("пункты выдачи")).hasSize(1);
     }
+
 
 }

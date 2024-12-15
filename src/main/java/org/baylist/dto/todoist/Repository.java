@@ -1,8 +1,8 @@
-package org.baylist.db;
+package org.baylist.dto.todoist;
 
-import org.baylist.dto.todoist.Project;
-import org.baylist.dto.todoist.Section;
-import org.baylist.dto.todoist.Task;
+import org.baylist.dto.todoist.api.Project;
+import org.baylist.dto.todoist.api.Section;
+import org.baylist.dto.todoist.api.Task;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -61,10 +61,6 @@ public class Repository {
         return storage.isEmpty();
     }
 
-    public List<ProjectDb> getProjects() {
-        return storage.getProjects();
-    }
-
     public Optional<ProjectDb> getProjectByName(String name) {
         return storage.getProjects()
                 .stream()
@@ -78,14 +74,6 @@ public class Repository {
                 .map(ProjectDb::getSections)
                 .findAny()
                 .orElse(new ArrayList<>());
-    }
-
-    public Optional<String> getBuyListProjectId() {
-        return storage.getProjects()
-                .stream()
-                .filter(p -> p.getProject().getName().equals(BUYLIST_PROJECT))
-                .map(p -> p.getProject().getId())
-                .findAny();
     }
 
     public Optional<ProjectDb> getBuyListProject() {

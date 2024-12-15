@@ -1,8 +1,8 @@
 package org.baylist.tests.api;
 
-import org.baylist.dto.todoist.Project;
-import org.baylist.dto.todoist.Section;
-import org.baylist.dto.todoist.Task;
+import org.baylist.dto.todoist.api.Project;
+import org.baylist.dto.todoist.api.Section;
+import org.baylist.dto.todoist.api.Task;
 import org.baylist.tests.BaseTest;
 import org.baylist.todoist.api.Todoist;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,7 +26,7 @@ public class TodoistDeleteTest extends BaseTest {
     @Test
     void deleteProject() {
         Project project = Project.builder()
-                .setName("test")
+                .name("test")
                 .build();
         Project controllerProject = todoistController.createProject(project);
 
@@ -39,7 +39,7 @@ public class TodoistDeleteTest extends BaseTest {
     @Test
     void deleteSection() {
         Section section = todoistController
-                .createSection(Section.builder().setProjectId(project.getId()).setName("testSection").build());
+                .createSection(Section.builder().projectId(project.getId()).name("testSection").build());
 
         todoistController.deleteSection(Long.parseLong(section.getId()));
 
@@ -53,7 +53,7 @@ public class TodoistDeleteTest extends BaseTest {
     @Test
     void deleteTask() {
         Task task = todoistController
-                .createTask(Task.builder().xyiProjectId(project.getId()).xyiContent("content").build());
+                .createTask(Task.builder().projectId(project.getId()).content("content").build());
 
         todoistController.deleteTask(Long.parseLong(task.getId()));
 

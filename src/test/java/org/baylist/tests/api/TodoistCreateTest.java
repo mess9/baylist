@@ -1,8 +1,8 @@
 package org.baylist.tests.api;
 
-import org.baylist.dto.todoist.Project;
-import org.baylist.dto.todoist.Section;
-import org.baylist.dto.todoist.Task;
+import org.baylist.dto.todoist.api.Project;
+import org.baylist.dto.todoist.api.Section;
+import org.baylist.dto.todoist.api.Task;
 import org.baylist.tests.BaseTest;
 import org.baylist.todoist.api.Todoist;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,7 +29,7 @@ public class TodoistCreateTest extends BaseTest {
     @Test
     public void createProject() {
         Project project = Project.builder()
-                .setName("test")
+                .name("test")
                 .build();
 
         Project controllerProject = todoistController.createProject(project);
@@ -43,8 +43,8 @@ public class TodoistCreateTest extends BaseTest {
     @Test
     public void createSection() {
         Section testSection = Section.builder()
-                .setName("testSection")
-                .setProjectId(project.getId())
+                .name("testSection")
+                .projectId(project.getId())
                 .build();
         Section section = todoistController.createSection(testSection);
 
@@ -58,8 +58,8 @@ public class TodoistCreateTest extends BaseTest {
     @DisplayName("проверка на хуй")
     public void createTaskAndDeleteTask() {
         Task xyi = Task.builder()
-                .xyiProjectId(project.getId())
-                .xyiContent("хуй")
+                .projectId(project.getId())
+                .content("хуй")
                 .build();
 
         Task task = todoistController.createTask(xyi);

@@ -10,7 +10,7 @@ import static org.baylist.util.log.LogUtil.reduceEmptyLines;
 public class TgLog {
 
 
-    public static void inputLog(Update update) {
+    public static void inputLogMessage(Update update) {
         String user_first_name = update.getMessage().getChat().getFirstName();
         String user_last_name = update.getMessage().getChat().getLastName();
         long user_id = update.getMessage().getChat().getId();
@@ -23,6 +23,19 @@ public class TgLog {
                 answer);
     }
 
+    public static void inputLogButton(Update update) {
+        String user_first_name = update.getCallbackQuery().getMessage().getChat().getFirstName();
+        String user_last_name = update.getCallbackQuery().getMessage().getChat().getLastName();
+        long user_id = update.getCallbackQuery().getMessage().getChat().getId();
+        String data = update.getCallbackQuery().getData();
+
+        log.info(" -> Callback from {} {} (id = {}) \n Data - {}",
+                user_first_name,
+                user_last_name,
+                user_id,
+                data);
+    }
+
     public static SendMessage outputLog(SendMessage message) {
         int qtyCharToCutMessage = 150;
         String chatId = message.getChatId();
@@ -31,7 +44,7 @@ public class TgLog {
         if (text.length() > qtyCharToCutMessage) {
             text = text.substring(0, qtyCharToCutMessage) + "...";
         }
-        log.info(" -> Message to chat id - {}, \n Text - {}",
+	    log.info(" -> Answer to chat id - {}, \n Text - {}",
                 chatId,
                 text);
         return message;

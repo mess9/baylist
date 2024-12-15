@@ -1,4 +1,4 @@
-package org.baylist.db;
+package org.baylist.dto.todoist;
 
 import lombok.Data;
 

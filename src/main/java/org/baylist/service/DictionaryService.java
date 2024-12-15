@@ -1,48 +1,47 @@
 package org.baylist.service;
 
 import lombok.Getter;
-import org.baylist.dto.dict.BuyCategoryDict;
-import org.baylist.exception.DictionaryException;
-import org.springframework.core.io.ClassPathResource;
+import org.baylist.db.entity.Variant;
+import org.baylist.db.repo.CategoryRepository;
+import org.baylist.db.repo.VariantRepository;
 import org.springframework.stereotype.Component;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.baylist.dto.Constants.UNKNOWN_CATEGORY;
-import static org.baylist.util.convert.ToJson.fromYaml;
 
 @Getter
 @Component
 public class DictionaryService {
 
-    private static final String dictFilePath = "dict/dictionary.yml";
-    //    private static final String dictFilePath = "src/main/resources/dict/dictionary.yml";
-    private BuyCategoryDict buyCategoryDict;
+    private final CategoryRepository categoryRepository;
+    private final VariantRepository variantRepository;
+    private final Map<String, Set<String>> dict = new HashMap<>();
 
     //todo добавить механизм пополнения словарика из телеги
 
-    public DictionaryService() {
-        try {
-            ClassPathResource resource = new ClassPathResource(dictFilePath);
-            Path path = Paths.get(resource.getURI());
-            buyCategoryDict = fromYaml(Files.readString(path), BuyCategoryDict.class);
-        } catch (Exception e) {
-            throw new DictionaryException("invalid yaml\n" + e.getMessage());
-        }
+    public DictionaryService(CategoryRepository categoryRepository,
+                             VariantRepository variantRepository) {
+        this.categoryRepository = categoryRepository;
+        this.variantRepository = variantRepository;
+
+        categoryRepository.findAll().forEach(c -> dict.put(
+                c.getName(),
+                variantRepository.findByCategoryId(c.getId())
+                        .stream()
+                        .map(Variant::getName)
+                        .collect(Collectors.toSet())));
     }
 
 
     public Map<String, Set<String>> parseInputBuyList(String input) {
         Map<String, Set<String>> buyList = new HashMap<>();
-        Map<String, Set<String>> dict = buyCategoryDict.getDict();
 
         List<String> words = splitInput(input);
         words.forEach(word -> {

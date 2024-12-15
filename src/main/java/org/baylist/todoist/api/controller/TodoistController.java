@@ -1,10 +1,10 @@
 package org.baylist.todoist.api.controller;
 
 import lombok.AllArgsConstructor;
-import org.baylist.dto.todoist.Label;
-import org.baylist.dto.todoist.Project;
-import org.baylist.dto.todoist.Section;
-import org.baylist.dto.todoist.Task;
+import org.baylist.dto.todoist.api.Label;
+import org.baylist.dto.todoist.api.Project;
+import org.baylist.dto.todoist.api.Section;
+import org.baylist.dto.todoist.api.Task;
 import org.baylist.exception.TodoistApiException;
 import org.baylist.todoist.api.Todoist;
 import org.springframework.core.ParameterizedTypeReference;
@@ -23,7 +23,8 @@ import static org.baylist.util.convert.ToJson.toJson;
 @Controller
 @AllArgsConstructor
 public class TodoistController implements Todoist {
-    //todo механизм ретраев неудачных вопросов
+
+    //todo механизм ретраев неудачных запросов
     private static final String PROJECT_METHOD = "projects";
     private static final String TASK_METHOD = "tasks";
     private static final String SECTION_METHOD = "sections";
@@ -406,6 +407,6 @@ public class TodoistController implements Todoist {
                     throw new TodoistApiException(response);
                 }))
                 .toBodilessEntity();
-
     }
+
 }

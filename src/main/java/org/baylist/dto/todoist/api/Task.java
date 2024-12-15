@@ -1,4 +1,4 @@
-package org.baylist.dto.todoist;
+package org.baylist.dto.todoist.api;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
-@Builder(setterPrefix = "xyi")
+@Builder
 public class Task {
     private String id;
     @JsonProperty("assigner_id")
