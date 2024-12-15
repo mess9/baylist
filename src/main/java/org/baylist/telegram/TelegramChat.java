@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
-import static org.baylist.util.log.TgLog.inputLog;
+import static org.baylist.util.log.TgLog.inputLogMessage;
 
 @Component
 @Slf4j
@@ -17,9 +17,11 @@ public class TelegramChat {
     private TodoistService todoist;
     private Command command;
 
-    public SendMessage chat(Update update, SendMessage message) {
+    public SendMessage chat(Update update) {
         String updateMessage = update.getMessage().getText();
-        inputLog(update);
+        inputLogMessage(update);
+        SendMessage message = SendMessage.builder().text("").chatId(update.getMessage().getChatId()).build();
+
 
         if (todoist.storageIsEmpty()) {
             todoist.syncBuyListData();

@@ -140,7 +140,7 @@ public class TodoistService {
             ProjectDb project = buyListProject.get();
             project.getTasks().forEach(t -> todoistController.deleteTask(Long.parseLong(t.getId())));
             syncBuyListData();
-            return "список покупок очищен";
+	        return "список покупок беспощадно изничтожен";
         } else {
             return "проекта со списком покупок не существует";
         }
