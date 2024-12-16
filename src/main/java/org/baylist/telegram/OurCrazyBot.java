@@ -35,6 +35,8 @@ public class OurCrazyBot implements SpringLongPollingBot, LongPollingSingleThrea
 	@Override
 	public String getBotToken() {
 		return TOKEN_TG;
+		// попробовать подключиться к тестовму контуру
+		// - https://habr.com/ru/companies/selectel/articles/763286/
 	}
 
 	@Override

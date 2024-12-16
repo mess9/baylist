@@ -30,16 +30,19 @@ public class Command {
 				sync(chatState);
 			} else if (updateMessage.equals(Commands.START.getCommand())) {
 				start(chatState);
+			} else if (updateMessage.equals(Commands.REPORT.getCommand())) {
+				report(chatState);
 			}
 		}
 	}
 
 	private void clear(ChatState chatState) {
 		InlineKeyboardMarkup markup = new InlineKeyboardMarkup(List.of(
-				new InlineKeyboardRow(InlineKeyboardButton.builder()
-						.text("СЖЕЧЬ ИХ ВСЕХ!")
-						.callbackData(Callbacks.APPROVE.getCallbackData())
-						.build(),
+				new InlineKeyboardRow(
+						InlineKeyboardButton.builder()
+								.text("СЖЕЧЬ ИХ ВСЕХ!")
+								.callbackData(Callbacks.APPROVE.getCallbackData())
+								.build(),
 						InlineKeyboardButton.builder()
 								.text("неа, не надо")
 								.callbackData(Callbacks.CANCEL.getCallbackData())
@@ -71,6 +74,30 @@ public class Command {
 				 ня)
 				с любовью. фил.
 				""");
+		chatState.setCommandIsProcess(true);
+	}
+
+	private void report(ChatState chatState) {
+		InlineKeyboardMarkup markup = new InlineKeyboardMarkup(List.of(
+				new InlineKeyboardRow(
+						InlineKeyboardButton.builder()
+								.text("take my money!")
+								.callbackData(Callbacks.DONATE.getCallbackData())
+								.build(),
+						InlineKeyboardButton.builder()
+								.text("feedback")
+								.callbackData(Callbacks.FEEDBACK.getCallbackData())
+								.build())));
+		chatState.getMessage().setText("""
+				тут можно оставить обратную связь по работе данного бота
+				принимаются:
+				 - донаты
+				 - баг репорты
+				 - слова благодарности
+				 - конструктивная критика
+				 - смешные мемы
+				""");
+		chatState.getMessage().setReplyMarkup(markup);
 		chatState.setCommandIsProcess(true);
 	}
 }
