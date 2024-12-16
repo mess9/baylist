@@ -19,7 +19,7 @@ public class CatchCreatedEntity {
     public static final List<Section> sections = new CopyOnWriteArrayList<>();
     public static final List<Task> tasks = new CopyOnWriteArrayList<>();
 
-    @Pointcut("execution(public * org.baylist.todoist.api.controller.TodoistController.createProject(..))")
+    @Pointcut("execution(public * org.baylist.controller.todoist.TodoistController.createProject(..))")
     public void createProject() {
     }
 
@@ -30,7 +30,7 @@ public class CatchCreatedEntity {
         }
     }
 
-    @Pointcut("execution(public * org.baylist.todoist.api.controller.TodoistController.createSection(..))")
+    @Pointcut("execution(public * org.baylist.controller.todoist.TodoistController.createSection(..))")
     public void createSection() {
     }
 
@@ -41,7 +41,7 @@ public class CatchCreatedEntity {
         }
     }
 
-    @Pointcut("execution(public * org.baylist.todoist.api.controller.TodoistController.createTask(..))")
+    @Pointcut("execution(public * org.baylist.controller.todoist.TodoistController.createTask(..))")
     public void createTask() {
     }
 

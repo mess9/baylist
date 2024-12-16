@@ -1,6 +1,6 @@
 package org.baylist.util.extension;
 
-import org.baylist.todoist.api.controller.TodoistController;
+import org.baylist.controller.todoist.TodoistController;
 import org.baylist.util.config.GetStatic;
 import org.junit.jupiter.api.extension.AfterAllCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
