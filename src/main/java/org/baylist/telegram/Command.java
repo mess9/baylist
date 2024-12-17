@@ -54,13 +54,13 @@ public class Command {
 	private void view(ChatState chatState) {
 		chatState.getMessage().setText(todoist.getBuylistProject());
 		chatState.getMessage().setParseMode("html");
-		chatState.setCommandIsProcess(true);
+		chatState.setCommandProcess(true);
 	}
 
 	private void sync(ChatState chatState) {
 		todoist.syncBuyListData();
 		chatState.getMessage().setText("данные синхронизированы с todoist");
-		chatState.setCommandIsProcess(true);
+		chatState.setCommandProcess(true);
 	}
 
 	private void start(ChatState chatState) {
@@ -74,7 +74,7 @@ public class Command {
 				 ня)
 				с любовью. фил.
 				""");
-		chatState.setCommandIsProcess(true);
+		chatState.setCommandProcess(true);
 	}
 
 	private void report(ChatState chatState) {
@@ -98,6 +98,6 @@ public class Command {
 				 - смешные мемы
 				""");
 		chatState.getMessage().setReplyMarkup(markup);
-		chatState.setCommandIsProcess(true);
+		chatState.setCommandProcess(true);
 	}
 }

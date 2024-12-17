@@ -2,6 +2,7 @@ package org.baylist.telegram;
 
 import lombok.extern.slf4j.Slf4j;
 import org.baylist.dto.telegram.ChatState;
+import org.baylist.service.UserService;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.client.okhttp.OkHttpTelegramClient;
 import org.telegram.telegrambots.longpolling.BotSession;
@@ -22,14 +23,16 @@ import static org.baylist.util.log.TgLog.outputLog;
 public class OurCrazyBot implements SpringLongPollingBot, LongPollingSingleThreadUpdateConsumer {
 
 	private final String TOKEN_TG = System.getenv("TOKEN_TG");
+	private final UserService userService;
 	private final TelegramClient telegramClient;
 	private final TelegramChat telegramChat;
 	private final Button button;
 
-	public OurCrazyBot(TelegramChat telegramChat, Button button) {
+	public OurCrazyBot(TelegramChat telegramChat, Button button, UserService userService) {
 		telegramClient = new OkHttpTelegramClient(getBotToken());
 		this.telegramChat = telegramChat;
 		this.button = button;
+		this.userService = userService;
 	}
 
 	@Override
@@ -42,6 +45,7 @@ public class OurCrazyBot implements SpringLongPollingBot, LongPollingSingleThrea
 	@Override
 	public void consume(Update update) {
 		ChatState chatState = new ChatState(update);
+		userService.checkUser(chatState);
 		// todo
 		//  4. сделать команду/кнопку которой можно дополнять словарь
 		//  13. при добавлении новых категорий, производить перемещение внекатегорийных задач в добавленную категорию
@@ -59,16 +63,7 @@ public class OurCrazyBot implements SpringLongPollingBot, LongPollingSingleThrea
 			button.buttons(chatState);
 		}
 
-		sendMessageToTelegram(chatState.getMessage());
-	}
-
-	//private
-	private void sendMessageToTelegram(SendMessage message) {
-		try {
-			telegramClient.execute(outputLog(message));
-		} catch (TelegramApiException e) {
-			log.error(e.getMessage());
-		}
+		sendMessageToTelegram(chatState);
 	}
 
 	@Override
@@ -79,6 +74,18 @@ public class OurCrazyBot implements SpringLongPollingBot, LongPollingSingleThrea
 	@AfterBotRegistration
 	public void afterRegistration(BotSession botSession) { //todo - разобраться бы что это такое и зачем.
 		System.out.println("Registered bot running state is: " + botSession.isRunning());
+	}
+
+	//private
+	private void sendMessageToTelegram(ChatState chatState) {
+		try {
+			telegramClient.execute(outputLog(chatState.getMessage()));
+			if (chatState.getForwardMessage() != null) {
+				telegramClient.execute(chatState.getForwardMessage());
+			}
+		} catch (TelegramApiException e) {
+			log.error(e.getMessage());
+		}
 	}
 
 }

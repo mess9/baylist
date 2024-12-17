@@ -11,9 +11,9 @@ public class TgLog {
 
 
     public static void inputLogMessage(Update update) {
-        String user_first_name = update.getMessage().getChat().getFirstName();
-        String user_last_name = update.getMessage().getChat().getLastName();
-        long user_id = update.getMessage().getChat().getId();
+	    String user_first_name = update.getMessage().getFrom().getFirstName();
+	    String user_last_name = update.getMessage().getFrom().getLastName();
+	    long user_id = update.getMessage().getFrom().getId();
         String answer = update.getMessage().getText();
 
         log.info(" -> Message from {} {} (id = {}) \n Text - {}",

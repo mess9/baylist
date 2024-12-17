@@ -1,8 +1,11 @@
 package org.baylist.dto.telegram;
 
 import lombok.Data;
+import org.baylist.db.entity.User;
+import org.telegram.telegrambots.meta.api.methods.ForwardMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 
 @Data
 public class ChatState {
@@ -14,8 +17,11 @@ public class ChatState {
     private Long chatId;
     private Update update;
     private SendMessage message;
+    private ForwardMessage forwardMessage;
 
-    private boolean commandIsProcess;
+    private boolean isCommandProcess;
+
+    private User user;
 
     public ChatState(Update update) {
         this.update = update;
@@ -26,5 +32,18 @@ public class ChatState {
         }
         this.message = SendMessage.builder().text("").chatId(chatId).build();
     }
+
+    public void setText(String text) {
+        this.message.setText(text);
+    }
+
+    public void setParseModeHtml() {
+        this.message.setParseMode("html");
+    }
+
+    public void setKeyboard(InlineKeyboardMarkup markup) {
+        this.message.setReplyMarkup(markup);
+    }
+
 
 }

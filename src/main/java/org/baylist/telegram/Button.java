@@ -1,9 +1,11 @@
 package org.baylist.telegram;
 
 import lombok.AllArgsConstructor;
+import org.baylist.db.repo.UserRepository;
 import org.baylist.dto.telegram.Callbacks;
 import org.baylist.dto.telegram.ChatState;
 import org.baylist.service.TodoistService;
+import org.baylist.service.UserService;
 import org.springframework.stereotype.Component;
 
 import static org.baylist.util.log.TgLog.inputLogButton;
@@ -13,6 +15,7 @@ import static org.baylist.util.log.TgLog.inputLogButton;
 public class Button {
 
 	private TodoistService todoist;
+	private UserService userService;
 
 	//ограничения полученные опытным путём
 	// максимальное количество кнопок в одной строке - 8
@@ -66,6 +69,7 @@ public class Button {
 
 	private void feedback(ChatState chatState) {
 		chatState.getMessage().setText("я вас внимательно слушаю");
+		userService.feedbackOn(chatState);
 	}
 }
 
