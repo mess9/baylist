@@ -1,11 +1,11 @@
 package org.baylist.tests.api;
 
+import org.baylist.controller.todoist.Todoist;
 import org.baylist.dto.todoist.api.Label;
 import org.baylist.dto.todoist.api.Project;
 import org.baylist.dto.todoist.api.Section;
 import org.baylist.dto.todoist.api.Task;
 import org.baylist.tests.BaseTest;
-import org.baylist.todoist.api.Todoist;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 

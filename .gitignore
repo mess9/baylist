@@ -34,3 +34,4 @@ build/
 
 ###OTHER###
 .allure
+*/node_modules/

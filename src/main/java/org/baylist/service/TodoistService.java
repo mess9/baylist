@@ -2,6 +2,7 @@ package org.baylist.service;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.baylist.controller.todoist.Todoist;
 import org.baylist.dto.telegram.Callbacks;
 import org.baylist.dto.telegram.ChatState;
 import org.baylist.dto.telegram.Commands;
@@ -11,7 +12,6 @@ import org.baylist.dto.todoist.SectionDb;
 import org.baylist.dto.todoist.api.Project;
 import org.baylist.dto.todoist.api.Section;
 import org.baylist.dto.todoist.api.Task;
-import org.baylist.todoist.api.Todoist;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;

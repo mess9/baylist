@@ -1,4 +1,4 @@
-package org.baylist.todoist.api.controller;
+package org.baylist.controller;
 
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;

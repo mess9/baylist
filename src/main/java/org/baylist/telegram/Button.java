@@ -1,9 +1,11 @@
 package org.baylist.telegram;
 
 import lombok.AllArgsConstructor;
+import org.baylist.db.repo.UserRepository;
 import org.baylist.dto.telegram.Callbacks;
 import org.baylist.dto.telegram.ChatState;
 import org.baylist.service.TodoistService;
+import org.baylist.service.UserService;
 import org.springframework.stereotype.Component;
 
 import static org.baylist.util.log.TgLog.inputLogButton;
@@ -13,6 +15,7 @@ import static org.baylist.util.log.TgLog.inputLogButton;
 public class Button {
 
 	private TodoistService todoist;
+	private UserService userService;
 
 	//ограничения полученные опытным путём
 	// максимальное количество кнопок в одной строке - 8
@@ -32,6 +35,10 @@ public class Button {
 			approve(chatState);
 		} else if (data.equals(Callbacks.VIEW.getCallbackData())) {
 			view(chatState);
+		} else if (data.equals(Callbacks.DONATE.getCallbackData())) {
+			donate(chatState);
+		} else if (data.equals(Callbacks.FEEDBACK.getCallbackData())) {
+			feedback(chatState);
 		}
 	}
 
@@ -46,6 +53,23 @@ public class Button {
 	private void view(ChatState chatState) {
 		chatState.getMessage().setText(todoist.getBuylistProject());
 		chatState.getMessage().setParseMode("html");
+	}
+
+	private void donate(ChatState chatState) {
+		chatState.getMessage().setText("""
+				спасибо за нажатие на эту кнопку!
+				
+				приму любого размера помощь (до 1G$)
+				💳 (mastercard)
+				4454 3000 0304 4598
+				₿ (bitcoin)
+				bc1qdgnwxpjtfhqztw6thq3yukcddrpms48wk4dhy0
+				""");
+	}
+
+	private void feedback(ChatState chatState) {
+		chatState.getMessage().setText("я вас внимательно слушаю");
+		userService.feedbackOn(chatState);
 	}
 }
 

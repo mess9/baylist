@@ -1,5 +1,6 @@
 package org.baylist.service;
 
+import jakarta.transaction.Transactional;
 import lombok.Getter;
 import org.baylist.db.entity.Variant;
 import org.baylist.db.repo.CategoryRepository;
@@ -26,7 +27,8 @@ public class DictionaryService {
 
     //todo добавить механизм пополнения словарика из телеги
 
-    public DictionaryService(CategoryRepository categoryRepository,
+
+	public DictionaryService(CategoryRepository categoryRepository,
                              VariantRepository variantRepository) {
         this.categoryRepository = categoryRepository;
         this.variantRepository = variantRepository;
