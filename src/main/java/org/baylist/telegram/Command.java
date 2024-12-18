@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import org.baylist.dto.telegram.Callbacks;
 import org.baylist.dto.telegram.ChatState;
 import org.baylist.dto.telegram.Commands;
+import org.baylist.service.DictionaryService;
 import org.baylist.service.TodoistService;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
@@ -18,6 +19,7 @@ import java.util.List;
 public class Command {
 
 	private TodoistService todoist;
+	private DictionaryService dictionaryService;
 
 	public void commandHandler(ChatState chatState) {
 		String updateMessage = chatState.getUpdate().getMessage().getText();
@@ -32,6 +34,8 @@ public class Command {
 				start(chatState);
 			} else if (updateMessage.equals(Commands.REPORT.getCommand())) {
 				report(chatState);
+			} else if (updateMessage.equals(Commands.ADD_CATEGORY.getCommand())) {
+//				addDictCategory(chatState);
 			}
 		}
 	}
@@ -100,4 +104,8 @@ public class Command {
 		chatState.getMessage().setReplyMarkup(markup);
 		chatState.setCommandProcess(true);
 	}
+
+//	private void addDictCategory(ChatState chatState) {
+//		dictionaryService.addDictCategory(chatState.getUpdate().getMessage().getText());
+//	}
 }

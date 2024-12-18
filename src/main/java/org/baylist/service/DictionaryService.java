@@ -1,7 +1,7 @@
 package org.baylist.service;
 
-import jakarta.transaction.Transactional;
 import lombok.Getter;
+import org.baylist.db.entity.Category;
 import org.baylist.db.entity.Variant;
 import org.baylist.db.repo.CategoryRepository;
 import org.baylist.db.repo.VariantRepository;
@@ -56,6 +56,11 @@ public class DictionaryService {
         });
 
         return buyList;
+    }
+
+    public void addDictCategory(String categoryName) {
+        categoryRepository.save(new Category(null, categoryName, null));
+
     }
 
     private List<String> splitInput(String input) {
