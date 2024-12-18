@@ -38,11 +38,16 @@ public class Button {
 			donate(chatState);
 		} else if (data.equals(Callbacks.FEEDBACK.getCallbackData())) {
 			feedback(chatState);
+		} else if (data.equals(Callbacks.ADD_CATEGORY.getCallbackData())) {
+			addCategory(chatState);
 		}
+
 	}
 
 	private void cancel(ChatState chatState) {
-		chatState.setReplyText("ну ошибся, бывает, со всеми случается, не переживай ты так");
+		chatState.setReplyText("ок. в следующий раз будут деяния. а пока я отдохну");
+		userService.addCategoryOff(chatState);
+		userService.feedbackOff(chatState);
 	}
 
 	private void approve(ChatState chatState) {
@@ -69,6 +74,11 @@ public class Button {
 	private void feedback(ChatState chatState) {
 		chatState.setReplyText("я вас внимательно слушаю");
 		userService.feedbackOn(chatState);
+	}
+
+	private void addCategory(ChatState chatState) {
+		chatState.setReplyText("пиши название категории - я всё запомню");
+		userService.addCategoryOn(chatState);
 	}
 }
 

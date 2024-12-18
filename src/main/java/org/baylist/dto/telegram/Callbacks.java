@@ -11,6 +11,8 @@ public enum Callbacks {
 	CANCEL("галя отмена"),
 	VIEW("view"),
 	DONATE("donate"),
+	ADD_CATEGORY("addCategory"),
+	ADD_TASK_TO_CATEGORY("addTaskToCategory"),
 	FEEDBACK("feedback");
 
 

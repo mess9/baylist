@@ -6,8 +6,12 @@ import org.baylist.db.entity.Category;
 import org.baylist.db.entity.Variant;
 import org.baylist.db.repo.CategoryRepository;
 import org.baylist.db.repo.VariantRepository;
+import org.baylist.dto.telegram.Callbacks;
 import org.baylist.dto.telegram.ChatState;
 import org.springframework.stereotype.Component;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardRow;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -55,8 +59,22 @@ public class DictionaryService {
         // мб позже добавить валидацию
         categoryRepository.save(new Category(null, input, null));
         chatState.setReplyText("категория - [ " + input + " ] - добавлена");
-        //todo кнопки о добавлении ещё категорий или таск внутрь категорий
-        userService.addCategoryOff(chatState);
+
+        InlineKeyboardMarkup markup = new InlineKeyboardMarkup(List.of(
+                new InlineKeyboardRow(InlineKeyboardButton.builder()
+                        .text("добавить ещё категорию")
+                        .callbackData(Callbacks.ADD_CATEGORY.getCallbackData())
+                        .build()),
+                new InlineKeyboardRow(InlineKeyboardButton.builder()
+                        .text("добавить варианты задач в категорию")
+                        .callbackData(Callbacks.ADD_TASK_TO_CATEGORY.getCallbackData())
+                        .build()), //todo в разработке. пока - не работает
+                new InlineKeyboardRow(InlineKeyboardButton.builder()
+                        .text("пока всё, вернись в дефолтный режим")
+                        .callbackData(Callbacks.CANCEL.getCallbackData())
+                        .build())));
+        chatState.setReplyKeyboard(markup);
+//        userService.addCategoryOff(chatState);
     }
 
     public Map<String, Set<String>> getDict() {
