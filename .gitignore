@@ -35,3 +35,4 @@ build/
 ###OTHER###
 .allure
 */node_modules/
+*.sublime-project

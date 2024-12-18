@@ -10,13 +10,17 @@
       "DOM.Iterable"
     ],
     "skipLibCheck": true,
+    "baseUrl": ".",
     "paths": {
       "react": [
         "./node_modules/preact/compat/"
       ],
       "react-dom": [
         "./node_modules/preact/compat/"
-      ]
+      ],
+      "src/*": ["src/*"],
+      "app/*": ["app/*"],
+      "pages/*": ["pages/*"]
     },
     /* Bundler mode */
     "moduleResolution": "bundler",
