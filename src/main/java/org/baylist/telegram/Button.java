@@ -1,7 +1,6 @@
 package org.baylist.telegram;
 
 import lombok.AllArgsConstructor;
-import org.baylist.db.repo.UserRepository;
 import org.baylist.dto.telegram.Callbacks;
 import org.baylist.dto.telegram.ChatState;
 import org.baylist.service.TodoistService;
@@ -43,20 +42,20 @@ public class Button {
 	}
 
 	private void cancel(ChatState chatState) {
-		chatState.getMessage().setText("ну ошибся, бывает, со всеми случается, не переживай ты так");
+		chatState.setReplyText("ну ошибся, бывает, со всеми случается, не переживай ты так");
 	}
 
 	private void approve(ChatState chatState) {
-		chatState.getMessage().setText(todoist.clearBuyList());
+		chatState.setReplyText(todoist.clearBuyList());
 	}
 
 	private void view(ChatState chatState) {
-		chatState.getMessage().setText(todoist.getBuylistProject());
-		chatState.getMessage().setParseMode("html");
+		chatState.setReplyText(todoist.getBuylistProject());
+		chatState.setReplyParseModeHtml();
 	}
 
 	private void donate(ChatState chatState) {
-		chatState.getMessage().setText("""
+		chatState.setReplyText("""
 				спасибо за нажатие на эту кнопку!
 				
 				приму любого размера помощь (до 1G$)
@@ -68,7 +67,7 @@ public class Button {
 	}
 
 	private void feedback(ChatState chatState) {
-		chatState.getMessage().setText("я вас внимательно слушаю");
+		chatState.setReplyText("я вас внимательно слушаю");
 		userService.feedbackOn(chatState);
 	}
 }

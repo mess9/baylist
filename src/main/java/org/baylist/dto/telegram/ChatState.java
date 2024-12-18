@@ -33,15 +33,15 @@ public class ChatState {
         this.message = SendMessage.builder().text("").chatId(chatId).build();
     }
 
-    public void setText(String text) {
+    public void setReplyText(String text) {
         this.message.setText(text);
     }
 
-    public void setParseModeHtml() {
+    public void setReplyParseModeHtml() {
         this.message.setParseMode("html");
     }
 
-    public void setKeyboard(InlineKeyboardMarkup markup) {
+    public void setReplyKeyboard(InlineKeyboardMarkup markup) {
         this.message.setReplyMarkup(markup);
     }
 

@@ -13,7 +13,8 @@ public enum Commands {
     SYNC("/sync"),
 	ADD_CATEGORY("/add_category"),
 	LINK_CATEGORY_TO_TASK("/link_category_to_task"),
-    REPORT("/report"), //todo добавить обратную связь, что бы бот пересылал мне сообщение
+	REPORT("/report"),
+	HELP("/help")
     ;
 
     private final String command;

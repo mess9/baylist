@@ -4,8 +4,8 @@ import lombok.AllArgsConstructor;
 import org.baylist.dto.telegram.Callbacks;
 import org.baylist.dto.telegram.ChatState;
 import org.baylist.dto.telegram.Commands;
-import org.baylist.service.DictionaryService;
 import org.baylist.service.TodoistService;
+import org.baylist.service.UserService;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
@@ -19,7 +19,7 @@ import java.util.List;
 public class Command {
 
 	private TodoistService todoist;
-	private DictionaryService dictionaryService;
+	private UserService userService;
 
 	public void commandHandler(ChatState chatState) {
 		String updateMessage = chatState.getUpdate().getMessage().getText();
@@ -35,7 +35,7 @@ public class Command {
 			} else if (updateMessage.equals(Commands.REPORT.getCommand())) {
 				report(chatState);
 			} else if (updateMessage.equals(Commands.ADD_CATEGORY.getCommand())) {
-//				addDictCategory(chatState);
+				startAddCategoryDialog(chatState);
 			}
 		}
 	}
@@ -51,24 +51,24 @@ public class Command {
 								.text("неа, не надо")
 								.callbackData(Callbacks.CANCEL.getCallbackData())
 								.build())));
-		chatState.getMessage().setText("удалить вообще все незакрытые задачи?");
-		chatState.getMessage().setReplyMarkup(markup);
+		chatState.setReplyText("удалить вообще все незакрытые задачи?");
+		chatState.setReplyKeyboard(markup);
 	}
 
 	private void view(ChatState chatState) {
-		chatState.getMessage().setText(todoist.getBuylistProject());
-		chatState.getMessage().setParseMode("html");
+		chatState.setReplyText(todoist.getBuylistProject());
+		chatState.setReplyParseModeHtml();
 		chatState.setCommandProcess(true);
 	}
 
 	private void sync(ChatState chatState) {
 		todoist.syncBuyListData();
-		chatState.getMessage().setText("данные синхронизированы с todoist");
+		chatState.setReplyText("данные синхронизированы с todoist");
 		chatState.setCommandProcess(true);
 	}
 
 	private void start(ChatState chatState) {
-		chatState.getMessage().setText("""
+		chatState.setReplyText("""
 				yay!, приветствую.
 				этот бот написал филом, что бы отправлять ему список покупок
 				
@@ -92,7 +92,7 @@ public class Command {
 								.text("feedback")
 								.callbackData(Callbacks.FEEDBACK.getCallbackData())
 								.build())));
-		chatState.getMessage().setText("""
+		chatState.setReplyText("""
 				тут можно оставить обратную связь по работе данного бота
 				принимаются:
 				 - донаты
@@ -101,11 +101,20 @@ public class Command {
 				 - конструктивная критика
 				 - смешные мемы
 				""");
-		chatState.getMessage().setReplyMarkup(markup);
+		chatState.setReplyKeyboard(markup);
 		chatState.setCommandProcess(true);
 	}
 
-//	private void addDictCategory(ChatState chatState) {
-//		dictionaryService.addDictCategory(chatState.getUpdate().getMessage().getText());
-//	}
+	private void startAddCategoryDialog(ChatState chatState) {
+		chatState.setReplyText("""
+				ок. введите название новой категории
+				
+				- добавить варианты в эту категорию можно будет после её создания
+				- название категории должно быть в одну строчку
+				- состоять из одного или нескольких слов
+				- без спецсимволов
+				""");
+		chatState.setCommandProcess(true);
+		userService.addCategoryOn(chatState);
+	}
 }

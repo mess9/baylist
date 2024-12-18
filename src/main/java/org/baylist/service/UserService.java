@@ -70,5 +70,17 @@ public class UserService {
 		userRepository.save(user);
 	}
 
+	public void addCategoryOff(ChatState chatState) {
+		User user = chatState.getUser();
+		user.getDialog().setAddCategory(false);
+		userRepository.save(user);
+	}
+
+	public void addCategoryOn(ChatState chatState) {
+		User user = chatState.getUser();
+		user.getDialog().setAddCategory(true);
+		userRepository.save(user);
+	}
+
 
 }

@@ -38,6 +38,9 @@ public class Dialog {
 	@Column(name = "is_report")
 	private boolean isReport = false;
 
+	@Column(name = "is_add_category")
+	private boolean isAddCategory = false;
+
 
 	public Dialog(User user, Long chatId) {
 		this.user = user;

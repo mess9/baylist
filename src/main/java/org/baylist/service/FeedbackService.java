@@ -14,7 +14,7 @@ public class FeedbackService {
 
 	public void acceptFeedback(ChatState chatState) {
 		User fil = userService.getFil();
-		chatState.setText("""
+		chatState.setReplyText("""
 				спасибо за обратную связь.
 				сообщение будет передано куда надо
 				""");

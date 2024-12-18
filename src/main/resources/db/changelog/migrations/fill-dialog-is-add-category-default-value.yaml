@@ -1,0 +1,11 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1
+      author: fil
+      changes:
+        - update:
+            tableName: dialogs
+            columns:
+              - column:
+                  name: is_add_category
+                  value: false

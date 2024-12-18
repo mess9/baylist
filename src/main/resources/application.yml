@@ -8,9 +8,10 @@ logging:
 todoist:
   baseUrl: https://api.todoist.com/rest/v2
   token: ${TOKEN_TODOIST}
-dictionary: #будет заменено на бд
-  path: /app/resources/dict/dictionary.yml
 spring:
+  liquibase:
+    change-log: classpath:/db/changelog/db.changelog-master.xml
+    enabled: true
   autoconfigure:
     exclude:
       - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
