@@ -3,6 +3,8 @@ package org.baylist.dto.telegram;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+import java.util.Arrays;
+
 @AllArgsConstructor
 @Getter
 public enum Callbacks {
@@ -11,8 +13,11 @@ public enum Callbacks {
 	CANCEL("галя отмена"),
 	VIEW("view"),
 	DONATE("donate"),
-	ADD_CATEGORY("addCategory"),
-	ADD_TASKS_TO_CATEGORY("addTasksToCategory"),
+	DICT_SETTINGS("dictSettings"),
+	DICT_VIEW("dictView"),
+	DICT_HELP("dictHelp"),
+	DICT_ADD_CATEGORY("dictAddCategory"),
+	DICT_ADD_TASKS_TO_CATEGORY("dictAddTasksToCategory"),
 	CATEGORY_CHOICE("category:"),
 	REMOVE_CATEGORY("removeCategory"), //todo
 	REMOVE_TASK_TO_CATEGORY("removeTasksToCategory"),//todo
@@ -21,5 +26,12 @@ public enum Callbacks {
 
 
 	private final String callbackData;
+
+	public static Callbacks fromValue(String callbackData) {
+		return Arrays.stream(Callbacks.values())
+				.filter(c -> c.getCallbackData().equals(callbackData))
+				.findFirst()
+				.orElseThrow();
+	}
 
 }

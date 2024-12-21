@@ -1,11 +1,12 @@
-package org.baylist.telegram2.hanlder;
+package org.baylist.telegram.hanlder;
 
 import lombok.AllArgsConstructor;
 import org.baylist.dto.telegram.Callbacks;
 import org.baylist.dto.telegram.ChatValue;
 import org.baylist.dto.telegram.State;
+import org.baylist.service.ResponseService;
 import org.baylist.service.TodoistService;
-import org.baylist.telegram2.hanlder.config.DialogHandler;
+import org.baylist.telegram.hanlder.config.DialogHandler;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
@@ -18,7 +19,9 @@ import java.util.List;
 public class ClearHandler implements DialogHandler {
 
 	private TodoistService todoist;
+	private ResponseService responseService;
 
+	// state CLEAR
 	@Override
 	public void handle(ChatValue chatValue) {
 		if (chatValue.isCallback()) {
@@ -26,7 +29,7 @@ public class ClearHandler implements DialogHandler {
 			if (callbackData.equals(Callbacks.APPROVE.getCallbackData())) {
 				chatValue.setReplyText(todoist.clearBuyList());
 			} else if (callbackData.equals(Callbacks.CANCEL.getCallbackData())) {
-				chatValue.setReplyText("ок. в следующий раз будут деяния. а пока я отдохну");
+				responseService.cancelMessage(chatValue);
 			}
 			chatValue.setState(State.DEFAULT);
 		} else {

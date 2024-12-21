@@ -8,6 +8,7 @@ import org.baylist.db.repo.CategoryRepository;
 import org.baylist.db.repo.VariantRepository;
 import org.baylist.dto.telegram.Callbacks;
 import org.baylist.dto.telegram.ChatValue;
+import org.baylist.dto.telegram.State;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
@@ -54,26 +55,9 @@ public class DictionaryService {
         // мб позже добавить вариант разделения по запятым или пробелам, хз пока
     }
 
-    public void addDictCategory(ChatValue chatValue) {
-        String input = chatValue.getUpdate().getMessage().getText().trim().toLowerCase();
-        // мб позже добавить валидацию
-        categoryRepository.save(new Category(null, input, null));
-        chatValue.setReplyText("категория - [ " + input + " ] - добавлена");
-
-        InlineKeyboardMarkup markup = new InlineKeyboardMarkup(List.of(
-                new InlineKeyboardRow(InlineKeyboardButton.builder()
-                        .text("добавить ещё категорию")
-                        .callbackData(Callbacks.ADD_CATEGORY.getCallbackData())
-                        .build()),
-                new InlineKeyboardRow(InlineKeyboardButton.builder()
-                        .text("добавить варианты задач в категорию")
-                        .callbackData(Callbacks.CATEGORY_CHOICE.getCallbackData())
-                        .build()),
-                new InlineKeyboardRow(InlineKeyboardButton.builder()
-                        .text("пока всё, вернись в дефолтный режим")
-                        .callbackData(Callbacks.CANCEL.getCallbackData())
-                        .build())));
-        chatValue.setReplyKeyboard(markup);
+    public void addDictCategory(String category) {
+        // todo позже добавить валидацию
+        categoryRepository.save(new Category(null, category, null));
     }
 
     public Map<String, Set<String>> getDict() {
@@ -89,24 +73,64 @@ public class DictionaryService {
     public List<String> getCategories() {
         return categoryRepository.findAll().stream().map(Category::getName).toList();
     }
-}
 
-//    public void addDictVariant(ChatState chatState) {
-//        String input = chatState.getInputText();
-//        String[] split = input.split("\n");
-//        List<String> variants = Arrays.stream(split).map(String::trim).toList();
-//        Category category = categoryRepository.findByName(chatState.getCategory()).orElse(null);
-//        if (category == null) {
-//            chatState.setReplyText("категория не найдена");
-//            return;
-//        }
-//        variantRepository.saveAll(variants.stream().map(v -> new Variant(null, v, category.getId())).toList());
-//        chatState.setReplyText("варианты добавлены");
-//
-//        InlineKeyboardMarkup markup = new InlineKeyboardMarkup(List.of(
-//                new InlineKeyboardRow(InlineKeyboardButton.builder()
-//                        .text("добавить ещё варианты")
-//                        .callbackData(Callbacks.ADD_VARIANT.getCallbackData())
-//                        .build())));
-//        chatState.setReplyKeyboard(markup);
-//    }
+
+    public void addVariantToCategory(ChatValue chatValue, String category) {
+        String input = chatValue.getInputText();
+        String[] split = input.split("\n");
+        List<String> variants = Arrays.stream(split).map(String::trim).distinct().toList();
+        Category categoryDb = categoryRepository.findByName(category);
+        if (categoryDb == null) {
+            settingsMainMenu(chatValue);
+            chatValue.setReplyText("категория не найдена");
+        } else {
+            variantRepository.saveAll(variants.stream().map(v -> new Variant(null, v, categoryDb)).toList());
+            settingsMainMenu(chatValue);
+            chatValue.setReplyText(variants.size() + ": вариантов добавлено в категорию - " + category);
+        }
+        chatValue.setState(State.DICT_SETTING);
+    }
+
+    public void settingsMainMenu(ChatValue chatValue) {
+        InlineKeyboardMarkup markup = new InlineKeyboardMarkup(List.of(
+                new InlineKeyboardRow(InlineKeyboardButton.builder()
+                        .text("показать словарик")
+                        .callbackData(Callbacks.DICT_VIEW.getCallbackData())
+                        .build()),
+                new InlineKeyboardRow(InlineKeyboardButton.builder()
+                        .text("новая категория")
+                        .callbackData(Callbacks.DICT_ADD_CATEGORY.getCallbackData())
+                        .build()),
+                new InlineKeyboardRow(InlineKeyboardButton.builder()
+                        .text("добавить варианты в категорию")
+                        .callbackData(Callbacks.DICT_ADD_TASKS_TO_CATEGORY.getCallbackData())
+                        .build()),
+                new InlineKeyboardRow(InlineKeyboardButton.builder()
+                        .text("справка по словарику")
+                        .callbackData(Callbacks.DICT_HELP.getCallbackData())
+                        .build()),
+                new InlineKeyboardRow(InlineKeyboardButton.builder()
+                        .text("фсё, пока хватит")
+                        .callbackData(Callbacks.CANCEL.getCallbackData())
+                        .build())
+        ));
+        chatValue.setReplyKeyboard(markup);
+        chatValue.setReplyText("настройки словарика");
+        chatValue.setState(State.DICT_SETTING);
+    }
+
+    public void settingsShortMenu(ChatValue chatValue, String message) {
+        InlineKeyboardMarkup markup = new InlineKeyboardMarkup(List.of(
+                new InlineKeyboardRow(InlineKeyboardButton.builder()
+                        .text("настраивать словарик")
+                        .callbackData(Callbacks.DICT_SETTINGS.getCallbackData())
+                        .build()),
+                new InlineKeyboardRow(InlineKeyboardButton.builder()
+                        .text("хватит пока")
+                        .callbackData(Callbacks.CANCEL.getCallbackData())
+                        .build())));
+        chatValue.setReplyText(message);
+        chatValue.setReplyKeyboard(markup);
+        chatValue.setState(State.DICT_SETTING);
+    }
+}

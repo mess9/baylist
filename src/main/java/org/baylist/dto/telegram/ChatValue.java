@@ -2,7 +2,6 @@ package org.baylist.dto.telegram;
 
 import lombok.Data;
 import org.baylist.db.entity.User;
-import org.baylist.service.UserService;
 import org.telegram.telegrambots.meta.api.methods.ForwardMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -19,10 +18,9 @@ public class ChatValue {
     private ForwardMessage forwardMessage;
 
 	private User user;
-	private UserService userService;
 
 
-	public ChatValue(Update update, UserService userService) {
+	public ChatValue(Update update) {
         this.update = update;
         if (update.hasMessage() && update.getMessage().hasText()) {
             this.chatId = update.getMessage().getChatId();
@@ -31,7 +29,6 @@ public class ChatValue {
 	        this.isCallback = true;
         }
         this.message = SendMessage.builder().text("").chatId(chatId).build();
-		this.userService = userService;
     }
 
 
@@ -65,7 +62,6 @@ public class ChatValue {
 
 	public void setState(State state) {
 		user.getDialog().setState(state);
-		userService.saveUser(user);
 	}
 	//endregion SETTER
 

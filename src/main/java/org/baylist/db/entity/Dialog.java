@@ -42,6 +42,9 @@ public class Dialog {
 	@Enumerated(EnumType.STRING)
 	private State state;
 
+	@Column(name = "selected_category")
+	private String selectedCategory;
+
 
 	public Dialog(User user, Long chatId, State state) {
 		this.user = user;

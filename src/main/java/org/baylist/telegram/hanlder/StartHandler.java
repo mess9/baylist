@@ -1,13 +1,14 @@
-package org.baylist.telegram2.hanlder;
+package org.baylist.telegram.hanlder;
 
 import org.baylist.dto.telegram.ChatValue;
 import org.baylist.dto.telegram.State;
-import org.baylist.telegram2.hanlder.config.DialogHandler;
+import org.baylist.telegram.hanlder.config.DialogHandler;
 import org.springframework.stereotype.Component;
 
 @Component
 public class StartHandler implements DialogHandler {
 
+	// state START
 	@Override
 	public void handle(ChatValue chatValue) {
 		chatValue.setReplyText("""

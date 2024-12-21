@@ -1,11 +1,10 @@
-package org.baylist.telegram2.hanlder;
+package org.baylist.telegram.hanlder.feedback;
 
 import lombok.AllArgsConstructor;
 import org.baylist.dto.telegram.Callbacks;
 import org.baylist.dto.telegram.ChatValue;
 import org.baylist.dto.telegram.State;
-import org.baylist.service.TodoistService;
-import org.baylist.telegram2.hanlder.config.DialogHandler;
+import org.baylist.telegram.hanlder.config.DialogHandler;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
@@ -15,10 +14,9 @@ import java.util.List;
 
 @Component
 @AllArgsConstructor
-public class ReportHandler implements DialogHandler {
+public class FeedbackRequestHandler implements DialogHandler {
 
-	private TodoistService todoist;
-
+	// state FEEDBACK_REQUEST
 	@Override
 	public void handle(ChatValue chatValue) {
 		if (chatValue.isCallback()) {
@@ -36,7 +34,7 @@ public class ReportHandler implements DialogHandler {
 				chatValue.setState(State.DEFAULT);
 			} else if (callbackData.equals(Callbacks.FEEDBACK.getCallbackData())) {
 				chatValue.setReplyText("я вас внимательно слушаю");
-				chatValue.setState(State.FEEDBACK);
+				chatValue.setState(State.FEEDBACK_ANSWER);
 			}
 		} else {
 			InlineKeyboardMarkup markup = new InlineKeyboardMarkup(List.of(
@@ -59,7 +57,7 @@ public class ReportHandler implements DialogHandler {
 					 - смешные мемы
 					""");
 			chatValue.setReplyKeyboard(markup);
-			chatValue.setState(State.REPORT);
+			chatValue.setState(State.FEEDBACK_REQUEST);
 		}
 	}
 }

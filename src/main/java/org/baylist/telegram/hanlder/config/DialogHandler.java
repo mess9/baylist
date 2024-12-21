@@ -1,4 +1,4 @@
-package org.baylist.telegram2.hanlder.config;
+package org.baylist.telegram.hanlder.config;
 
 import org.baylist.dto.telegram.ChatValue;
 

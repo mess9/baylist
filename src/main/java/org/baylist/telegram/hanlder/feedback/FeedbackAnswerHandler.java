@@ -1,20 +1,21 @@
-package org.baylist.telegram2.hanlder;
+package org.baylist.telegram.hanlder.feedback;
 
 import lombok.AllArgsConstructor;
 import org.baylist.db.entity.User;
 import org.baylist.dto.telegram.ChatValue;
 import org.baylist.dto.telegram.State;
 import org.baylist.service.UserService;
-import org.baylist.telegram2.hanlder.config.DialogHandler;
+import org.baylist.telegram.hanlder.config.DialogHandler;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.ForwardMessage;
 
 @Component
 @AllArgsConstructor
-public class FeedbackHandler implements DialogHandler {
+public class FeedbackAnswerHandler implements DialogHandler {
 
 	UserService userService;
 
+	//state FEEDBACK_ANSWER
 	@Override
 	public void handle(ChatValue chatValue) {
 		User fil = userService.getFil();

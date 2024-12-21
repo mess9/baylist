@@ -1,11 +1,11 @@
-package org.baylist.telegram2.hanlder;
+package org.baylist.telegram.hanlder;
 
 import lombok.AllArgsConstructor;
 import org.baylist.dto.telegram.Callbacks;
 import org.baylist.dto.telegram.ChatValue;
 import org.baylist.dto.telegram.State;
 import org.baylist.service.TodoistService;
-import org.baylist.telegram2.hanlder.config.DialogHandler;
+import org.baylist.telegram.hanlder.config.DialogHandler;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -14,6 +14,7 @@ public class DefaultHandler implements DialogHandler {
 
 	private TodoistService todoist;
 
+	// state DEFAULT
 	@Override
 	public void handle(ChatValue chatValue) {
 		if (chatValue.isCallback()) {
