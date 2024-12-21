@@ -7,7 +7,7 @@ import org.baylist.db.entity.Variant;
 import org.baylist.db.repo.CategoryRepository;
 import org.baylist.db.repo.VariantRepository;
 import org.baylist.dto.telegram.Callbacks;
-import org.baylist.dto.telegram.ChatState;
+import org.baylist.dto.telegram.ChatValue;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
@@ -54,11 +54,11 @@ public class DictionaryService {
         // мб позже добавить вариант разделения по запятым или пробелам, хз пока
     }
 
-    public void addDictCategory(ChatState chatState) {
-        String input = chatState.getUpdate().getMessage().getText().trim().toLowerCase();
+    public void addDictCategory(ChatValue chatValue) {
+        String input = chatValue.getUpdate().getMessage().getText().trim().toLowerCase();
         // мб позже добавить валидацию
         categoryRepository.save(new Category(null, input, null));
-        chatState.setReplyText("категория - [ " + input + " ] - добавлена");
+        chatValue.setReplyText("категория - [ " + input + " ] - добавлена");
 
         InlineKeyboardMarkup markup = new InlineKeyboardMarkup(List.of(
                 new InlineKeyboardRow(InlineKeyboardButton.builder()
@@ -73,7 +73,7 @@ public class DictionaryService {
                         .text("пока всё, вернись в дефолтный режим")
                         .callbackData(Callbacks.CANCEL.getCallbackData())
                         .build())));
-        chatState.setReplyKeyboard(markup);
+        chatValue.setReplyKeyboard(markup);
     }
 
     public Map<String, Set<String>> getDict() {

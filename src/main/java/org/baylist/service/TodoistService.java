@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.baylist.controller.todoist.Todoist;
 import org.baylist.dto.telegram.Callbacks;
-import org.baylist.dto.telegram.ChatState;
+import org.baylist.dto.telegram.ChatValue;
 import org.baylist.dto.telegram.Commands;
 import org.baylist.dto.todoist.ProjectDb;
 import org.baylist.dto.todoist.Repository;
@@ -83,9 +83,9 @@ public class TodoistService {
 		}
 	}
 
-	public void sendTasksToTodoist(ChatState chatState) {
-		SendMessage message = chatState.getMessage();
-		String input = chatState.getUpdate().getMessage().getText();
+	public void sendTasksToTodoist(ChatValue chatValue) {
+		SendMessage message = chatValue.getMessage();
+		String input = chatValue.getUpdate().getMessage().getText();
 
 		if (validateInput(input)) {
 

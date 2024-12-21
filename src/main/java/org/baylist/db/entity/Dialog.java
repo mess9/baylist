@@ -2,6 +2,8 @@ package org.baylist.db.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -13,6 +15,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.baylist.dto.telegram.State;
 
 @Entity
 @Getter
@@ -35,20 +38,15 @@ public class Dialog {
 	@Column(name = "chat_id")
 	private Long chatId;
 
-	@Column(name = "is_report")
-	private boolean isReport = false;
-
-	@Column(name = "is_add_category")
-	private boolean isAddCategory = false;
-
-	@Column(name = "category_added_values")
-	private Long categoryAddedValues;
+	@Column(name = "state")
+	@Enumerated(EnumType.STRING)
+	private State state;
 
 
-
-	public Dialog(User user, Long chatId) {
+	public Dialog(User user, Long chatId, State state) {
 		this.user = user;
 		this.chatId = chatId;
+		this.state = state;
 	}
 
 

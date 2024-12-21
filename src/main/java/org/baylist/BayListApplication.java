@@ -8,7 +8,6 @@ public class BayListApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(BayListApplication.class, args);
-		System.out.println("buylist started again");
 	}
 
 

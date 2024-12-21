@@ -5,6 +5,6 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
             http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
-    <include file="migrations/fill-dialog-is-add-category-default-value.yaml" relativeToChangelogFile="true"/>
+    <include file="migrations/dialog-add-state.yaml" relativeToChangelogFile="true"/>
 
 </databaseChangeLog>

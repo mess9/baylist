@@ -1,0 +1,30 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1
+      author: fil
+      changes:
+        - addColumn:
+            tableName: dialogs
+            columns:
+              - column:
+                  name: state
+                  type: varchar
+  - changeSet:
+      id: 2
+      author: fil
+      changes:
+        - addDefaultValue:
+            tableName: dialogs
+            columnName: state
+            defaultValue: START
+  - changeSet:
+      id: 3
+      author: fil
+      changes:
+        - update:
+            tableName: dialogs
+            columns:
+              - column:
+                  name: state
+                  value: START
+            where: "state IS NULL"
