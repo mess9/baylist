@@ -1,0 +1,11 @@
+databaseChangeLog:
+  - changeSet:
+      id: 2
+      author: fil
+      changes:
+        - addColumn:
+            tableName: dialogs
+            columns:
+              - column:
+                  name: category_added_values
+                  type: bigint

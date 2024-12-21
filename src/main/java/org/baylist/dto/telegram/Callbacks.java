@@ -12,7 +12,11 @@ public enum Callbacks {
 	VIEW("view"),
 	DONATE("donate"),
 	ADD_CATEGORY("addCategory"),
-	ADD_TASK_TO_CATEGORY("addTaskToCategory"),
+	ADD_TASKS_TO_CATEGORY("addTasksToCategory"),
+	CATEGORY_CHOICE("category:"),
+	REMOVE_CATEGORY("removeCategory"), //todo
+	REMOVE_TASK_TO_CATEGORY("removeTasksToCategory"),//todo
+	VIEW_CATEGORIES("viewCategories"), //todo просматривать и удалять содержимое словарика
 	FEEDBACK("feedback");
 
 

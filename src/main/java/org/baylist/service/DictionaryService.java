@@ -67,14 +67,13 @@ public class DictionaryService {
                         .build()),
                 new InlineKeyboardRow(InlineKeyboardButton.builder()
                         .text("добавить варианты задач в категорию")
-                        .callbackData(Callbacks.ADD_TASK_TO_CATEGORY.getCallbackData())
-                        .build()), //todo в разработке. пока - не работает
+                        .callbackData(Callbacks.CATEGORY_CHOICE.getCallbackData())
+                        .build()),
                 new InlineKeyboardRow(InlineKeyboardButton.builder()
                         .text("пока всё, вернись в дефолтный режим")
                         .callbackData(Callbacks.CANCEL.getCallbackData())
                         .build())));
         chatState.setReplyKeyboard(markup);
-//        userService.addCategoryOff(chatState);
     }
 
     public Map<String, Set<String>> getDict() {
@@ -87,5 +86,27 @@ public class DictionaryService {
         ));
     }
 
-
+    public List<String> getCategories() {
+        return categoryRepository.findAll().stream().map(Category::getName).toList();
+    }
 }
+
+//    public void addDictVariant(ChatState chatState) {
+//        String input = chatState.getInputText();
+//        String[] split = input.split("\n");
+//        List<String> variants = Arrays.stream(split).map(String::trim).toList();
+//        Category category = categoryRepository.findByName(chatState.getCategory()).orElse(null);
+//        if (category == null) {
+//            chatState.setReplyText("категория не найдена");
+//            return;
+//        }
+//        variantRepository.saveAll(variants.stream().map(v -> new Variant(null, v, category.getId())).toList());
+//        chatState.setReplyText("варианты добавлены");
+//
+//        InlineKeyboardMarkup markup = new InlineKeyboardMarkup(List.of(
+//                new InlineKeyboardRow(InlineKeyboardButton.builder()
+//                        .text("добавить ещё варианты")
+//                        .callbackData(Callbacks.ADD_VARIANT.getCallbackData())
+//                        .build())));
+//        chatState.setReplyKeyboard(markup);
+//    }

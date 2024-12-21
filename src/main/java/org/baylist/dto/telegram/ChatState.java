@@ -33,6 +33,14 @@ public class ChatState {
         this.message = SendMessage.builder().text("").chatId(chatId).build();
     }
 
+	public String getInputText() {
+		return update.getMessage().getText();
+	}
+
+	public String getCallbackData() {
+		return update.getCallbackQuery().getData();
+	}
+
     public void setReplyText(String text) {
         this.message.setText(text);
     }

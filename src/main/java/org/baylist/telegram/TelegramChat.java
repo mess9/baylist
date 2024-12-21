@@ -35,11 +35,14 @@ public class TelegramChat {
 			    feedbackService.acceptFeedback(chatState);
 		    } else if (chatState.getUser().getDialog().isAddCategory()) {
 			    dictionaryService.addDictCategory(chatState);
-		    } else {
+		    }
+//			else if (chatState.getUser().getDialog().isAddTaskToCategory()) {
+//		    }
+	    } else {
 			    todoist.sendTasksToTodoist(chatState);
 		    }
         }
     }
 
 
-}
+

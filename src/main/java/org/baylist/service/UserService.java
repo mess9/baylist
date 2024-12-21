@@ -3,8 +3,10 @@ package org.baylist.service;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.baylist.db.entity.Category;
 import org.baylist.db.entity.Dialog;
 import org.baylist.db.entity.User;
+import org.baylist.db.repo.CategoryRepository;
 import org.baylist.db.repo.UserRepository;
 import org.baylist.dto.telegram.ChatState;
 import org.springframework.stereotype.Component;
@@ -20,6 +22,7 @@ import static org.baylist.dto.Constants.FIL_USER_ID;
 public class UserService {
 
 	UserRepository userRepository;
+	CategoryRepository categoryRepository;
 
 	@Transactional
 	public void checkUser(ChatState chatState) {
@@ -81,6 +84,15 @@ public class UserService {
 		user.getDialog().setAddCategory(true);
 		userRepository.save(user);
 	}
+
+	public void addCategoryContext(User user, String category) {
+		Category categoryDb = categoryRepository.findCategoryByName(category);
+		user.getDialog().setCategoryAddedValues(categoryDb.getId());
+		userRepository.save(user);
+		//todo тут я остноавился
+	}
+
+
 
 
 }

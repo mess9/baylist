@@ -41,6 +41,10 @@ public class Dialog {
 	@Column(name = "is_add_category")
 	private boolean isAddCategory = false;
 
+	@Column(name = "category_added_values")
+	private Long categoryAddedValues;
+
+
 
 	public Dialog(User user, Long chatId) {
 		this.user = user;
