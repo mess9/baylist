@@ -21,7 +21,7 @@ public class DictSettingHandler implements DialogHandler {
 	private ResponseService responseService;
 	private DictionaryService dictionaryService;
 
-	// state CLEAR
+	// state DICT_SETTING
 	@Override
 	public void handle(ChatValue chatValue) {
 		if (chatValue.isCallback()) {
@@ -29,8 +29,16 @@ public class DictSettingHandler implements DialogHandler {
 			switch (callback) {
 				case CANCEL -> responseService.cancelMessage(chatValue);
 				case DICT_VIEW -> {
-					chatValue.setReplyText("этот метод пока в разработке"); //todo т
-					chatValue.setState(State.DICT_SETTING);
+					chatValue.setReplyText("внутрь какой категории заглянуть?");
+					List<String> categories = dictionaryService.getCategories();
+					InlineKeyboardMarkup markup = new InlineKeyboardMarkup(categories.stream()
+							.map(c -> new InlineKeyboardRow(
+									InlineKeyboardButton.builder()
+											.text(c)
+											.callbackData(Callbacks.CATEGORY_CHOICE.getCallbackData() + c)
+											.build())).toList());
+					chatValue.setReplyKeyboard(markup);
+					chatValue.setState(State.DICT_VIEW);
 				}
 				case DICT_ADD_CATEGORY -> {
 					chatValue.setReplyText("""

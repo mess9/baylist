@@ -9,8 +9,29 @@ import static org.baylist.util.log.LogUtil.reduceEmptyLines;
 @Slf4j
 public class TgLog {
 
+	public static SendMessage outputLog(SendMessage message) {
+		int qtyCharToCutMessage = 150;
+		String chatId = message.getChatId();
+		String text = message.getText();
+		text = reduceEmptyLines(text);
+		if (text.length() > qtyCharToCutMessage) {
+			text = text.substring(0, qtyCharToCutMessage) + "...";
+		}
+		log.info(" -> Answer to chat id - {}, \n Text - {}",
+				chatId,
+				text);
+		return message;
+	}
 
-    public static void inputLogMessage(Update update) {
+	public static void inputLog(Update update) {
+		if (update.hasMessage()) {
+			inputLogMessage(update);
+		} else if (update.hasCallbackQuery()) {
+			inputLogButton(update);
+		}
+	}
+
+	private static void inputLogMessage(Update update) {
 	    String user_first_name = update.getMessage().getFrom().getFirstName();
 	    String user_last_name = update.getMessage().getFrom().getLastName();
 	    long user_id = update.getMessage().getFrom().getId();
@@ -23,7 +44,7 @@ public class TgLog {
                 answer);
     }
 
-    public static void inputLogButton(Update update) {
+	private static void inputLogButton(Update update) {
         String user_first_name = update.getCallbackQuery().getMessage().getChat().getFirstName();
         String user_last_name = update.getCallbackQuery().getMessage().getChat().getLastName();
         long user_id = update.getCallbackQuery().getMessage().getChat().getId();
@@ -34,20 +55,6 @@ public class TgLog {
                 user_last_name,
                 user_id,
                 data);
-    }
-
-    public static SendMessage outputLog(SendMessage message) {
-        int qtyCharToCutMessage = 150;
-        String chatId = message.getChatId();
-        String text = message.getText();
-        text = reduceEmptyLines(text);
-        if (text.length() > qtyCharToCutMessage) {
-            text = text.substring(0, qtyCharToCutMessage) + "...";
-        }
-	    log.info(" -> Answer to chat id - {}, \n Text - {}",
-                chatId,
-                text);
-        return message;
     }
 
 

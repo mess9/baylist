@@ -9,5 +9,7 @@ public interface VariantRepository extends JpaRepository<Variant, Long> {
 
     Variant findByNameAndCategoryId(String name, Long categoryId);
 
-    List<Variant> findByCategoryId(Long id);
+	List<Variant> findAllByCategoryId(Long id);
+
+	List<Variant> findAllByCategoryName(String categoryName);
 }

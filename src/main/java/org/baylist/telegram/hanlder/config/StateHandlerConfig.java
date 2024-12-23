@@ -9,11 +9,13 @@ import org.baylist.telegram.hanlder.ViewHandler;
 import org.baylist.telegram.hanlder.dictionary.DictAddCategoryHandler;
 import org.baylist.telegram.hanlder.dictionary.DictAddTasksToCategoryHandler;
 import org.baylist.telegram.hanlder.dictionary.DictSettingHandler;
+import org.baylist.telegram.hanlder.dictionary.DictViewHandler;
 import org.baylist.telegram.hanlder.feedback.FeedbackAnswerHandler;
 import org.baylist.telegram.hanlder.feedback.FeedbackRequestHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @Configuration
@@ -30,20 +32,23 @@ public class StateHandlerConfig {
 			FeedbackAnswerHandler feedbackAnswerHandler,
 			DictSettingHandler dictSettingHandler,
 			DictAddCategoryHandler dictAddCategoryHandler,
-			DictAddTasksToCategoryHandler dictAddTasksToCategoryHandler
+			DictAddTasksToCategoryHandler dictAddTasksToCategoryHandler,
+			DictViewHandler dictViewHandler
 	) {
-		return Map.of(
-				State.START, startHandler,
-				State.ERROR, errorHandler,
-				State.DEFAULT, defaultHandler,
-				State.CLEAR, clearHandler,
-				State.VIEW, viewHandler,
-				State.FEEDBACK_REQUEST, feedbackRequestHandler,
-				State.FEEDBACK_ANSWER, feedbackAnswerHandler,
-				State.DICT_SETTING, dictSettingHandler,
-				State.DICT_ADD_CATEGORY, dictAddCategoryHandler,
-				State.DICT_ADD_TASK_TO_CATEGORY, dictAddTasksToCategoryHandler
-		);
+		Map<State, DialogHandler> stateHandlers = new HashMap<>();
+		stateHandlers.put(State.START, startHandler);
+		stateHandlers.put(State.ERROR, errorHandler);
+		stateHandlers.put(State.DEFAULT, defaultHandler);
+		stateHandlers.put(State.CLEAR, clearHandler);
+		stateHandlers.put(State.VIEW, viewHandler);
+		stateHandlers.put(State.FEEDBACK_REQUEST, feedbackRequestHandler);
+		stateHandlers.put(State.FEEDBACK_ANSWER, feedbackAnswerHandler);
+		stateHandlers.put(State.DICT_SETTING, dictSettingHandler);
+		stateHandlers.put(State.DICT_ADD_CATEGORY, dictAddCategoryHandler);
+		stateHandlers.put(State.DICT_ADD_TASK_TO_CATEGORY, dictAddTasksToCategoryHandler);
+		stateHandlers.put(State.DICT_VIEW, dictViewHandler);
+
+		return stateHandlers;
 	}
 
 }

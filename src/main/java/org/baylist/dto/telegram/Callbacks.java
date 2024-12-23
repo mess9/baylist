@@ -15,6 +15,8 @@ public enum Callbacks {
 	DONATE("donate"),
 	DICT_SETTINGS("dictSettings"),
 	DICT_VIEW("dictView"),
+	DICT_VIEW_PAGINATION_BACK("dictViewPaginationBack"),
+	DICT_VIEW_PAGINATION_FORWARD("dictViewPaginationForward"),
 	DICT_HELP("dictHelp"),
 	DICT_ADD_CATEGORY("dictAddCategory"),
 	DICT_ADD_TASKS_TO_CATEGORY("dictAddTasksToCategory"),

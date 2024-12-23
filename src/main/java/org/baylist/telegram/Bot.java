@@ -19,6 +19,7 @@ import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 import java.util.Map;
 
+import static org.baylist.util.log.TgLog.inputLog;
 import static org.baylist.util.log.TgLog.outputLog;
 
 
@@ -53,6 +54,7 @@ public class Bot implements SpringLongPollingBot, LongPollingSingleThreadUpdateC
 
 	@Override
 	public void consume(Update update) {
+		inputLog(update);
 		ChatValue chatValue = new ChatValue(update);
 		userService.checkUser(chatValue);
 		commandChecker.checkCommandInput(chatValue);
@@ -86,9 +88,13 @@ public class Bot implements SpringLongPollingBot, LongPollingSingleThreadUpdateC
 	//private
 	private void sendMessageToTelegram(ChatValue chatValue) {
 		try {
-			telegramClient.execute(outputLog(chatValue.getMessage()));
-			if (chatValue.getForwardMessage() != null) {
-				telegramClient.execute(chatValue.getForwardMessage());
+			if (chatValue.getEditMessage() != null) {
+				telegramClient.execute(chatValue.getEditMessage());
+			} else {
+				telegramClient.execute(outputLog(chatValue.getMessage()));
+				if (chatValue.getForwardMessage() != null) {
+					telegramClient.execute(chatValue.getForwardMessage());
+				}
 			}
 		} catch (TelegramApiException e) {
 			log.error(e.getMessage());

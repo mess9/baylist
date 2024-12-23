@@ -63,7 +63,7 @@ public class DictionaryService {
     public Map<String, Set<String>> getDict() {
         return categoryRepository.findAll().stream().collect(Collectors.toMap(
                 Category::getName,
-                c -> variantRepository.findByCategoryId(c.getId())
+		        c -> variantRepository.findAllByCategoryId(c.getId())
                         .stream()
                         .map(Variant::getName)
                         .collect(Collectors.toSet())
@@ -73,6 +73,14 @@ public class DictionaryService {
     public List<String> getCategories() {
         return categoryRepository.findAll().stream().map(Category::getName).toList();
     }
+
+	public Category getCategory(String category) {
+		return categoryRepository.findCategoryByName(category);
+	}
+
+	public List<String> getVariants(String category) {
+		return variantRepository.findAllByCategoryName(category).stream().map(Variant::getName).toList();
+	}
 
 
     public void addVariantToCategory(ChatValue chatValue, String category) {
