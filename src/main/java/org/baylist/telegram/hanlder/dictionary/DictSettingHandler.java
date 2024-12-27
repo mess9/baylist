@@ -57,11 +57,15 @@ public class DictSettingHandler implements DialogHandler {
 				}
 				case DICT_ADD_TASKS_TO_CATEGORY -> {
 					chatValue.setReplyText("в какую именно категорию добавить варианты задач?");
-					tgButtonService.setCategoriesChoiceKeyboard(chatValue, State.DICT_ADD_TASK_TO_CATEGORY);
+					tgButtonService.setCategoriesChoiceKeyboard(chatValue, State.DICT_ADD_TASK_TO_CATEGORY, false);
 				}
 				case DICT_REMOVE_CATEGORY -> {
 					responseService.textChoiceRemoveCategory(chatValue, false);
-					tgButtonService.setCategoriesChoiceKeyboard(chatValue, State.DICT_REMOVE_CATEGORY);
+					tgButtonService.setCategoriesChoiceKeyboard(chatValue, State.DICT_REMOVE_CATEGORY, false);
+				}
+				case DICT_RENAME_CATEGORY -> {
+					chatValue.setEditMessage("какую категорию переименовать?");
+					tgButtonService.setCategoriesChoiceKeyboard(chatValue, State.DICT_RENAME_CATEGORY, true);
 				}
 				case DICT_HELP -> {
 					chatValue.setReplyText("""

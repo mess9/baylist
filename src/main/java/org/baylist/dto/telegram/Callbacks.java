@@ -21,11 +21,13 @@ public enum Callbacks {
 	DICT_ADD_CATEGORY("dictAddCategory"),
 	DICT_ADD_TASKS_TO_CATEGORY("dictAddTasksToCategory"),
 	DICT_REMOVE_CATEGORY("dictRemoveCategory"),
+	DICT_RENAME_CATEGORY("dictRenameCategory"),
 	CATEGORY_CHOICE("category:"),
 	REMOVE_CATEGORY("removeCategory"),
 	REMOVE_TASK_TO_CATEGORY("removeTasksToCategory"),//todo
 	VIEW_CATEGORIES("viewCategories"),
-	FEEDBACK("feedback");
+	FEEDBACK("feedback"),
+	;
 
 
 	private final String callbackData;

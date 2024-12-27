@@ -21,7 +21,7 @@ public class TgButtonService {
 	private final DictionaryService dictionaryService;
 
 
-	public void setCategoriesChoiceKeyboard(ChatValue chatValue, State state) {
+	public void setCategoriesChoiceKeyboard(ChatValue chatValue, State state, boolean isEdit) {
 		List<String> categories = dictionaryService.getCategories();
 		InlineKeyboardMarkup markup = new InlineKeyboardMarkup(categories.stream()
 				.map(c -> new InlineKeyboardRow(
@@ -29,7 +29,11 @@ public class TgButtonService {
 								.text(c)
 								.callbackData(Callbacks.CATEGORY_CHOICE.getCallbackData() + c)
 								.build())).toList());
-		chatValue.setReplyKeyboard(markup);
+		if (isEdit) {
+			chatValue.setEditReplyKeyboard(markup);
+		} else {
+			chatValue.setReplyKeyboard(markup);
+		}
 		chatValue.setState(state);
 	}
 

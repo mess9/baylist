@@ -75,6 +75,10 @@ public class DictionaryService {
         return categoryRepository.findAll().stream().map(Category::getName).toList();
     }
 
+	public Category getCategoryByName(String name) {
+		return categoryRepository.findCategoryByName(name);
+	}
+
 	public List<String> getVariants(String category) {
 		return variantRepository.findAllByCategoryName(category).stream().map(Variant::getName).toList();
 	}
@@ -110,6 +114,10 @@ public class DictionaryService {
                         .text("добавить варианты в категорию")
                         .callbackData(Callbacks.DICT_ADD_TASKS_TO_CATEGORY.getCallbackData())
 		                .build()),
+		        new InlineKeyboardRow(InlineKeyboardButton.builder()
+				        .text("переименовать категорию")
+				        .callbackData(Callbacks.DICT_RENAME_CATEGORY.getCallbackData())
+				        .build()),
 		        new InlineKeyboardRow(InlineKeyboardButton.builder()
 				        .text("удалить категории")
 				        .callbackData(Callbacks.DICT_REMOVE_CATEGORY.getCallbackData())
@@ -150,5 +158,10 @@ public class DictionaryService {
 			variantRepository.deleteCategoryById(categoryDb.getId());
 			categoryRepository.delete(categoryDb);
 		}
+	}
+
+	public void renameCategory(Category category, String newCategoryName) {
+		category.setName(newCategoryName);
+		categoryRepository.save(category);
 	}
 }
