@@ -122,6 +122,10 @@ public class DictionaryService {
 				        .text("удалить категории")
 				        .callbackData(Callbacks.DICT_REMOVE_CATEGORY.getCallbackData())
                         .build()),
+		        new InlineKeyboardRow(InlineKeyboardButton.builder()
+				        .text("удалить варианты задач")
+				        .callbackData(Callbacks.DICT_REMOVE_VARIANT.getCallbackData())
+				        .build()),
                 new InlineKeyboardRow(InlineKeyboardButton.builder()
                         .text("справка по словарику")
                         .callbackData(Callbacks.DICT_HELP.getCallbackData())
@@ -163,5 +167,12 @@ public class DictionaryService {
 	public void renameCategory(Category category, String newCategoryName) {
 		category.setName(newCategoryName);
 		categoryRepository.save(category);
+	}
+
+	@Transactional
+	public void removeVariants(String variants) {
+		for (String s : variants.split("\n")) {
+			variantRepository.deleteByName(s.trim());
+		}
 	}
 }

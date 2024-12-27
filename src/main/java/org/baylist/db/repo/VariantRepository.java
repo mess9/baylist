@@ -12,4 +12,6 @@ public interface VariantRepository extends JpaRepository<Variant, Long> {
 	List<Variant> findAllByCategoryName(String categoryName);
 
 	void deleteCategoryById(Long id);
+
+	void deleteByName(String variant);
 }

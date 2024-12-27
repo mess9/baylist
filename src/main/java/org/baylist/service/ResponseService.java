@@ -32,4 +32,12 @@ public class ResponseService {
 		}
 	}
 
+	public void textChoiceRemoveVariant(ChatValue chatValue, boolean success) {
+		if (success) {
+			chatValue.setReplyText("введённые варианты были успешно удалены");
+		} else {
+			chatValue.setReplyText("введённые варианты не были удалены. попробуйте ещё раз" +
+					" но как-то так что бы сработало");
+		}
+	}
 }

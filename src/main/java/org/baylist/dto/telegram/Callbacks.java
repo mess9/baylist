@@ -22,9 +22,9 @@ public enum Callbacks {
 	DICT_ADD_TASKS_TO_CATEGORY("dictAddTasksToCategory"),
 	DICT_REMOVE_CATEGORY("dictRemoveCategory"),
 	DICT_RENAME_CATEGORY("dictRenameCategory"),
+	DICT_REMOVE_VARIANT("dictRemoveVariant"),
 	CATEGORY_CHOICE("category:"),
 	REMOVE_CATEGORY("removeCategory"),
-	REMOVE_TASK_TO_CATEGORY("removeTasksToCategory"),//todo
 	VIEW_CATEGORIES("viewCategories"),
 	FEEDBACK("feedback"),
 	;

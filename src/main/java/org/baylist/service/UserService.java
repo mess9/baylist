@@ -48,7 +48,7 @@ public class UserService {
 		chatValue.setUser(existUser);
 		existUser.setLastSeen(OffsetDateTime.now());
 		userRepository.save(existUser);
-		log.info("hi - {}", existUser.getFirstName());
+		log.info("hi - {}, state - {}", existUser.getFirstName(), existUser.getDialog().getState());
 	}
 
 	private void createNewUser(ChatValue chatValue, Long userId) {

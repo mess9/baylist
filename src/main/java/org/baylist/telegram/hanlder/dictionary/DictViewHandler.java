@@ -42,39 +42,6 @@ public class DictViewHandler implements DialogHandler {
 				dictionaryService.settingsMainMenu(chatValue);
 				paginationStateMap.remove(chatValue.getUser().getUserId());
 			} else if (callbackData.startsWith(Callbacks.CATEGORY_CHOICE.getCallbackData())) {
-//				String categoryName = callbackData.substring(Callbacks.CATEGORY_CHOICE.getCallbackData().length());
-//				Category category = dictionaryService.getCategory(categoryName);
-//				// теперь надо вывести варианты категории с пагинацией
-//				List<String> variants = category.getVariants().stream().map(Variant::getName).toList();
-//				Map<Integer, List<String>> paginate = paginate(variants);
-//				StringBuilder sb = new StringBuilder();
-//				sb.append("варианты для категории - ").append(categoryName);
-//				paginate.get(1).forEach(v -> sb.append(" - <code>").append(v).append("</code>\n"));
-//				chatValue.setReplyText(sb.toString());
-//				chatValue.setReplyParseModeHtml();
-//				chatValue.setState(State.DICT_VIEW);
-//				InlineKeyboardMarkup markup = new InlineKeyboardMarkup(List.of(
-//						new InlineKeyboardRow(List.of(
-//								InlineKeyboardButton.builder()
-//										.text("<-")
-//										.callbackData(Callbacks.DICT_VIEW_PAGINATION_BACK.getCallbackData())
-//										.build(),
-//								InlineKeyboardButton.builder()
-//										.text("->")
-//										.callbackData(Callbacks.DICT_VIEW_PAGINATION_FORWARD.getCallbackData())
-//										.build(),
-//								InlineKeyboardButton.builder()
-//										.text("1/" + paginate.size())
-//										.build()
-//						)),
-//						new InlineKeyboardRow(List.of(
-//								InlineKeyboardButton.builder()
-//										.text("назад")
-//										.callbackData(Callbacks.DICT_SETTINGS.getCallbackData())
-//										.build()
-//						))
-//				));
-//			}
 				handleCategoryChoice(chatValue, callbackData);
 			} else if (callbackData.equals(Callbacks.DICT_VIEW_PAGINATION_FORWARD.getCallbackData())) {
 				updatePagination(chatValue, true);
@@ -86,7 +53,7 @@ public class DictViewHandler implements DialogHandler {
 		}
 	}
 
-	private void handleCategoryChoice(ChatValue chatValue, String callbackData) {
+	public void handleCategoryChoice(ChatValue chatValue, String callbackData) {
 		String categoryName = callbackData.substring(Callbacks.CATEGORY_CHOICE.getCallbackData().length());
 		List<String> variants = dictionaryService.getVariants(categoryName);
 		Map<Integer, List<String>> paginate = paginate(variants);

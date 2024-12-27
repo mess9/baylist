@@ -30,12 +30,7 @@ public class DictRemoveCategoryHandler implements DialogHandler {
 	public void handle(ChatValue chatValue) {
 		if (chatValue.isCallback()) {
 			String callbackData = chatValue.getCallbackData();
-			if (callbackData.equals(Callbacks.DICT_SETTINGS.getCallbackData())) {
-				chatValue.setReplyText("ок, продолжим редактировать словарик");
-				dictionaryService.settingsMainMenu(chatValue);
-			} else if (callbackData.equals(Callbacks.CANCEL.getCallbackData())) {
-				responseService.cancelMessage(chatValue);
-			} else if (callbackData.startsWith(Callbacks.CATEGORY_CHOICE.getCallbackData())) {
+			if (callbackData.startsWith(Callbacks.CATEGORY_CHOICE.getCallbackData())) {
 				String category = callbackData.substring(Callbacks.CATEGORY_CHOICE.getCallbackData().length());
 				List<String> categories = dictionaryService.getCategories();
 				Long userId = chatValue.getUser().getUserId();

@@ -67,6 +67,10 @@ public class DictSettingHandler implements DialogHandler {
 					chatValue.setEditMessage("какую категорию переименовать?");
 					tgButtonService.setCategoriesChoiceKeyboard(chatValue, State.DICT_RENAME_CATEGORY, true);
 				}
+				case DICT_REMOVE_VARIANT -> {
+					chatValue.setEditMessage("выбери категорию, из которой удалить варианты задач");
+					tgButtonService.setCategoriesChoiceKeyboard(chatValue, State.DICT_REMOVE_VARIANT, true);
+				}
 				case DICT_HELP -> {
 					chatValue.setReplyText("""
 							<i><b>категории</b> и <b>варианты</b>, это мой <u>внутренний словарик</u> для того что бы я мог раскидать список вводимых тобой задач, по категориям в проекте todoist.</i>

@@ -6,7 +6,6 @@ import org.baylist.dto.telegram.Callbacks;
 import org.baylist.dto.telegram.ChatValue;
 import org.baylist.dto.telegram.State;
 import org.baylist.service.DictionaryService;
-import org.baylist.service.ResponseService;
 import org.baylist.telegram.hanlder.config.DialogHandler;
 import org.springframework.stereotype.Component;
 
@@ -18,7 +17,6 @@ import java.util.concurrent.ConcurrentHashMap;
 public class DictRenameCategoryHandler implements DialogHandler {
 
 	private final DictionaryService dictionaryService;
-	private final ResponseService responseService;
 	private final Map<Long, Category> selectedCategory = new ConcurrentHashMap<>();
 
 
@@ -27,12 +25,7 @@ public class DictRenameCategoryHandler implements DialogHandler {
 	public void handle(ChatValue chatValue) {
 		if (chatValue.isCallback()) {
 			String callbackData = chatValue.getCallbackData();
-			if (callbackData.equals(Callbacks.DICT_SETTINGS.getCallbackData())) {
-				chatValue.setReplyText("ок, продолжим редактировать словарик");
-				dictionaryService.settingsMainMenu(chatValue);
-			} else if (callbackData.equals(Callbacks.CANCEL.getCallbackData())) {
-				responseService.cancelMessage(chatValue);
-			} else if (callbackData.startsWith(Callbacks.CATEGORY_CHOICE.getCallbackData())) {
+			if (callbackData.startsWith(Callbacks.CATEGORY_CHOICE.getCallbackData())) {
 				String category = callbackData.substring(Callbacks.CATEGORY_CHOICE.getCallbackData().length());
 				Long userId = chatValue.getUser().getUserId();
 				var categoryDb = dictionaryService.getCategoryByName(category);
