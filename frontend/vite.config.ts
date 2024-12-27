@@ -1,15 +1,21 @@
-import {defineConfig} from 'vite'
-import preact from '@preact/preset-vite'
-import path from 'path';
+import { defineConfig } from "vite";
+import solidPlugin from "vite-plugin-solid";
+import path from "path";
 
-// https://vite.dev/config/
 export default defineConfig({
-    resolve: {
-        alias: {
-            src: path.resolve(__dirname, './src'),
-            app: path.resolve(__dirname, './app'),
-            pages: path.resolve(__dirname, './pages'),
-        }
+  resolve: {
+    alias: {
+      "/app": path.resolve(__dirname, "src/app"),
+      "/pages": path.resolve(__dirname, "src/pages"),
+      "/shared": path.resolve(__dirname, "src/shared"),
+      "/assets": path.resolve(__dirname, "src/app/assets"),
     },
-    plugins: [preact()],
-})
+  },
+  plugins: [solidPlugin()],
+  server: {
+    port: 3000,
+  },
+  build: {
+    target: "esnext",
+  },
+});
