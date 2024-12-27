@@ -3,24 +3,27 @@ package org.baylist.telegram.hanlder.dictionary;
 import lombok.AllArgsConstructor;
 import org.baylist.dto.telegram.Callbacks;
 import org.baylist.dto.telegram.ChatValue;
+import org.baylist.dto.telegram.SelectedCategoryState;
 import org.baylist.dto.telegram.State;
 import org.baylist.service.DictionaryService;
 import org.baylist.service.ResponseService;
+import org.baylist.service.TgButtonService;
 import org.baylist.telegram.hanlder.config.DialogHandler;
 import org.springframework.stereotype.Component;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardRow;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 @AllArgsConstructor
 public class DictRemoveCategoryHandler implements DialogHandler {
 
+	private final Map<Long, SelectedCategoryState> selectedCategoryState = new ConcurrentHashMap<>();
 	private DictionaryService dictionaryService;
 	private ResponseService responseService;
-
+	private TgButtonService tgButtonService;
 
 	// state DICT_REMOVE_CATEGORY
 	@Override
@@ -34,39 +37,37 @@ public class DictRemoveCategoryHandler implements DialogHandler {
 				responseService.cancelMessage(chatValue);
 			} else if (callbackData.startsWith(Callbacks.CATEGORY_CHOICE.getCallbackData())) {
 				String category = callbackData.substring(Callbacks.CATEGORY_CHOICE.getCallbackData().length());
-				chatValue.setReplyText("удалить категорию - " + category + " ?");
-				chatValue.setState(State.DICT_REMOVE_CATEGORY);
-				chatValue.getUser().getDialog().setSelectedCategory(category);
-				InlineKeyboardMarkup markup = new InlineKeyboardMarkup(List.of(
-						new InlineKeyboardRow(List.of(InlineKeyboardButton.builder()
-										.text("йеп")
-										.callbackData(Callbacks.REMOVE_CATEGORY.getCallbackData())
-										.build(),
-								InlineKeyboardButton.builder()
-										.text("неа")
-										.callbackData(Callbacks.DICT_SETTINGS.getCallbackData())
-										.build()))));
-				chatValue.setReplyKeyboard(markup);
+				List<String> categories = dictionaryService.getCategories();
+				Long userId = chatValue.getUser().getUserId();
+				if (selectedCategoryState.containsKey(userId)) {
+					if (!selectedCategoryState.get(userId).getSelectedCategories().contains(category)) {
+						selectedCategoryState.get(userId).getSelectedCategories().add(category);
+					} else {
+						selectedCategoryState.get(userId).getSelectedCategories().remove(category);
+					}
+				} else {
+					selectedCategoryState.put(userId, new SelectedCategoryState(categories, new ArrayList<>(List.of(category))));
+				}
+				responseService.textChoiceRemoveCategory(chatValue, true);
+				tgButtonService.categoriesChoiceKeyboardEdit(chatValue, State.DICT_REMOVE_CATEGORY,
+						selectedCategoryState.get(userId));
 			} else if (callbackData.startsWith(Callbacks.REMOVE_CATEGORY.getCallbackData())) {
-				String category = chatValue.getUser().getDialog().getSelectedCategory();
-				dictionaryService.removeCategory(category);
-				dictionaryService.settingsShortMenu(chatValue, "категория - [ <b>" + category + "</b> ] - удалена");
+				List<String> selectedCategories = selectedCategoryState.get(chatValue.getUser().getUserId()).getSelectedCategories();
+				selectedCategories.forEach(category -> dictionaryService.removeCategory(category));
+				if (selectedCategories.size() > 1) {
+					StringBuilder sb = new StringBuilder();
+					selectedCategories.forEach(c -> sb.append(" - <b>").append(c).append("</b>\n"));
+					dictionaryService.settingsShortMenu(chatValue, "категории:\n" + sb + "\nудалены");
+				} else {
+					dictionaryService.settingsShortMenu(chatValue,
+							"категория - [ <b>" + selectedCategories.getFirst() + "</b> ] - удалена");
+				}
 				chatValue.setState(State.DICT_SETTING);
 				chatValue.setReplyParseModeHtml();
 			}
 		}
 	}
 }
-
-// переделать на такой режим
-// 1. получаем клавиатуру из категорий
-// 2. тыкаем на любую из них
-// 3. получаем ту же клавиатуру с категориями, но теперь одна из них выбрана чекбоксом + появились кнопки удалить и назад
-// 4. можно выбрать ещё несколько категорий
-// 5. нажимаем удалить - и выбранные категории удаляются (прихранять в мапу)
-// 6. подтверждение, да/нет
-// 7. нажимаем назад - возвращаемся в настройки словарика
-// выравнивание категорий с чекбоксами (чем длиннее категория, тем меньше пробелов слева, до чекбокса
 
 
 

@@ -27,16 +27,6 @@ import static org.baylist.util.log.TgLog.outputLog;
 @Slf4j
 public class Bot implements SpringLongPollingBot, LongPollingSingleThreadUpdateConsumer {
 
-	// todo
-	//  4. сделать удаление категорий и вариантов
-	//  5. сделать переименование категорий
-	//  13. при добавлении новых категорий, производить перемещение внекатегорийных задач в добавленную категорию
-	//  7. нотификации о том что в тудуист кто-то что-то добавил
-	//  8. инлайн способ взаимодействия
-	//  9. возможность работать не только с филом, а разделение на пользователей (нужна бд)
-	//  11. нотификации о том что было бы неплохо таки сходить
-	//  999. прикрутить ai, шоб совсем модно было
-
 	private final String TOKEN_TG = System.getenv("TOKEN_TG");
 	private final UserService userService;
 	private final TelegramClient telegramClient;
@@ -76,8 +66,6 @@ public class Bot implements SpringLongPollingBot, LongPollingSingleThreadUpdateC
 	@Override
 	public String getBotToken() {
 		return TOKEN_TG;
-		// попробовать подключиться к тестовому контуру
-		// - https://habr.com/ru/companies/selectel/articles/763286/
 	}
 
 	@AfterBotRegistration
@@ -90,7 +78,7 @@ public class Bot implements SpringLongPollingBot, LongPollingSingleThreadUpdateC
 	private void sendMessageToTelegram(ChatValue chatValue) {
 		try {
 			if (chatValue.getEditMessage() != null) {
-				telegramClient.execute(chatValue.getEditMessage());
+				telegramClient.execute(outputLog(chatValue.getEditMessage()));
 			} else {
 				telegramClient.execute(outputLog(chatValue.getMessage()));
 				if (chatValue.getForwardMessage() != null) {
