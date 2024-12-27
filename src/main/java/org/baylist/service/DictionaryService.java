@@ -1,5 +1,6 @@
 package org.baylist.service;
 
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.baylist.db.entity.Category;
@@ -74,10 +75,6 @@ public class DictionaryService {
         return categoryRepository.findAll().stream().map(Category::getName).toList();
     }
 
-	public Category getCategory(String category) {
-		return categoryRepository.findCategoryByName(category);
-	}
-
 	public List<String> getVariants(String category) {
 		return variantRepository.findAllByCategoryName(category).stream().map(Variant::getName).toList();
 	}
@@ -112,6 +109,10 @@ public class DictionaryService {
                 new InlineKeyboardRow(InlineKeyboardButton.builder()
                         .text("добавить варианты в категорию")
                         .callbackData(Callbacks.DICT_ADD_TASKS_TO_CATEGORY.getCallbackData())
+		                .build()),
+		        new InlineKeyboardRow(InlineKeyboardButton.builder()
+				        .text("удалить категории")
+				        .callbackData(Callbacks.DICT_REMOVE_CATEGORY.getCallbackData())
                         .build()),
                 new InlineKeyboardRow(InlineKeyboardButton.builder()
                         .text("справка по словарику")
@@ -141,4 +142,13 @@ public class DictionaryService {
         chatValue.setReplyKeyboard(markup);
         chatValue.setState(State.DICT_SETTING);
     }
+
+	@Transactional
+	public void removeCategory(String category) {
+		Category categoryDb = categoryRepository.findByName(category);
+		if (categoryDb != null) {
+			variantRepository.deleteCategoryById(categoryDb.getId());
+			categoryRepository.delete(categoryDb);
+		}
+	}
 }

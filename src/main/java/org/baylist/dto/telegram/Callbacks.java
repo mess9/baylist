@@ -20,10 +20,11 @@ public enum Callbacks {
 	DICT_HELP("dictHelp"),
 	DICT_ADD_CATEGORY("dictAddCategory"),
 	DICT_ADD_TASKS_TO_CATEGORY("dictAddTasksToCategory"),
+	DICT_REMOVE_CATEGORY("dictRemoveCategory"),
 	CATEGORY_CHOICE("category:"),
-	REMOVE_CATEGORY("removeCategory"), //todo
+	REMOVE_CATEGORY("removeCategory"),
 	REMOVE_TASK_TO_CATEGORY("removeTasksToCategory"),//todo
-	VIEW_CATEGORIES("viewCategories"), //todo просматривать и удалять содержимое словарика
+	VIEW_CATEGORIES("viewCategories"),
 	FEEDBACK("feedback");
 
 

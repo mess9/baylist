@@ -6,6 +6,7 @@ import org.baylist.dto.telegram.ChatValue;
 import org.baylist.dto.telegram.State;
 import org.baylist.service.DictionaryService;
 import org.baylist.service.ResponseService;
+import org.baylist.service.TgButtonService;
 import org.baylist.telegram.hanlder.config.DialogHandler;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
@@ -20,6 +21,7 @@ public class DictSettingHandler implements DialogHandler {
 
 	private ResponseService responseService;
 	private DictionaryService dictionaryService;
+	private TgButtonService tgButtonService;
 
 	// state DICT_SETTING
 	@Override
@@ -55,15 +57,11 @@ public class DictSettingHandler implements DialogHandler {
 				}
 				case DICT_ADD_TASKS_TO_CATEGORY -> {
 					chatValue.setReplyText("в какую именно категорию добавить варианты задач?");
-					List<String> categories = dictionaryService.getCategories();
-					InlineKeyboardMarkup markup = new InlineKeyboardMarkup(categories.stream()
-							.map(c -> new InlineKeyboardRow(
-									InlineKeyboardButton.builder()
-											.text(c)
-											.callbackData(Callbacks.CATEGORY_CHOICE.getCallbackData() + c)
-											.build())).toList());
-					chatValue.setReplyKeyboard(markup);
-					chatValue.setState(State.DICT_ADD_TASK_TO_CATEGORY);
+					tgButtonService.setCategoriesChoiceKeyboard(chatValue, State.DICT_ADD_TASK_TO_CATEGORY);
+				}
+				case DICT_REMOVE_CATEGORY -> {
+					responseService.textChoiceRemoveCategory(chatValue, false);
+					tgButtonService.setCategoriesChoiceKeyboard(chatValue, State.DICT_REMOVE_CATEGORY);
 				}
 				case DICT_HELP -> {
 					chatValue.setReplyText("""
@@ -100,5 +98,6 @@ public class DictSettingHandler implements DialogHandler {
 			dictionaryService.settingsMainMenu(chatValue);
 		}
 	}
+
 
 }
