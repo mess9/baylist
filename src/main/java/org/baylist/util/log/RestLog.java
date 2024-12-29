@@ -6,6 +6,7 @@ import org.springframework.http.HttpRequest;
 import org.springframework.http.client.ClientHttpRequestExecution;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.ClientHttpResponse;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -17,7 +18,14 @@ import static org.baylist.util.convert.InputStreamConverter.inputStreamToString;
 import static org.baylist.util.log.LogUtil.reduceEmptyLines;
 
 @Slf4j
+@Component
 public class RestLog implements ClientHttpRequestInterceptor {
+
+    private final ThreadLocal<String> authToken = new ThreadLocal<>();
+
+    public void setAuthToken(String token) {
+        authToken.set(token);
+    }
 
 
     public static String responseLog(ClientHttpResponse response) throws IOException {
@@ -64,8 +72,18 @@ public class RestLog implements ClientHttpRequestInterceptor {
 
     @NotNull
     @Override
-    public ClientHttpResponse intercept(@NotNull HttpRequest request, @NotNull byte[] body, ClientHttpRequestExecution execution) throws IOException {
+    public ClientHttpResponse intercept(@NotNull HttpRequest request, @NotNull byte[] body, @NotNull ClientHttpRequestExecution execution) throws IOException {
         logRequestDetails(request, body);
+
+        //todo внимание костыль!
+        // авторизация добавлена в класс для логгирования, это дичь и я это написал зная это
+        // для более адекватной рализации нужно перейти на restTemplate(там проще разнести логгирование и авторизацию)
+        // или впихнуть авторизацию в сигнатуру методов тудуиста(некрасивое)
+        String token = authToken.get();
+        if (token != null) {
+            request.getHeaders().add("Authorization", "Bearer " + token);
+        }
+
         ClientHttpResponse response = execution.execute(request, body);
         ResponseWrapper responseWrapper = new ResponseWrapper(response);
         responseToLog(responseWrapper);

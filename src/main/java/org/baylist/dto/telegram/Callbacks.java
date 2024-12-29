@@ -9,10 +9,21 @@ import java.util.Arrays;
 @Getter
 public enum Callbacks {
 
+	START("start"),
+	START_DONE("startDone"),
+	TODOIST_TOKEN("todoistToken"),
+	WITHOUT_TODOIST_TOKEN("withoutTodoistToken"),
+	ADD_FRIENDS("addFriends"),
+	NO_FRIENDS("noFriends"),
+
 	APPROVE("approve"),
 	CANCEL("галя отмена"),
+
 	VIEW("view"),
+
+	FEEDBACK("feedback"),
 	DONATE("donate"),
+
 	DICT_SETTINGS("dictSettings"),
 	DICT_VIEW("dictView"),
 	DICT_VIEW_PAGINATION_BACK("dictViewPaginationBack"),
@@ -25,8 +36,7 @@ public enum Callbacks {
 	DICT_REMOVE_VARIANT("dictRemoveVariant"),
 	CATEGORY_CHOICE("category:"),
 	REMOVE_CATEGORY("removeCategory"),
-	VIEW_CATEGORIES("viewCategories"),
-	FEEDBACK("feedback"),
+
 	;
 
 

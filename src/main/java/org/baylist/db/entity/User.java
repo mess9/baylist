@@ -33,6 +33,12 @@ public class User {
 	@Column(name = "last_name")
 	private String lastName;
 
+	@Column(name = "todoist_token")
+	private String todoistToken;
+
+	@Column(name = "registered")
+	private OffsetDateTime registered;
+
 	@Column(name = "last_seen")
 	private OffsetDateTime lastSeen;
 

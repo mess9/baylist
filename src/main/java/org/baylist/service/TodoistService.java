@@ -12,6 +12,7 @@ import org.baylist.dto.todoist.SectionDb;
 import org.baylist.dto.todoist.api.Project;
 import org.baylist.dto.todoist.api.Section;
 import org.baylist.dto.todoist.api.Task;
+import org.baylist.util.log.RestLog;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
@@ -39,7 +40,16 @@ public class TodoistService {
 	private final Todoist todoistController;
 	private final DictionaryService dictionaryService;
 	private final Repository repository;
+	private RestLog restLog;
 
+	public void createProject(ChatValue chatValue) {
+		restLog.setAuthToken(chatValue.getUser().getTodoistToken());
+		if (todoistController.getProjects().stream().noneMatch(p -> p.getName().equalsIgnoreCase(BUYLIST_PROJECT))) {
+			todoistController.createProject(Project.builder()
+					.name(BUYLIST_PROJECT)
+					.build());
+		}
+	}
 
 	public boolean storageIsEmpty() {
 		return repository.isEmpty();
@@ -217,5 +227,6 @@ public class TodoistService {
 				.projectId(buyListProjectId)
 				.build()));
 	}
+
 
 }

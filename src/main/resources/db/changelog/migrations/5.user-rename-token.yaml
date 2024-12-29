@@ -1,0 +1,9 @@
+databaseChangeLog:
+  - changeSet:
+      id: 7
+      author: fil
+      changes:
+        - renameColumn:
+            tableName: users
+            oldColumnName: token
+            newColumnName: todoist_token
