@@ -1,0 +1,16 @@
+databaseChangeLog:
+  - changeSet:
+      id: 8
+      author: fil
+      changes:
+        - addColumn:
+            tableName: categories
+            columns:
+              - column:
+                  name: user_id
+                  type: BIGINT
+                  defaultValue: 69716214
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_categories_user_id
+                    references: users(user_id)

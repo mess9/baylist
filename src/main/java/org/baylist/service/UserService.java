@@ -48,7 +48,7 @@ public class UserService {
 		chatValue.setUser(existUser);
 		existUser.setLastSeen(OffsetDateTime.now());
 		userRepository.save(existUser);
-		log.info("hi - {}", existUser.getFirstName());
+		log.info("hi - {}, state - {}", existUser.getFirstName(), existUser.getDialog().getState());
 	}
 
 	private void createNewUser(ChatValue chatValue, Long userId) {
@@ -57,6 +57,7 @@ public class UserService {
 		newUser.setFirstName(chatValue.getUpdate().getMessage().getFrom().getFirstName());
 		newUser.setLastName(chatValue.getUpdate().getMessage().getFrom().getLastName());
 		newUser.setLastSeen(OffsetDateTime.now());
+		newUser.setRegistered(OffsetDateTime.now());
 		newUser.setDialog(new Dialog(newUser, chatValue.getChatId(), State.START));
 		userRepository.save(newUser);
 		chatValue.setUser(newUser);
@@ -72,8 +73,10 @@ public class UserService {
 	}
 
 
-
-
-
-
+	public void saveToken(ChatValue chatValue, String token) {
+		User user = chatValue.getUser();
+		user.setTodoistToken(token);
+		userRepository.save(user);
+		chatValue.setState(State.START);
+	}
 }

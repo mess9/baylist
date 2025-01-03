@@ -6,6 +6,7 @@ import org.baylist.dto.telegram.ChatValue;
 import org.baylist.dto.telegram.State;
 import org.baylist.service.DictionaryService;
 import org.baylist.service.ResponseService;
+import org.baylist.service.TgButtonService;
 import org.baylist.telegram.hanlder.config.DialogHandler;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
@@ -20,8 +21,9 @@ public class DictSettingHandler implements DialogHandler {
 
 	private ResponseService responseService;
 	private DictionaryService dictionaryService;
+	private TgButtonService tgButtonService;
 
-	// state CLEAR
+	// state DICT_SETTING
 	@Override
 	public void handle(ChatValue chatValue) {
 		if (chatValue.isCallback()) {
@@ -29,8 +31,16 @@ public class DictSettingHandler implements DialogHandler {
 			switch (callback) {
 				case CANCEL -> responseService.cancelMessage(chatValue);
 				case DICT_VIEW -> {
-					chatValue.setReplyText("этот метод пока в разработке"); //todo т
-					chatValue.setState(State.DICT_SETTING);
+					chatValue.setReplyText("внутрь какой категории заглянуть?");
+					List<String> categories = dictionaryService.getCategories();
+					InlineKeyboardMarkup markup = new InlineKeyboardMarkup(categories.stream()
+							.map(c -> new InlineKeyboardRow(
+									InlineKeyboardButton.builder()
+											.text(c)
+											.callbackData(Callbacks.CATEGORY_CHOICE.getCallbackData() + c)
+											.build())).toList());
+					chatValue.setReplyKeyboard(markup);
+					chatValue.setState(State.DICT_VIEW);
 				}
 				case DICT_ADD_CATEGORY -> {
 					chatValue.setReplyText("""
@@ -47,15 +57,19 @@ public class DictSettingHandler implements DialogHandler {
 				}
 				case DICT_ADD_TASKS_TO_CATEGORY -> {
 					chatValue.setReplyText("в какую именно категорию добавить варианты задач?");
-					List<String> categories = dictionaryService.getCategories();
-					InlineKeyboardMarkup markup = new InlineKeyboardMarkup(categories.stream()
-							.map(c -> new InlineKeyboardRow(
-									InlineKeyboardButton.builder()
-											.text(c)
-											.callbackData(Callbacks.CATEGORY_CHOICE.getCallbackData() + c)
-											.build())).toList());
-					chatValue.setReplyKeyboard(markup);
-					chatValue.setState(State.DICT_ADD_TASK_TO_CATEGORY);
+					tgButtonService.setCategoriesChoiceKeyboard(chatValue, State.DICT_ADD_TASK_TO_CATEGORY, false);
+				}
+				case DICT_REMOVE_CATEGORY -> {
+					responseService.textChoiceRemoveCategory(chatValue, false);
+					tgButtonService.setCategoriesChoiceKeyboard(chatValue, State.DICT_REMOVE_CATEGORY, false);
+				}
+				case DICT_RENAME_CATEGORY -> {
+					chatValue.setEditMessage("какую категорию переименовать?");
+					tgButtonService.setCategoriesChoiceKeyboard(chatValue, State.DICT_RENAME_CATEGORY, true);
+				}
+				case DICT_REMOVE_VARIANT -> {
+					chatValue.setEditMessage("выбери категорию, из которой удалить варианты задач");
+					tgButtonService.setCategoriesChoiceKeyboard(chatValue, State.DICT_REMOVE_VARIANT, true);
 				}
 				case DICT_HELP -> {
 					chatValue.setReplyText("""
@@ -92,5 +106,6 @@ public class DictSettingHandler implements DialogHandler {
 			dictionaryService.settingsMainMenu(chatValue);
 		}
 	}
+
 
 }

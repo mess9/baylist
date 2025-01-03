@@ -5,6 +5,10 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
             http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
-    <include file="migrations/dialog-add-state.yaml" relativeToChangelogFile="true"/>
+    <include file="migrations/1.dialog-add-state.yaml" relativeToChangelogFile="true"/>
+    <include file="migrations/2.dialog-add-selected-category.yaml" relativeToChangelogFile="true"/>
+    <include file="migrations/3.user-add-registered.yaml" relativeToChangelogFile="true"/>
+    <include file="migrations/4.user-add-token.yaml" relativeToChangelogFile="true"/>
+    <include file="migrations/6.category-add-user.yaml" relativeToChangelogFile="true"/>
 
 </databaseChangeLog>

@@ -16,6 +16,8 @@ public class DictAddCategoryHandler implements DialogHandler {
 	private DictionaryService dictionaryService;
 	private ResponseService responseService;
 
+	//todo валидация на уникальность категорий пользователя
+
 
 	// state DICT_ADD_CATEGORY
 	@Override

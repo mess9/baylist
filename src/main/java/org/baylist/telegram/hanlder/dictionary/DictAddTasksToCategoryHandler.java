@@ -16,6 +16,8 @@ public class DictAddTasksToCategoryHandler implements DialogHandler {
 	private DictionaryService dictionaryService;
 	private ResponseService responseService;
 
+	//todo валидация на уникальность вариантов среди всех категорий пользователя
+
 	// state DICT_ADD_TASK_TO_CATEGORY
 	@Override
 	public void handle(ChatValue chatValue) {
