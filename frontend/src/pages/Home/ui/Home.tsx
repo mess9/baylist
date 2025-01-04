@@ -1,11 +1,11 @@
 import Logo from "/shared/ui/Logo/Logo";
-import TodoList from "/widgets/TodoList/ui/TodoList";
+import BuyList from "/widgets/BuyList";
 
 export default function Home() {
 	return (
 		<div>
 			<Logo />
-			<TodoList />
+			<BuyList />
 		</div>
 	);
 }

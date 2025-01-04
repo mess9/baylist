@@ -1,14 +1,14 @@
 import { For } from "solid-js";
-import TodoItem from "/features/TodoItem/ui/TodoItem";
+import BuyItem from "/features/BuyItem";
 
-export default function TodoList() {
+export default function BuyList() {
 	return (
 		<ul>
 			<For each={[1,2,3]}>
 				{
 					(item, i) => (
 						<li>
-							<TodoItem /> {`item: ${item} index: ${i()}`}
+							<BuyItem /> {`item: ${item} index: ${i()}`}
 						</li>
 					)
 				}

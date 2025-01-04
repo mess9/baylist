@@ -1,4 +1,4 @@
-const cn: (...args: any[]) => string = (...args: any[]): string => {
+const cn = (...args: any[]): string => {
   return args
     .filter(Boolean)
     .map((arg) =>

@@ -1,9 +1,6 @@
 import { ErrorBoundary } from "solid-js";
 import { Router, Route } from "@solidjs/router";
 
-import cn from "/shared/utils/cn";
-
-import Logo from "/shared/ui/Logo/Logo";
 import Home from "/pages/Home";
 import BaseTest from "/shared/ui/TestComponents";
 
