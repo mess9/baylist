@@ -26,7 +26,7 @@ public class DictRemoveVariantHandler implements DialogHandler {
 			if (callbackData.equals(Callbacks.CANCEL.getCallbackData())) {
 				responseService.cancelMessage(chatValue);
 			} else if (callbackData.equals(Callbacks.DICT_SETTINGS.getCallbackData())) {
-				dictionaryService.settingsMainMenu(chatValue);
+				dictionaryService.settingsMainMenu(chatValue, true);
 			} else if (callbackData.startsWith(Callbacks.CATEGORY_CHOICE.getCallbackData())) {
 				dictViewHandler.handleCategoryChoice(chatValue, callbackData);
 			}
@@ -34,7 +34,7 @@ public class DictRemoveVariantHandler implements DialogHandler {
 			String variants = chatValue.getInputText();
 			if (validate(variants)) {
 				dictionaryService.removeVariants(variants);
-				dictionaryService.settingsMainMenu(chatValue);
+				dictionaryService.settingsMainMenu(chatValue, false);
 				chatValue.setState(State.DICT_SETTING);
 				responseService.textChoiceRemoveVariant(chatValue, true);
 			} else {

@@ -1,22 +1,23 @@
 package org.baylist.tests.db;
 
-import org.baylist.db.entity.Entity;
-import org.baylist.db.repo.EntityRepository;
+import org.baylist.db.repo.CategoryRepository;
 import org.baylist.tests.BaseTest;
-import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class DbTest extends BaseTest {
 
+
     @Autowired
-    EntityRepository entityRepository;
+    CategoryRepository categoryRepository;
 
-    @Test
-    void test() {
-        Entity entity = new Entity();
-        entity.setName("test");
-        entityRepository.save(entity);
 
-    }
+//    @Test
+//    void test2() {
+//        Category category = categoryRepository.findCategoryByName("продукты");
+//        System.out.println(category);
+//
+//        Category category2 = categoryRepository.findCategoryByName("продукты");
+//        System.out.println(category);
+//    }
 
 }

@@ -55,10 +55,16 @@ public class ChatValue {
     }
 
 	public void setEditMessage(String text) {
+		int messageId;
+		if (update.hasMessage()) {
+			messageId = update.getMessage().getMessageId();
+		} else {
+			messageId = update.getCallbackQuery().getMessage().getMessageId();
+		}
 		this.editMessage = EditMessageText.builder()
 				.text(text)
 				.chatId(chatId)
-				.messageId(update.getCallbackQuery().getMessage().getMessageId())
+				.messageId(messageId)
 				.build();
 	}
 

@@ -26,10 +26,10 @@ public class DictAddTasksToCategoryHandler implements DialogHandler {
 			if (callbackData.equals(Callbacks.CANCEL.getCallbackData())) {
 				responseService.cancelMessage(chatValue);
 			} else if (callbackData.equals(Callbacks.DICT_SETTINGS.getCallbackData())) {
-				dictionaryService.settingsMainMenu(chatValue);
+				dictionaryService.settingsMainMenu(chatValue, true);
 			} else if (callbackData.startsWith(Callbacks.CATEGORY_CHOICE.getCallbackData())) {
 				String category = callbackData.substring(Callbacks.CATEGORY_CHOICE.getCallbackData().length());
-				chatValue.setReplyText("""
+				chatValue.setEditMessage("""
 						добавляйте варианты задач в категорию - %s
 						
 						просто вводите их в столбик, одну, две или больше
@@ -38,7 +38,7 @@ public class DictAddTasksToCategoryHandler implements DialogHandler {
 						<code>- состоять из одного или нескольких слов</code>
 						<code>- без спецсимволов</code>
 						""".formatted(category));
-				chatValue.setReplyParseModeHtml();
+				chatValue.setEditReplyParseModeHtml();
 				chatValue.setState(State.DICT_ADD_TASK_TO_CATEGORY);
 				chatValue.getUser().getDialog().setSelectedCategory(category);
 			}

@@ -4,6 +4,7 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.baylist.util.log.RestLog;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
@@ -14,6 +15,7 @@ import javax.sql.DataSource;
 
 @EnableAspectJAutoProxy
 @Configuration
+@EnableCaching
 public class AppConfig {
 
     public static final boolean RESPONSE_LOG = false;

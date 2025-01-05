@@ -52,13 +52,19 @@ public class DictRemoveCategoryHandler implements DialogHandler {
 				if (selectedCategories.size() > 1) {
 					StringBuilder sb = new StringBuilder();
 					selectedCategories.forEach(c -> sb.append(" - <b>").append(c).append("</b>\n"));
-					dictionaryService.settingsShortMenu(chatValue, "категории:\n" + sb + "\nудалены");
+					dictionaryService.settingsShortMenu(chatValue,
+							"категории:\n" + sb + "\nудалены",
+							true);
 				} else {
 					dictionaryService.settingsShortMenu(chatValue,
-							"категория - [ <b>" + selectedCategories.getFirst() + "</b> ] - удалена");
+							"категория - [ <b>" + selectedCategories.getFirst() + "</b> ] - удалена",
+							true);
 				}
 				chatValue.setState(State.DICT_SETTING);
 				chatValue.setReplyParseModeHtml();
+			} else if (callbackData.equals(Callbacks.DICT_SETTINGS.getCallbackData())) {
+				dictionaryService.settingsMainMenu(chatValue, true);
+				selectedCategoryState.remove(chatValue.getUser().getUserId());
 			}
 		}
 	}

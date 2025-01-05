@@ -26,6 +26,12 @@ import org.baylist.dto.telegram.State;
 @Table(name = "dialogs")
 public class Dialog {
 
+	public Dialog(User user, Long chatId, State state) {
+		this.user = user;
+		this.chatId = chatId;
+		this.state = state;
+	}
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "dialog_id")
@@ -44,13 +50,5 @@ public class Dialog {
 
 	@Column(name = "selected_category")
 	private String selectedCategory;
-
-
-	public Dialog(User user, Long chatId, State state) {
-		this.user = user;
-		this.chatId = chatId;
-		this.state = state;
-	}
-
 
 }

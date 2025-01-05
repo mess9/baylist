@@ -8,6 +8,7 @@ import org.baylist.db.entity.User;
 import org.baylist.db.repo.UserRepository;
 import org.baylist.dto.telegram.ChatValue;
 import org.baylist.dto.telegram.State;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Component;
 
 import java.time.OffsetDateTime;
@@ -28,7 +29,7 @@ public class UserService {
 			Long userId = chatValue.getUpdate().getCallbackQuery().getFrom().getId();
 			Optional<User> user = userRepository.findByUserId(userId);
 
-			getUserFromDb(chatValue, user);
+			getUserFromDb(chatValue, user); //кнопки можем показывать только уже известному юзеру, потому тут без проверки на наличие юзера
 		} else {
 			Long userId = chatValue.getUpdate().getMessage().getFrom().getId();
 			Optional<User> user = userRepository.findByUserId(userId);
@@ -68,6 +69,7 @@ public class UserService {
 		return userRepository.findByUserId(FIL_USER_ID).orElseThrow();
 	}
 
+	@CacheEvict(value = "user", key = "#user.dialog")
 	public void saveUser(User user) {
 		userRepository.save(user);
 	}

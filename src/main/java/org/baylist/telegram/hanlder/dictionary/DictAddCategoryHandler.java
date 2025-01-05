@@ -26,14 +26,21 @@ public class DictAddCategoryHandler implements DialogHandler {
 			String callbackData = chatValue.getCallbackData();
 			if (callbackData.equals(Callbacks.DICT_SETTINGS.getCallbackData())) {
 				chatValue.setReplyText("ок, продолжим редактировать словарик");
-				dictionaryService.settingsMainMenu(chatValue);
+				dictionaryService.settingsMainMenu(chatValue, true);
 			} else if (callbackData.equals(Callbacks.CANCEL.getCallbackData())) {
 				responseService.cancelMessage(chatValue);
 			}
 		} else {
 			String category = chatValue.getUpdate().getMessage().getText().trim().toLowerCase();
-			dictionaryService.addDictCategory(category);
-			dictionaryService.settingsShortMenu(chatValue, "категория - [ <b>" + category + "</b> ] - добавлена");
+			if (dictionaryService.addDictCategory(category)) {
+				dictionaryService.settingsShortMenu(chatValue,
+						"категория - [ <b>" + category + "</b> ] - добавлена",
+						false);
+			} else {
+				dictionaryService.settingsShortMenu(chatValue,
+						"такая категория уже существует",
+						false);
+			}
 			chatValue.setState(State.DICT_SETTING);
 			chatValue.setReplyParseModeHtml();
 		}
