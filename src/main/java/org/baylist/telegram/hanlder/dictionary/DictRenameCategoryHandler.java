@@ -30,7 +30,7 @@ public class DictRenameCategoryHandler implements DialogHandler {
 				Long userId = chatValue.getUser().getUserId();
 				var categoryDb = dictionaryService.getCategoryByName(category);
 				selectedCategory.put(userId, categoryDb);
-				chatValue.setEditMessage("прошу ввести новое название для категории - [ <b>" + category + "</b> ]");
+				chatValue.setEditText("прошу ввести новое название для категории - [ <b>" + category + "</b> ]");
 				chatValue.setEditReplyParseModeHtml();
 				chatValue.setState(State.DICT_RENAME_CATEGORY);
 			}
@@ -46,7 +46,7 @@ public class DictRenameCategoryHandler implements DialogHandler {
 					dictionaryService.settingsMainMenu(chatValue, false);
 					chatValue.setReplyText("категория переименована");
 				} else {
-					chatValue.setEditMessage("название категории не может быть пустым");
+					chatValue.setEditText("название категории не может быть пустым");
 					chatValue.setEditReplyParseModeHtml();
 				}
 			}

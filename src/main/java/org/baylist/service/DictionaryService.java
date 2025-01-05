@@ -141,7 +141,7 @@ public class DictionaryService {
                         .build())
         ));
 		if (isEdit) {
-			chatValue.setEditMessage("настройки словарика");
+			chatValue.setEditText("настройки словарика");
 			chatValue.setEditReplyKeyboard(markup);
 		} else {
 			chatValue.setReplyText("настройки словарика");
@@ -166,7 +166,7 @@ public class DictionaryService {
                         .callbackData(Callbacks.CANCEL.getCallbackData())
                         .build())));
 		if (isEdit) {
-			chatValue.setEditMessage(message);
+			chatValue.setEditText(message);
 			chatValue.setEditReplyKeyboard(markup);
 		} else {
 			chatValue.setReplyText(message);

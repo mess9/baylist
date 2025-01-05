@@ -29,7 +29,7 @@ public class DictAddTasksToCategoryHandler implements DialogHandler {
 				dictionaryService.settingsMainMenu(chatValue, true);
 			} else if (callbackData.startsWith(Callbacks.CATEGORY_CHOICE.getCallbackData())) {
 				String category = callbackData.substring(Callbacks.CATEGORY_CHOICE.getCallbackData().length());
-				chatValue.setEditMessage("""
+				chatValue.setEditText("""
 						добавляйте варианты задач в категорию - %s
 						
 						просто вводите их в столбик, одну, две или больше

@@ -16,7 +16,7 @@ public class ResponseService {
 
 	public void textChoiceRemoveCategory(ChatValue chatValue, boolean isEdit) {
 		if (isEdit) {
-			chatValue.setEditMessage("""
+			chatValue.setEditText("""
 					какие категории удалить?
 					
 					<i>примечание, вместе с категорией удаляются и все связанные с ней варианты задач</i>

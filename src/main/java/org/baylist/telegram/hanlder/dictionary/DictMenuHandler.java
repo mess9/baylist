@@ -31,7 +31,7 @@ public class DictMenuHandler implements DialogHandler {
 			switch (callback) {
 				case CANCEL -> responseService.cancelMessage(chatValue);
 				case DICT_VIEW -> {
-					chatValue.setEditMessage("внутрь какой категории заглянуть?");
+					chatValue.setEditText("внутрь какой категории заглянуть?");
 					List<String> categories = dictionaryService.getCategories();
 					InlineKeyboardMarkup markup = new InlineKeyboardMarkup(categories.stream()
 							.map(c -> new InlineKeyboardRow(
@@ -43,7 +43,7 @@ public class DictMenuHandler implements DialogHandler {
 					chatValue.setState(State.DICT_VIEW);
 				}
 				case DICT_ADD_CATEGORY -> {
-					chatValue.setEditMessage("""
+					chatValue.setEditText("""
 							<b>внимательно слушаю</b>
 							 как ты назовёшь <u>новую категорию</u> задач<b>?</b>
 							
@@ -56,7 +56,7 @@ public class DictMenuHandler implements DialogHandler {
 					chatValue.setState(State.DICT_ADD_CATEGORY);
 				}
 				case DICT_ADD_TASKS_TO_CATEGORY -> {
-					chatValue.setEditMessage("в какую именно категорию добавить варианты задач?");
+					chatValue.setEditText("в какую именно категорию добавить варианты задач?");
 					tgButtonService.setCategoriesChoiceKeyboard(chatValue, State.DICT_ADD_TASK_TO_CATEGORY, true);
 				}
 				case DICT_REMOVE_CATEGORY -> {
@@ -64,15 +64,15 @@ public class DictMenuHandler implements DialogHandler {
 					tgButtonService.setCategoriesChoiceKeyboard(chatValue, State.DICT_REMOVE_CATEGORY, true);
 				}
 				case DICT_RENAME_CATEGORY -> {
-					chatValue.setEditMessage("какую категорию переименовать?");
+					chatValue.setEditText("какую категорию переименовать?");
 					tgButtonService.setCategoriesChoiceKeyboard(chatValue, State.DICT_RENAME_CATEGORY, true);
 				}
 				case DICT_REMOVE_VARIANT -> {
-					chatValue.setEditMessage("выбери категорию, из которой удалить варианты задач");
+					chatValue.setEditText("выбери категорию, из которой удалить варианты задач");
 					tgButtonService.setCategoriesChoiceKeyboard(chatValue, State.DICT_REMOVE_VARIANT, true);
 				}
 				case DICT_HELP -> {
-					chatValue.setEditMessage("""
+					chatValue.setEditText("""
 							<i><b>категории</b> и <b>варианты</b>, это мой <u>внутренний словарик</u> для того что бы я мог раскидать список вводимых тобой задач, по категориям в проекте todoist.</i>
 							<i>категория не появятся в проекте todoist до тех пор пока я не отправлю в неё задачку.</i>
 							<i>а чтобы задачка туда отправилась, я должен про неё знать. для этого мы сейчас и заполняем этот словарик</i>

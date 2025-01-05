@@ -120,7 +120,7 @@ public class DictViewHandler implements DialogHandler {
 							.build())));
 		}
 
-		chatValue.setEditMessage(sb.toString());
+		chatValue.setEditText(sb.toString());
 		chatValue.setEditReplyParseModeHtml();
 		chatValue.setEditReplyKeyboard(markup);
 	}

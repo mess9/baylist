@@ -22,18 +22,21 @@ public class FeedbackRequestHandler implements DialogHandler {
 		if (chatValue.isCallback()) {
 			String callbackData = chatValue.getCallbackData();
 			if (callbackData.equals(Callbacks.DONATE.getCallbackData())) {
-				chatValue.setReplyText("""
+				chatValue.setEditText("""
 						спасибо за нажатие на эту кнопку!
+						вы можете отправить помощь создателю бота
+						за то что можете пользоваться им бесплатно, пока он оплачивает сервера
 						
-						приму любого размера помощь (до 1G$)
+						с благодарностью будет принят донат любого размера вплоть до 1M$
+						и с величайшей благодарностью будет принят донат свыше 1M$
 						💳 (mastercard)
-						4454 3000 0304 4598
+						5471 2800 3622 8762
 						₿ (bitcoin)
 						bc1qdgnwxpjtfhqztw6thq3yukcddrpms48wk4dhy0
 						""");
 				chatValue.setState(State.DEFAULT);
 			} else if (callbackData.equals(Callbacks.FEEDBACK.getCallbackData())) {
-				chatValue.setReplyText("я вас внимательно слушаю");
+				chatValue.setEditText("я вас внимательно слушаю");
 				chatValue.setState(State.FEEDBACK_ANSWER);
 			}
 		} else {

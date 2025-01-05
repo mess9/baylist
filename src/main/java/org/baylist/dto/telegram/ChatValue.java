@@ -54,7 +54,7 @@ public class ChatValue {
         this.message.setText(text);
     }
 
-	public void setEditMessage(String text) {
+	public void setEditText(String text) {
 		int messageId;
 		if (update.hasMessage()) {
 			messageId = update.getMessage().getMessageId();
