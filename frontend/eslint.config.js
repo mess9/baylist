@@ -1,18 +1,27 @@
 import globals from "globals";
 import pluginJs from "@eslint/js";
 import solid from "eslint-plugin-solid/configs/typescript";
-import * as tsParser from "@typescript-eslint/parser";
+import tseslint from "typescript-eslint";
 
 /** @type {import('eslint').Linter.Config[]} */
 
 export default [
   pluginJs.configs.recommended,
+  ...tseslint.config([
+    tseslint.configs.recommended,
+    {
+      rules: {
+        "@typescript-eslint/consistent-type-exports": "warn",
+        "@typescript-eslint/consistent-type-imports": "warn",
+      },
+    },
+  ]),
+  solid,
   {
     files: ["src/**/*.{ts,tsx}"],
-    ...solid,
     languageOptions: {
       globals: globals.browser,
-      parser: tsParser,
+      parser: tseslint.parser,
       parserOptions: {
         project: "tsconfig.json",
       },

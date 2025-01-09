@@ -1,6 +1,8 @@
+import type { Component } from "solid-js";
 import classes from "./BuyItem.module.css";
 
-export default function BuyItem() {
+const BuyItem: Component = () => {
+	console.log("Child rendered"); // Логируем вызов
 	return (
 		<div class={classes["buy-item"]}>
 			<label class={classes["buy-item__label"]}>	
@@ -11,3 +13,5 @@ export default function BuyItem() {
 		</div>
 	);
 }
+
+export default BuyItem;

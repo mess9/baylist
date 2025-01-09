@@ -14,7 +14,8 @@ html {
 	font-family: "PT Sans", sans-serif;
 	font-size: 62.5%;
 
-	background-color: #12705d;
+	background-color: #182e4a;
+/*	background-color: #12705d;*/
 }
 
 @media (max-width: 75em) {

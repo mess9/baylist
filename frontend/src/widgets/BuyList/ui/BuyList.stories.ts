@@ -7,6 +7,7 @@ type Story = StoryObj<typeof meta>;
 const meta = {
 	title: "widgets/BuyList",
 	component: BuyList,
+  tags: ['autodocs'],
 	argTypes: {
     delimiter: {
       control: { type: "select" },
@@ -22,9 +23,3 @@ export const List: Story = {
   	delimiter: "bottom"
   },
 }
-
-// export const List2: Story = {
-//   args: {
-//   	delimiter: "bottom"
-//   },
-// };
