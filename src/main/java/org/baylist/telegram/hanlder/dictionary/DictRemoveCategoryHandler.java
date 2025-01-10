@@ -6,7 +6,7 @@ import org.baylist.dto.telegram.ChatValue;
 import org.baylist.dto.telegram.SelectedCategoryState;
 import org.baylist.dto.telegram.State;
 import org.baylist.service.DictionaryService;
-import org.baylist.service.ResponseService;
+import org.baylist.service.CommonResponseService;
 import org.baylist.service.TgButtonService;
 import org.baylist.telegram.hanlder.config.DialogHandler;
 import org.springframework.stereotype.Component;
@@ -22,7 +22,7 @@ public class DictRemoveCategoryHandler implements DialogHandler {
 
 	private final Map<Long, SelectedCategoryState> selectedCategoryState = new ConcurrentHashMap<>();
 	private DictionaryService dictionaryService;
-	private ResponseService responseService;
+	private CommonResponseService commonResponseService;
 	private TgButtonService tgButtonService;
 
 	// state DICT_REMOVE_CATEGORY
@@ -43,7 +43,7 @@ public class DictRemoveCategoryHandler implements DialogHandler {
 				} else {
 					selectedCategoryState.put(userId, new SelectedCategoryState(categories, new ArrayList<>(List.of(category))));
 				}
-				responseService.textChoiceRemoveCategory(chatValue, true);
+				commonResponseService.textChoiceRemoveCategory(chatValue, true);
 				tgButtonService.categoriesChoiceKeyboardEdit(chatValue, State.DICT_REMOVE_CATEGORY,
 						selectedCategoryState.get(userId));
 			} else if (callbackData.startsWith(Callbacks.REMOVE_CATEGORY.getCallbackData())) {
@@ -63,7 +63,7 @@ public class DictRemoveCategoryHandler implements DialogHandler {
 				chatValue.setState(State.DICT_SETTING);
 				chatValue.setReplyParseModeHtml();
 			} else if (callbackData.equals(Callbacks.DICT_SETTINGS.getCallbackData())) {
-				dictionaryService.settingsMainMenu(chatValue, true);
+				dictionaryService.dictionaryMainMenu(chatValue, true);
 				selectedCategoryState.remove(chatValue.getUser().getUserId());
 			}
 		}

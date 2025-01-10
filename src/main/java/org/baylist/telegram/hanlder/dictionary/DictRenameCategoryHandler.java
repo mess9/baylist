@@ -43,7 +43,7 @@ public class DictRenameCategoryHandler implements DialogHandler {
 					dictionaryService.renameCategory(category, newCategoryName);
 					chatValue.setState(State.DICT_SETTING);
 					selectedCategory.remove(userId);
-					dictionaryService.settingsMainMenu(chatValue, false);
+					dictionaryService.dictionaryMainMenu(chatValue, false);
 					chatValue.setReplyText("категория переименована");
 				} else {
 					chatValue.setEditText("название категории не может быть пустым");

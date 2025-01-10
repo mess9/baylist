@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Contact;
 
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -102,6 +103,10 @@ public class UserService {
 
 	public boolean isExistToken(Long userId) {
 		return userRepository.findByUserId(userId).getTodoistToken() != null;
+	}
+
+	public List<User> getFriendList(Long userId) {
+		return userRepository.findByFriendsUserId(userId);
 	}
 
 	//private

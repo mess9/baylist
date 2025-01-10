@@ -5,7 +5,7 @@ import org.baylist.dto.telegram.Callbacks;
 import org.baylist.dto.telegram.ChatValue;
 import org.baylist.dto.telegram.State;
 import org.baylist.service.DictionaryService;
-import org.baylist.service.ResponseService;
+import org.baylist.service.CommonResponseService;
 import org.baylist.telegram.hanlder.config.DialogHandler;
 import org.springframework.stereotype.Component;
 
@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 public class DictRemoveVariantHandler implements DialogHandler {
 
 	private DictionaryService dictionaryService;
-	private ResponseService responseService;
+	private CommonResponseService commonResponseService;
 	private DictViewHandler dictViewHandler;
 
 	// state DICT_REMOVE_VARIANT
@@ -24,9 +24,9 @@ public class DictRemoveVariantHandler implements DialogHandler {
 		if (chatValue.isCallback()) {
 			String callbackData = chatValue.getCallbackData();
 			if (callbackData.equals(Callbacks.CANCEL.getCallbackData())) {
-				responseService.cancelMessage(chatValue);
+				commonResponseService.cancelMessage(chatValue);
 			} else if (callbackData.equals(Callbacks.DICT_SETTINGS.getCallbackData())) {
-				dictionaryService.settingsMainMenu(chatValue, true);
+				dictionaryService.dictionaryMainMenu(chatValue, true);
 			} else if (callbackData.startsWith(Callbacks.CATEGORY_CHOICE.getCallbackData())) {
 				dictViewHandler.handleCategoryChoice(chatValue, callbackData);
 			}
@@ -34,11 +34,11 @@ public class DictRemoveVariantHandler implements DialogHandler {
 			String variants = chatValue.getInputText();
 			if (validate(variants)) {
 				dictionaryService.removeVariants(variants);
-				dictionaryService.settingsMainMenu(chatValue, false);
+				dictionaryService.dictionaryMainMenu(chatValue, false);
 				chatValue.setState(State.DICT_SETTING);
-				responseService.textChoiceRemoveVariant(chatValue, true);
+				commonResponseService.textChoiceRemoveVariant(chatValue, true);
 			} else {
-				responseService.textChoiceRemoveVariant(chatValue, false);
+				commonResponseService.textChoiceRemoveVariant(chatValue, false);
 				//todo в это ветвление не попасть, нужна валидация на список вариантов
 			}
 

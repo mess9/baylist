@@ -5,7 +5,7 @@ import org.baylist.dto.telegram.Callbacks;
 import org.baylist.dto.telegram.ChatValue;
 import org.baylist.dto.telegram.State;
 import org.baylist.service.DictionaryService;
-import org.baylist.service.ResponseService;
+import org.baylist.service.CommonResponseService;
 import org.baylist.telegram.hanlder.config.DialogHandler;
 import org.springframework.stereotype.Component;
 
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 public class DictAddCategoryHandler implements DialogHandler {
 
 	private DictionaryService dictionaryService;
-	private ResponseService responseService;
+	private CommonResponseService commonResponseService;
 
 	//todo валидация на уникальность категорий пользователя
 
@@ -26,13 +26,14 @@ public class DictAddCategoryHandler implements DialogHandler {
 			String callbackData = chatValue.getCallbackData();
 			if (callbackData.equals(Callbacks.DICT_SETTINGS.getCallbackData())) {
 				chatValue.setReplyText("ок, продолжим редактировать словарик");
-				dictionaryService.settingsMainMenu(chatValue, true);
+				dictionaryService.dictionaryMainMenu(chatValue, true);
 			} else if (callbackData.equals(Callbacks.CANCEL.getCallbackData())) {
-				responseService.cancelMessage(chatValue);
+				commonResponseService.cancelMessage(chatValue);
 			}
 		} else {
 			String category = chatValue.getUpdate().getMessage().getText().trim().toLowerCase();
-			if (dictionaryService.addDictCategory(category)) {
+			Long userId = chatValue.getUser().getUserId();
+			if (dictionaryService.addDictCategory(category, userId)) {
 				dictionaryService.settingsShortMenu(chatValue,
 						"категория - [ <b>" + category + "</b> ] - добавлена",
 						false);

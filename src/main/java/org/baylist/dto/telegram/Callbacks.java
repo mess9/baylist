@@ -13,14 +13,15 @@ public enum Callbacks {
 	START_DONE("startDone"),
 	START_1_TODOIST_TOKEN_REQUEST("todoistToken"),
 	START_1_TODOIST_TOKEN_CHANGE("todoistTokenChange"),
-	START_2_FRIENDS_REQUEST("withoutTodoistToken"),
-	ADD_FRIENDS("addFriends"),
-	NO_FRIENDS("noFriends"),
+	START_2_FRIENDS_REQUEST("friendsRequest"),
+	START_2_ADD_FRIENDS("addFriends"),
 
 	APPROVE("approve"),
 	CANCEL("галя отмена"),
 
 	VIEW("view"),
+	INFO("info"),
+	MAIN_MENU("mainMenu"),
 
 	FEEDBACK("feedback"),
 	DONATE("donate"),
@@ -37,6 +38,11 @@ public enum Callbacks {
 	DICT_REMOVE_VARIANT("dictRemoveVariant"),
 	CATEGORY_CHOICE("category:"),
 	REMOVE_CATEGORY("removeCategory"),
+
+	FRIENDS_SETTINGS("friendsSettings"),
+	NOTIFY_SETTINGS("notifySettings"),
+	TODOIST_SETTINGS("todoistSettings"),
+
 
 	;
 

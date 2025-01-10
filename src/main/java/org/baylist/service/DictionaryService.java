@@ -61,12 +61,12 @@ public class DictionaryService {
         // мб позже добавить вариант разделения по запятым или пробелам, хз пока
     }
 
-	public boolean addDictCategory(String category) {
+	public boolean addDictCategory(String categoryName, Long userId) {
         // todo позже добавить валидацию
 		DictionaryService self = context.getBean(DictionaryService.class);
-		Category categoryByName = self.getCategoryByName(category);
+		Category categoryByName = self.getCategoryByName(categoryName);
 		if (categoryByName == null) {
-			categoryRepository.save(new Category(null, category, null));
+			categoryRepository.save(new Category(categoryName, userId));
 			return true;
 		} else {
 			return false;
@@ -99,11 +99,11 @@ public class DictionaryService {
         List<String> variants = Arrays.stream(split).map(String::trim).distinct().toList();
 	    Category categoryDb = self.getCategoryByName(category);
 	    if (categoryDb == null) {
-		    settingsMainMenu(chatValue, false);
+		    dictionaryMainMenu(chatValue, false);
             chatValue.setReplyText("категория не найдена");
         } else {
 		    addVariantsToCategory(variants, categoryDb);
-		    settingsMainMenu(chatValue, false);
+		    dictionaryMainMenu(chatValue, false);
             chatValue.setReplyText(variants.size() + ": вариантов добавлено в категорию - " + category);
         }
         chatValue.setState(State.DICT_SETTING);
@@ -113,7 +113,7 @@ public class DictionaryService {
 		variantRepository.saveAll(variants.stream().map(v -> new Variant(null, v, categoryDb)).toList());
 	}
 
-	public void settingsMainMenu(ChatValue chatValue, boolean isEdit) {
+	public void dictionaryMainMenu(ChatValue chatValue, boolean isEdit) {
         InlineKeyboardMarkup markup = new InlineKeyboardMarkup(List.of(
                 new InlineKeyboardRow(InlineKeyboardButton.builder()
                         .text("показать словарик")
@@ -143,6 +143,10 @@ public class DictionaryService {
                         .text("справка по словарику")
                         .callbackData(Callbacks.DICT_HELP.getCallbackData())
                         .build()),
+		        new InlineKeyboardRow(InlineKeyboardButton.builder()
+				        .text("главное меню")
+				        .callbackData(Callbacks.MAIN_MENU.getCallbackData())
+				        .build()),
                 new InlineKeyboardRow(InlineKeyboardButton.builder()
                         .text("фсё, пока хватит")
                         .callbackData(Callbacks.CANCEL.getCallbackData())
@@ -211,5 +215,10 @@ public class DictionaryService {
 		for (String s : variants.split("\n")) {
 			variantRepository.deleteByName(s.trim());
 		}
+	}
+
+	@Transactional
+	public List<Category> getCategoriesByUserId(Long userId) {
+		return categoryRepository.findAllByUserId(userId);
 	}
 }

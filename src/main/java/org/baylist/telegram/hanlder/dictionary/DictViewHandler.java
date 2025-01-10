@@ -5,7 +5,7 @@ import org.baylist.dto.telegram.Callbacks;
 import org.baylist.dto.telegram.ChatValue;
 import org.baylist.dto.telegram.PaginationState;
 import org.baylist.service.DictionaryService;
-import org.baylist.service.ResponseService;
+import org.baylist.service.CommonResponseService;
 import org.baylist.telegram.hanlder.config.DialogHandler;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
@@ -25,7 +25,7 @@ import static org.baylist.dto.Constants.LIMIT_CHAR_FOR_ONE_PAGE;
 @AllArgsConstructor
 public class DictViewHandler implements DialogHandler {
 
-	private ResponseService responseService;
+	private CommonResponseService commonResponseService;
 	private DictionaryService dictionaryService;
 	private final Map<Long, PaginationState> paginationStateMap = new ConcurrentHashMap<>();
 
@@ -37,10 +37,10 @@ public class DictViewHandler implements DialogHandler {
 			String callbackData = chatValue.getCallbackData();
 
 			if (callbackData.equals(Callbacks.CANCEL.getCallbackData())) {
-				responseService.cancelMessage(chatValue);
+				commonResponseService.cancelMessage(chatValue);
 				paginationStateMap.remove(chatValue.getUser().getUserId());
 			} else if (callbackData.equals(Callbacks.DICT_SETTINGS.getCallbackData())) {
-				dictionaryService.settingsMainMenu(chatValue, true);
+				dictionaryService.dictionaryMainMenu(chatValue, true);
 				paginationStateMap.remove(chatValue.getUser().getUserId());
 			} else if (callbackData.startsWith(Callbacks.CATEGORY_CHOICE.getCallbackData())) {
 				handleCategoryChoice(chatValue, callbackData);
@@ -50,7 +50,7 @@ public class DictViewHandler implements DialogHandler {
 				updatePagination(chatValue, false);
 			}
 		} else {
-			dictionaryService.settingsMainMenu(chatValue, true);
+			dictionaryService.dictionaryMainMenu(chatValue, true);
 		}
 	}
 
