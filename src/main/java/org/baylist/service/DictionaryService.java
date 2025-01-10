@@ -11,6 +11,8 @@ import org.baylist.dto.telegram.Callbacks;
 import org.baylist.dto.telegram.ChatValue;
 import org.baylist.dto.telegram.State;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
@@ -31,9 +33,11 @@ import static org.baylist.dto.Constants.UNKNOWN_CATEGORY;
 @AllArgsConstructor
 public class DictionaryService {
 
+	private final ApplicationContext context;
     private final CategoryRepository categoryRepository;
     private final VariantRepository variantRepository;
     private final UserService userService;
+
 
 
     public Map<String, Set<String>> parseInputBuyList(String input) {
@@ -59,7 +63,8 @@ public class DictionaryService {
 
 	public boolean addDictCategory(String category) {
         // todo позже добавить валидацию
-		Category categoryByName = categoryRepository.findCategoryByName(category);
+		DictionaryService self = context.getBean(DictionaryService.class);
+		Category categoryByName = self.getCategoryByName(category);
 		if (categoryByName == null) {
 			categoryRepository.save(new Category(null, category, null));
 			return true;
@@ -82,27 +87,30 @@ public class DictionaryService {
         return categoryRepository.findAll().stream().map(Category::getName).toList();
     }
 
+	@Cacheable(value = "category", key = "#result.id", unless = "#result == null")
+	public Category getCategoryByName(String name) {
+		return categoryRepository.findCategoryByName(name);
+	}
+
     public void addVariantToCategory(ChatValue chatValue, String category) {
+	    DictionaryService self = context.getBean(DictionaryService.class);
         String input = chatValue.getInputText();
         String[] split = input.split("\n");
         List<String> variants = Arrays.stream(split).map(String::trim).distinct().toList();
-	    Category categoryDb = getCategoryByName(category);
+	    Category categoryDb = self.getCategoryByName(category);
 	    if (categoryDb == null) {
 		    settingsMainMenu(chatValue, false);
             chatValue.setReplyText("категория не найдена");
         } else {
-            variantRepository.saveAll(variants.stream().map(v -> new Variant(null, v, categoryDb)).toList());
+		    addVariantsToCategory(variants, categoryDb);
 		    settingsMainMenu(chatValue, false);
             chatValue.setReplyText(variants.size() + ": вариантов добавлено в категорию - " + category);
         }
         chatValue.setState(State.DICT_SETTING);
     }
 
-	public Category getCategoryByName(String name) {
-		System.out.println("debug1");
-		Category categoryByName = categoryRepository.findCategoryByName(name);
-		System.out.println("debug1");
-		return categoryByName;
+	public void addVariantsToCategory(List<String> variants, Category categoryDb) {
+		variantRepository.saveAll(variants.stream().map(v -> new Variant(null, v, categoryDb)).toList());
 	}
 
 	public void settingsMainMenu(ChatValue chatValue, boolean isEdit) {
@@ -168,23 +176,31 @@ public class DictionaryService {
 		if (isEdit) {
 			chatValue.setEditText(message);
 			chatValue.setEditReplyKeyboard(markup);
+			chatValue.setEditReplyParseModeHtml();
 		} else {
 			chatValue.setReplyText(message);
 			chatValue.setReplyKeyboard(markup);
+			chatValue.setReplyParseModeHtml();
 		}
         chatValue.setState(State.DICT_SETTING);
     }
 
 	@Transactional
 	public void removeCategory(String category) {
-		Category categoryDb = getCategoryByName(category);
+		DictionaryService self = context.getBean(DictionaryService.class);
+		Category categoryDb = self.getCategoryByName(category);
 		if (categoryDb != null) {
-			variantRepository.deleteCategoryById(categoryDb.getId());
+			removeCategoryById(categoryDb);
 			categoryRepository.delete(categoryDb);
 		}
 	}
 
-	@CacheEvict(value = "category", key = "#category.name")
+	@CacheEvict(value = "category", key = "#categoryDb.id")
+	public void removeCategoryById(Category categoryDb) {
+		variantRepository.deleteCategoryById(categoryDb.getId());
+	}
+
+	@CacheEvict(value = "category", key = "#category.id")
 	public void renameCategory(Category category, String newCategoryName) {
 		category.setName(newCategoryName);
 		categoryRepository.save(category);

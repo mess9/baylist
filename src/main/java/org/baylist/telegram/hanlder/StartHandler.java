@@ -9,6 +9,8 @@ import org.baylist.service.TodoistService;
 import org.baylist.service.UserService;
 import org.baylist.telegram.hanlder.config.DialogHandler;
 import org.springframework.stereotype.Component;
+import org.telegram.telegrambots.meta.api.objects.Contact;
+import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardRow;
@@ -31,10 +33,20 @@ public class StartHandler implements DialogHandler {
 			String callbackData = chatValue.getCallbackData();
 			if (callbackData.equals(Callbacks.START.getCallbackData())) {
 				todoistAnswer(chatValue);
-			} else if (callbackData.equals(Callbacks.TODOIST_TOKEN.getCallbackData())) {
+			} else if (callbackData.equals(Callbacks.START_1_TODOIST_TOKEN_REQUEST.getCallbackData())) {
+				if (userService.isExistToken(chatValue.getUser().getUserId())) {
+					existToken(chatValue);
+				} else {
+					tokenRequest(chatValue);
+				}
+			} else if (callbackData.equals(Callbacks.START_1_TODOIST_TOKEN_CHANGE.getCallbackData())) {
 				tokenRequest(chatValue);
-			} else if (callbackData.equals(Callbacks.WITHOUT_TODOIST_TOKEN.getCallbackData())) {
-				friendsAnswer(chatValue);
+			} else if (callbackData.equals(Callbacks.START_2_FRIENDS_REQUEST.getCallbackData())) {
+				if (userService.isExistToken(chatValue.getUser().getUserId())) {
+					friendsAnswer(chatValue);
+				} else {
+					doneWithouFriends(chatValue);
+				}
 			} else if (callbackData.equals(Callbacks.ADD_FRIENDS.getCallbackData())) {
 				friendsRequest(chatValue);
 			} else if (callbackData.equals(Callbacks.NO_FRIENDS.getCallbackData())) {
@@ -42,7 +54,50 @@ public class StartHandler implements DialogHandler {
 			}
 
 		} else {
-			tokenResponse(chatValue);
+			Update update = chatValue.getUpdate();
+			if (update.hasMessage() && update.getMessage().hasText() && update.getMessage().getText().equals(Commands.START.getCommand())) {
+				start(chatValue);
+			} else if (update.hasMessage() && update.getMessage().hasText() && update.getMessage().getText().length() == 40) {
+				tokenResponse(chatValue);
+			} else if (update.hasMessage() && update.getMessage().hasContact()) {
+				Contact contact = update.getMessage().getContact();
+				if (userService.addFriend(chatValue, contact)) {
+					chatValue.setReplyText("друг добавлен");
+					InlineKeyboardMarkup markup = new InlineKeyboardMarkup(
+							List.of(new InlineKeyboardRow(InlineKeyboardButton.builder()
+											.text("добавить ещё")
+											.callbackData(Callbacks.ADD_FRIENDS.getCallbackData())
+											.build()),
+									new InlineKeyboardRow(InlineKeyboardButton.builder()
+											.text("друзья кончились")
+											.callbackData(Callbacks.NO_FRIENDS.getCallbackData())
+											.build())
+							));
+					chatValue.setReplyKeyboard(markup);
+				} else {
+					chatValue.setReplyText("такой друг у тебя уже есть, давай другого");
+					InlineKeyboardMarkup markup = new InlineKeyboardMarkup(
+							List.of(new InlineKeyboardRow(InlineKeyboardButton.builder()
+											.text("добавить ещё")
+											.callbackData(Callbacks.ADD_FRIENDS.getCallbackData())
+											.build()),
+									new InlineKeyboardRow(InlineKeyboardButton.builder()
+											.text("друзья закончились")
+											.callbackData(Callbacks.NO_FRIENDS.getCallbackData())
+											.build())
+							));
+					chatValue.setReplyKeyboard(markup);
+				}
+			} else {
+				chatValue.setReplyText("не понимаю");
+				InlineKeyboardMarkup markup = new InlineKeyboardMarkup(
+						List.of(new InlineKeyboardRow(InlineKeyboardButton.builder()
+								.text("давай всё заново")
+								.callbackData(Callbacks.START_2_FRIENDS_REQUEST.getCallbackData())
+								.build())
+						));
+				chatValue.setReplyKeyboard(markup);
+			}
 		}
 	}
 
@@ -55,16 +110,31 @@ public class StartHandler implements DialogHandler {
 				""");
 		InlineKeyboardMarkup markup = new InlineKeyboardMarkup(
 				List.of(new InlineKeyboardRow(InlineKeyboardButton.builder()
-								.text("да(полный функционал)")
-								.callbackData(Callbacks.TODOIST_TOKEN.getCallbackData())
+								.text("да (добавить/изменить токен)")
+								.callbackData(Callbacks.START_1_TODOIST_TOKEN_REQUEST.getCallbackData())
 								.build()),
 						new InlineKeyboardRow(InlineKeyboardButton.builder()
-								.text("неа, у меня лапки")
-								.callbackData(Callbacks.WITHOUT_TODOIST_TOKEN.getCallbackData())
+								.text("пропустить пока")
+								.callbackData(Callbacks.START_2_FRIENDS_REQUEST.getCallbackData())
 								.build())
 				));
 		chatValue.setReplyKeyboard(markup);
 		chatValue.setReplyParseModeHtml();
+	}
+
+	private static void existToken(ChatValue chatValue) {
+		chatValue.setEditText("токен уже добавлен");
+		InlineKeyboardMarkup markup = new InlineKeyboardMarkup(
+				List.of(new InlineKeyboardRow(InlineKeyboardButton.builder()
+								.text("изменить привязанный токен")
+								.callbackData(Callbacks.START_1_TODOIST_TOKEN_CHANGE.getCallbackData())
+								.build()),
+						new InlineKeyboardRow(InlineKeyboardButton.builder()
+								.text("дальше")
+								.callbackData(Callbacks.START_2_FRIENDS_REQUEST.getCallbackData())
+								.build())
+				));
+		chatValue.setEditReplyKeyboard(markup);
 	}
 
 	private void tokenRequest(ChatValue chatValue) {
@@ -73,7 +143,7 @@ public class StartHandler implements DialogHandler {
 				0. регистрируемся на todoist.com
 				1. переходим по ссылке https://todoist.com/prefs/integrations
 				2. переключаемся на вкладку "для разработчиков"
-				3. копируем токен и отправляем его боту
+				3. копируем токен и отправляем его боту (вставить в чат, в ответ на это сообщение)
 				""");
 		chatValue.setReplyParseModeHtml();
 	}
@@ -99,13 +169,25 @@ public class StartHandler implements DialogHandler {
 		chatValue.setReplyParseModeHtml();
 	}
 
+	private void doneWithouFriends(ChatValue chatValue) {
+		chatValue.setReplyText("""
+				<i> если бы у вас был токен todoist вы бы могли добавить друзей которые могут отправлять вам задачи </i>
+				
+				но у вас его нет
+				так что бот для вас будет бесполезен до тех пор, пока ваш друг не добавит вас в к себе в профиль, что бы вы могли отправлять ему задачи
+				"""); //todo добавить проверочку на наличие подходящих друзей, с отправкой им уведомлений
+		chatValue.setReplyParseModeHtml();
+		chatValue.setState(State.DEFAULT);
+	}
+
 	private void friendsRequest(ChatValue chatValue) {
 		chatValue.setReplyText("""
 				<b> добавление друзей </b>
-				пока что это не реализовано, но скоро будет
-				"""); //todo добавление друзей
+				
+				пришлите мне контакт вашего друга, который сможет отправлять вам задачи
+				""");
 		chatValue.setReplyParseModeHtml();
-		chatValue.setState(State.DEFAULT);
+		chatValue.setState(State.START);
 	}
 
 	private void done(ChatValue chatValue) {
@@ -181,7 +263,7 @@ public class StartHandler implements DialogHandler {
 				
 				для того чтобы мочь получать задачи от себя или друзей, нужно зарегистрироваться в todoist и получить там токен.
 				(инструкция по получению токена будет чуть позже)
-				(позже планируется уйти от todoist или сделать его опциональным, но пока так, он неплох)
+				(позже планируется уйти от todoist или сделать его опциональным, но пока <i>и так сойдёт</i>, todoist вполне неплох)
 				
 				а теперь этап первоначальной настройки.
 				""");
@@ -191,6 +273,7 @@ public class StartHandler implements DialogHandler {
 						.callbackData(Callbacks.START.getCallbackData())
 						.build())));
 		chatValue.setReplyKeyboard(markup);
+		chatValue.setReplyParseModeHtml();
 		chatValue.setState(State.START);
 	}
 }

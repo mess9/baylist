@@ -27,6 +27,7 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
+    open-in-view: true
 
 ### deploy ###
 management:

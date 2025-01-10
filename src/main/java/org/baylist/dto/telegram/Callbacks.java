@@ -11,8 +11,9 @@ public enum Callbacks {
 
 	START("start"),
 	START_DONE("startDone"),
-	TODOIST_TOKEN("todoistToken"),
-	WITHOUT_TODOIST_TOKEN("withoutTodoistToken"),
+	START_1_TODOIST_TOKEN_REQUEST("todoistToken"),
+	START_1_TODOIST_TOKEN_CHANGE("todoistTokenChange"),
+	START_2_FRIENDS_REQUEST("withoutTodoistToken"),
 	ADD_FRIENDS("addFriends"),
 	NO_FRIENDS("noFriends"),
 

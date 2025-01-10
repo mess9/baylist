@@ -9,10 +9,12 @@ import org.baylist.db.entity.User;
 import org.baylist.db.repo.UserRepository;
 import org.baylist.dto.telegram.ChatValue;
 import org.baylist.dto.telegram.State;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
+import org.telegram.telegrambots.meta.api.objects.Contact;
 
 import java.time.OffsetDateTime;
 import java.util.Set;
@@ -67,19 +69,48 @@ public class UserService {
 		return userRepository.findByUserId(userId);
 	}
 
+	@Transactional
+	@CacheEvict(value = "user", key = "#chatValue.getUser().userId")
+	public boolean addFriend(ChatValue chatValue, Contact contact) {
+		User user = getUserFromDb(chatValue.getUser().getUserId());
+		User friend = getUserFromDb(contact.getUserId());
+
+		if (friend != null) {
+			if (existFriend(user, friend.getUserId())) {
+				return false;
+			} else {
+				user.getFriends().add(friend);
+				userRepository.save(user);
+				return true;
+			}
+		} else {
+			return false;
+		}
+	}
+
+	public User getUserFromDb(Long userId) { //no cache
+		return userRepository.findByUserId(userId);
+	}
+
+	private boolean existFriend(User user, Long friend) {
+		if (user.getFriends().isEmpty()) {
+			return false;
+		} else {
+			return user.getFriends().stream().anyMatch(f -> f.getUserId().equals(friend));
+		}
+	}
+
+	public boolean isExistToken(Long userId) {
+		return userRepository.findByUserId(userId).getTodoistToken() != null;
+	}
+
 	//private
 	private void bindUser(ChatValue chatValue, User user) {
 		chatValue.setUser(user);
 		log.info("hi - {}, state - {}", user.getFirstName(), user.getDialog().getState());
 	}
 
-	public void saveToken(ChatValue chatValue, String token) {
-		User user = chatValue.getUser();
-		user.setTodoistToken(token);
-		userRepository.save(user);
-		chatValue.setState(State.START);
-	}
-
+	@Cacheable(value = "user", key = "#result.userId")
 	public User getFil() {
 		return userRepository.findByUserId(FIL_USER_ID);
 	}
@@ -97,5 +128,12 @@ public class UserService {
 		log.info("created new user - {}", newUser.getFirstName());
 	}
 
-
+	@CacheEvict(value = "user", key = "#chatValue.getUser().userId")
+	public void saveToken(ChatValue chatValue, String token) {
+		User user = chatValue.getUser();
+		user.setTodoistToken(token);
+		userRepository.save(user);
+		chatValue.setState(State.START);
+	}
 }
+

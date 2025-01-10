@@ -18,7 +18,9 @@ public class Scheduler {
 	private final CacheManager cacheManager;
 	private final UserService userService;
 
-
+	/**
+	 * Sync user cache to database
+	 */
 	@Transactional
 	@Scheduled(fixedRate = 5, timeUnit = TimeUnit.MINUTES)
 	public void syncUserCacheToDatabase() {
