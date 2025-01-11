@@ -1,8 +1,9 @@
 package org.baylist.service;
 
 import jakarta.transaction.Transactional;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.baylist.db.entity.Category;
 import org.baylist.db.entity.Variant;
 import org.baylist.db.repo.CategoryRepository;
@@ -11,7 +12,6 @@ import org.baylist.dto.telegram.Callbacks;
 import org.baylist.dto.telegram.ChatValue;
 import org.baylist.dto.telegram.State;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
@@ -30,13 +30,15 @@ import static org.baylist.dto.Constants.UNKNOWN_CATEGORY;
 
 @Getter
 @Component
-@AllArgsConstructor
+@RequiredArgsConstructor
+@FieldDefaults(makeFinal = true, level = lombok.AccessLevel.PRIVATE)
 public class DictionaryService {
 
-	private final ApplicationContext context;
-    private final CategoryRepository categoryRepository;
-    private final VariantRepository variantRepository;
-    private final UserService userService;
+	ApplicationContext context;
+	CategoryRepository categoryRepository;
+	VariantRepository variantRepository;
+	UserService userService;
+	MenuService menuService;
 
 
 
@@ -63,8 +65,7 @@ public class DictionaryService {
 
 	public boolean addDictCategory(String categoryName, Long userId) {
         // todo позже добавить валидацию
-		DictionaryService self = context.getBean(DictionaryService.class);
-		Category categoryByName = self.getCategoryByName(categoryName);
+		Category categoryByName = getCategoryByNameFromDb(categoryName);
 		if (categoryByName == null) {
 			categoryRepository.save(new Category(categoryName, userId));
 			return true;
@@ -87,23 +88,21 @@ public class DictionaryService {
         return categoryRepository.findAll().stream().map(Category::getName).toList();
     }
 
-	@Cacheable(value = "category", key = "#result.id", unless = "#result == null")
-	public Category getCategoryByName(String name) {
+	public Category getCategoryByNameFromDb(String name) { //no cache
 		return categoryRepository.findCategoryByName(name);
 	}
 
-    public void addVariantToCategory(ChatValue chatValue, String category) {
-	    DictionaryService self = context.getBean(DictionaryService.class);
+	public void addVariantToCategory(ChatValue chatValue, String category) {
         String input = chatValue.getInputText();
         String[] split = input.split("\n");
         List<String> variants = Arrays.stream(split).map(String::trim).distinct().toList();
-	    Category categoryDb = self.getCategoryByName(category);
+		Category categoryDb = getCategoryByNameFromDb(category);
 	    if (categoryDb == null) {
-		    dictionaryMainMenu(chatValue, false);
+		    menuService.dictionaryMainMenu(chatValue, false);
             chatValue.setReplyText("категория не найдена");
         } else {
 		    addVariantsToCategory(variants, categoryDb);
-		    dictionaryMainMenu(chatValue, false);
+		    menuService.dictionaryMainMenu(chatValue, false);
             chatValue.setReplyText(variants.size() + ": вариантов добавлено в категорию - " + category);
         }
         chatValue.setState(State.DICT_SETTING);
@@ -112,56 +111,6 @@ public class DictionaryService {
 	public void addVariantsToCategory(List<String> variants, Category categoryDb) {
 		variantRepository.saveAll(variants.stream().map(v -> new Variant(null, v, categoryDb)).toList());
 	}
-
-	public void dictionaryMainMenu(ChatValue chatValue, boolean isEdit) {
-        InlineKeyboardMarkup markup = new InlineKeyboardMarkup(List.of(
-                new InlineKeyboardRow(InlineKeyboardButton.builder()
-                        .text("показать словарик")
-                        .callbackData(Callbacks.DICT_VIEW.getCallbackData())
-                        .build()),
-                new InlineKeyboardRow(InlineKeyboardButton.builder()
-                        .text("новая категория")
-                        .callbackData(Callbacks.DICT_ADD_CATEGORY.getCallbackData())
-                        .build()),
-                new InlineKeyboardRow(InlineKeyboardButton.builder()
-                        .text("добавить варианты в категорию")
-                        .callbackData(Callbacks.DICT_ADD_TASKS_TO_CATEGORY.getCallbackData())
-		                .build()),
-		        new InlineKeyboardRow(InlineKeyboardButton.builder()
-				        .text("переименовать категорию")
-				        .callbackData(Callbacks.DICT_RENAME_CATEGORY.getCallbackData())
-				        .build()),
-		        new InlineKeyboardRow(InlineKeyboardButton.builder()
-				        .text("удалить категории")
-				        .callbackData(Callbacks.DICT_REMOVE_CATEGORY.getCallbackData())
-                        .build()),
-		        new InlineKeyboardRow(InlineKeyboardButton.builder()
-				        .text("удалить варианты задач")
-				        .callbackData(Callbacks.DICT_REMOVE_VARIANT.getCallbackData())
-				        .build()),
-                new InlineKeyboardRow(InlineKeyboardButton.builder()
-                        .text("справка по словарику")
-                        .callbackData(Callbacks.DICT_HELP.getCallbackData())
-                        .build()),
-		        new InlineKeyboardRow(InlineKeyboardButton.builder()
-				        .text("главное меню")
-				        .callbackData(Callbacks.MAIN_MENU.getCallbackData())
-				        .build()),
-                new InlineKeyboardRow(InlineKeyboardButton.builder()
-                        .text("фсё, пока хватит")
-                        .callbackData(Callbacks.CANCEL.getCallbackData())
-                        .build())
-        ));
-		if (isEdit) {
-			chatValue.setEditText("настройки словарика");
-			chatValue.setEditReplyKeyboard(markup);
-		} else {
-			chatValue.setReplyText("настройки словарика");
-			chatValue.setReplyKeyboard(markup);
-		}
-
-		chatValue.setState(State.DICT_SETTING);
-    }
 
 	public List<String> getVariants(String category) {
 		return variantRepository.findAllByCategoryName(category).stream().map(Variant::getName).toList();
@@ -191,8 +140,7 @@ public class DictionaryService {
 
 	@Transactional
 	public void removeCategory(String category) {
-		DictionaryService self = context.getBean(DictionaryService.class);
-		Category categoryDb = self.getCategoryByName(category);
+		Category categoryDb = getCategoryByNameFromDb(category);
 		if (categoryDb != null) {
 			removeCategoryById(categoryDb);
 			categoryRepository.delete(categoryDb);

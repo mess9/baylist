@@ -6,9 +6,8 @@ import org.baylist.dto.telegram.Callbacks;
 import org.baylist.dto.telegram.ChatValue;
 import org.baylist.dto.telegram.Commands;
 import org.baylist.dto.telegram.State;
-import org.baylist.service.DictionaryService;
-import org.baylist.service.MenuService;
 import org.baylist.service.CommonResponseService;
+import org.baylist.service.MenuService;
 import org.baylist.service.UserService;
 import org.baylist.telegram.hanlder.config.DialogHandler;
 import org.springframework.stereotype.Component;
@@ -21,7 +20,6 @@ public class MainMenuHandler implements DialogHandler {
 
 	MenuService menuService;
 	UserService userService;
-	DictionaryService dictionaryService;
 	CommonResponseService responseService;
 
 	// state MENU
@@ -30,9 +28,9 @@ public class MainMenuHandler implements DialogHandler {
 		if (chatValue.isCallback()) {
 			Callbacks callback = Callbacks.fromValue(chatValue.getCallbackData());
 			switch (callback) {
-				case CANCEL -> cancel(chatValue);
+				case CANCEL -> responseService.cancel(chatValue);
 				case MAIN_MENU, START_2_FRIENDS_REQUEST -> menuService.mainMenu(chatValue, true);
-				case DICT_SETTINGS -> dictionaryService.dictionaryMainMenu(chatValue, true);
+				case DICT_SETTINGS -> menuService.dictionaryMainMenu(chatValue, true);
 				//change token
 				case START_1_TODOIST_TOKEN_REQUEST -> {
 					if (userService.isExistToken(chatValue.getUser().getUserId())) {
@@ -42,8 +40,9 @@ public class MainMenuHandler implements DialogHandler {
 					}
 				}
 				case START_1_TODOIST_TOKEN_CHANGE -> responseService.tokenRequest(chatValue);
-				//				case FRIENDS_SETTINGS -> menuService.friendsSettings(chatValue);
-//				case NOTIFY_SETTINGS -> menuService.notifySettings(chatValue);
+				case FRIENDS_SETTINGS -> menuService.friendsSettings(chatValue, true);
+//				case NOTIFY_SETTINGS -> menuService.notifySettings(chatValue); //todo notifications
+//				case HELP -> menuService.help(chatValue); //todo help
 				case VIEW -> responseService.view(chatValue, true);
 				case INFO -> responseService.info(chatValue);
 				default -> chatValue.setState(State.ERROR);
@@ -58,11 +57,6 @@ public class MainMenuHandler implements DialogHandler {
 				menuService.mainMenu(chatValue, false);
 			}
 		}
-	}
-
-	private static void cancel(ChatValue chatValue) {
-		chatValue.setEditText("вернулся в режим приёма задач");
-		chatValue.setState(State.DEFAULT);
 	}
 
 

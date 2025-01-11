@@ -4,6 +4,7 @@ import org.baylist.dto.telegram.State;
 import org.baylist.telegram.hanlder.ClearHandler;
 import org.baylist.telegram.hanlder.DefaultHandler;
 import org.baylist.telegram.hanlder.ErrorHandler;
+import org.baylist.telegram.hanlder.FriendsHandler;
 import org.baylist.telegram.hanlder.MainMenuHandler;
 import org.baylist.telegram.hanlder.StartHandler;
 import org.baylist.telegram.hanlder.ViewHandler;
@@ -41,7 +42,8 @@ public class StateHandlerConfig {
 			DictRemoveCategoryHandler dictRemoveCategoryHandler,
 			DictRenameCategoryHandler dictRenameCategoryHandler,
 			DictRemoveVariantHandler dictRemoveVariantHandler,
-			MainMenuHandler mainMenuHandler
+			MainMenuHandler mainMenuHandler,
+			FriendsHandler friendsHandler
 	) {
 		Map<State, DialogHandler> stateHandlers = new HashMap<>();
 		stateHandlers.put(State.START, startHandler);
@@ -59,6 +61,7 @@ public class StateHandlerConfig {
 		stateHandlers.put(State.DICT_RENAME_CATEGORY, dictRenameCategoryHandler);
 		stateHandlers.put(State.DICT_REMOVE_VARIANT, dictRemoveVariantHandler);
 		stateHandlers.put(State.MENU, mainMenuHandler);
+		stateHandlers.put(State.FRIENDS, friendsHandler);
 
 		return stateHandlers;
 	}

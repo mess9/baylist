@@ -106,7 +106,7 @@ public class TodoistService {
 				ProjectDb buylistProject = buyListProjectDb.get();
 				String projectId = buylistProject.getProject().getId();
 				List<Task> tasks = buylistProject.getTasks();
-				List<SectionDb> sections = repository.getSections();
+				List<SectionDb> sections = buylistProject.getSections();
 				List<String> submittedTasks = new ArrayList<>();
 
 				submittedTasks.addAll(sendTasksWithoutCategory(inputTasks, tasks, projectId));

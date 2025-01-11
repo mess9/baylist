@@ -22,6 +22,7 @@ public enum Callbacks {
 	VIEW("view"),
 	INFO("info"),
 	MAIN_MENU("mainMenu"),
+	HELP("help"),
 
 	FEEDBACK("feedback"),
 	DONATE("donate"),
@@ -40,6 +41,12 @@ public enum Callbacks {
 	REMOVE_CATEGORY("removeCategory"),
 
 	FRIENDS_SETTINGS("friendsSettings"),
+	FRIENDS_HELP("friendsHelp"),
+	MY_FRIENDS("myFriends"),
+	FRIENDS_ME("friendsMe"),
+	REMOVE_FRIEND("removeFriend"),
+	FRIEND_CHOICE("friend:"),
+
 	NOTIFY_SETTINGS("notifySettings"),
 	TODOIST_SETTINGS("todoistSettings"),
 
@@ -52,7 +59,7 @@ public enum Callbacks {
 	public static Callbacks fromValue(String callbackData) {
 		return Arrays.stream(Callbacks.values())
 				.filter(c -> c.getCallbackData().equals(callbackData))
-				.findFirst()
+				.findAny()
 				.orElseThrow();
 	}
 

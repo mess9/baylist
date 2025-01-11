@@ -1,20 +1,24 @@
 package org.baylist.telegram.hanlder.dictionary;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.baylist.dto.telegram.Callbacks;
 import org.baylist.dto.telegram.ChatValue;
 import org.baylist.dto.telegram.State;
-import org.baylist.service.DictionaryService;
 import org.baylist.service.CommonResponseService;
+import org.baylist.service.DictionaryService;
+import org.baylist.service.MenuService;
 import org.baylist.telegram.hanlder.config.DialogHandler;
 import org.springframework.stereotype.Component;
 
 @Component
-@AllArgsConstructor
+@RequiredArgsConstructor
+@FieldDefaults(makeFinal = true, level = lombok.AccessLevel.PRIVATE)
 public class DictAddTasksToCategoryHandler implements DialogHandler {
 
-	private DictionaryService dictionaryService;
-	private CommonResponseService commonResponseService;
+	DictionaryService dictionaryService;
+	CommonResponseService commonResponseService;
+	MenuService menuService;
 
 	//todo валидация на уникальность вариантов среди всех категорий пользователя
 
@@ -26,7 +30,7 @@ public class DictAddTasksToCategoryHandler implements DialogHandler {
 			if (callbackData.equals(Callbacks.CANCEL.getCallbackData())) {
 				commonResponseService.cancelMessage(chatValue);
 			} else if (callbackData.equals(Callbacks.DICT_SETTINGS.getCallbackData())) {
-				dictionaryService.dictionaryMainMenu(chatValue, true);
+				menuService.dictionaryMainMenu(chatValue, true);
 			} else if (callbackData.startsWith(Callbacks.CATEGORY_CHOICE.getCallbackData())) {
 				String category = callbackData.substring(Callbacks.CATEGORY_CHOICE.getCallbackData().length());
 				chatValue.setEditText("""

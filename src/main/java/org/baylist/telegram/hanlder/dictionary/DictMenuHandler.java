@@ -43,11 +43,11 @@ public class DictMenuHandler implements DialogHandler {
 				case DICT_RENAME_CATEGORY -> renameCategory(chatValue);
 				case DICT_REMOVE_VARIANT -> removeVariants(chatValue);
 				case DICT_HELP -> dictHelp(chatValue);
-				case DICT_SETTINGS -> dictionaryService.dictionaryMainMenu(chatValue, true);
+				case DICT_SETTINGS -> menuService.dictionaryMainMenu(chatValue, true);
 				default -> chatValue.setState(State.ERROR);
 			}
 		} else {
-			dictionaryService.dictionaryMainMenu(chatValue, false);
+			menuService.dictionaryMainMenu(chatValue, false);
 		}
 	}
 

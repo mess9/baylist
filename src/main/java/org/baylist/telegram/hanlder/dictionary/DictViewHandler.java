@@ -1,11 +1,13 @@
 package org.baylist.telegram.hanlder.dictionary;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.baylist.dto.telegram.Callbacks;
 import org.baylist.dto.telegram.ChatValue;
 import org.baylist.dto.telegram.PaginationState;
-import org.baylist.service.DictionaryService;
 import org.baylist.service.CommonResponseService;
+import org.baylist.service.DictionaryService;
+import org.baylist.service.MenuService;
 import org.baylist.telegram.hanlder.config.DialogHandler;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
@@ -22,11 +24,14 @@ import java.util.stream.Collectors;
 import static org.baylist.dto.Constants.LIMIT_CHAR_FOR_ONE_PAGE;
 
 @Component
-@AllArgsConstructor
+@RequiredArgsConstructor
+@FieldDefaults(makeFinal = true, level = lombok.AccessLevel.PRIVATE)
 public class DictViewHandler implements DialogHandler {
 
-	private CommonResponseService commonResponseService;
-	private DictionaryService dictionaryService;
+	CommonResponseService commonResponseService;
+	DictionaryService dictionaryService;
+	MenuService menuService;
+
 	private final Map<Long, PaginationState> paginationStateMap = new ConcurrentHashMap<>();
 
 
@@ -40,7 +45,7 @@ public class DictViewHandler implements DialogHandler {
 				commonResponseService.cancelMessage(chatValue);
 				paginationStateMap.remove(chatValue.getUser().getUserId());
 			} else if (callbackData.equals(Callbacks.DICT_SETTINGS.getCallbackData())) {
-				dictionaryService.dictionaryMainMenu(chatValue, true);
+				menuService.dictionaryMainMenu(chatValue, true);
 				paginationStateMap.remove(chatValue.getUser().getUserId());
 			} else if (callbackData.startsWith(Callbacks.CATEGORY_CHOICE.getCallbackData())) {
 				handleCategoryChoice(chatValue, callbackData);
@@ -50,7 +55,7 @@ public class DictViewHandler implements DialogHandler {
 				updatePagination(chatValue, false);
 			}
 		} else {
-			dictionaryService.dictionaryMainMenu(chatValue, true);
+			menuService.dictionaryMainMenu(chatValue, true);
 		}
 	}
 

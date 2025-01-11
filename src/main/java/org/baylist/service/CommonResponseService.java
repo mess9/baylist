@@ -10,6 +10,8 @@ import org.baylist.dto.telegram.ChatValue;
 import org.baylist.dto.telegram.Commands;
 import org.baylist.dto.telegram.State;
 import org.springframework.stereotype.Component;
+import org.telegram.telegrambots.meta.api.objects.Contact;
+import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardRow;
@@ -102,7 +104,7 @@ public class CommonResponseService {
 					.sum();
 		}
 		List<User> friends = user.getFriends();
-		List<User> friendList = userService.getFriendList(user.getUserId());
+		List<User> friendList = userService.getFriendMe(user.getUserId());
 
 
 		sb.append("<b>сводная информация:</b>\n")
@@ -124,25 +126,7 @@ public class CommonResponseService {
 			} else {
 				sb.append("<i>вы не создали категорий задач </i> <b>:(</b>\n\n");
 			}
-			if (!friends.isEmpty()) {
-				if (friends.size() > 1) {
-					sb.append("у вас есть друзья:\n");
-					friends.forEach(f -> sb.append(" <code>")
-							.append(f.getFirstName())
-							.append(" ")
-							.append(f.getLastName())
-							.append("</code>\n"));
-				} else {
-					sb.append("у вас есть друг!\n");
-					friends.forEach(f -> sb.append(" <code>")
-							.append(f.getFirstName())
-							.append(" ")
-							.append(f.getLastName())
-							.append("</code>\n"));
-				}
-			} else {
-				sb.append("у вас нет друзей\n");
-			}
+			checkFriends(friends, sb);
 		} else {
 			if (friendList.isEmpty()) {
 				sb.append("""
@@ -157,21 +141,7 @@ public class CommonResponseService {
 						""");
 			} else {
 				sb.append("вы не подключены к todoist\nно у вас есть ");
-				if (friendList.size() > 1) {
-					sb.append("друзья, которым вы можете отправлять задачи\n");
-					friendList.forEach(f -> sb.append(" <code>")
-							.append(f.getFirstName())
-							.append(" ")
-							.append(f.getLastName())
-							.append("</code>\n"));
-				} else {
-					sb.append("друг, которому вы можете отправлять задачи\n");
-					friendList.forEach(f -> sb.append(" <code>")
-							.append(f.getFirstName())
-							.append(" ")
-							.append(f.getLastName())
-							.append("</code>\n"));
-				}
+				checkFriendsMe(friendList, sb);
 			}
 		}
 
@@ -179,6 +149,51 @@ public class CommonResponseService {
 		chatValue.setEditReplyKeyboard(markup);
 		chatValue.setEditReplyParseModeHtml();
 		chatValue.setState(State.MENU);
+	}
+
+	private void checkFriends(List<User> friends, StringBuilder sb) {
+		if (!friends.isEmpty()) {
+			if (friends.size() > 1) {
+				sb.append("у вас есть друзья:\n");
+				friends.forEach(f -> sb.append(" <code>")
+						.append(f.getFirstName())
+						.append(" ")
+						.append(f.getLastName())
+						.append("</code>\n"));
+			} else {
+				sb.append("у вас есть друг!\n");
+				friends.forEach(f -> sb.append(" <code>")
+						.append(f.getFirstName())
+						.append(" ")
+						.append(f.getLastName())
+						.append("</code>\n"));
+			}
+		} else {
+			sb.append("у вас нет друзей\n");
+		}
+	}
+
+	private void checkFriendsMe(List<User> friendList, StringBuilder sb) {
+		if (friendList.size() > 1) {
+			sb.append("друзья, которым вы можете отправлять задачи:\n");
+			friendList.forEach(f -> sb.append(" <code>")
+					.append(f.getFirstName())
+					.append(" ")
+					.append(f.getLastName())
+					.append("</code>\n"));
+		} else {
+			sb.append("друг, которому вы можете отправлять задачи:\n");
+			friendList.forEach(f -> sb.append(" <code>")
+					.append(f.getFirstName())
+					.append(" ")
+					.append(f.getLastName())
+					.append("</code>\n"));
+		}
+	}
+
+	public void cancel(ChatValue chatValue) {
+		chatValue.setEditText("вернулся в режим приёма задач");
+		chatValue.setState(State.DEFAULT);
 	}
 
 	public void existToken(ChatValue chatValue) {
@@ -298,5 +313,118 @@ public class CommonResponseService {
 		chatValue.setReplyKeyboard(markup);
 		chatValue.setReplyParseModeHtml();
 		chatValue.setState(State.START);
+	}
+
+	@Transactional
+	public void listMyFriends(ChatValue chatValue) {
+		User user = userService.getUserFromDb(chatValue.getUser().getUserId());
+		List<User> friends = user.getFriends();
+		StringBuilder sb = new StringBuilder();
+		checkFriends(friends, sb);
+		chatValue.setEditText(sb.toString());
+		InlineKeyboardMarkup markup = new InlineKeyboardMarkup(
+				List.of(new InlineKeyboardRow(InlineKeyboardButton.builder()
+						.text("назад")
+						.callbackData(Callbacks.FRIENDS_SETTINGS.getCallbackData())
+						.build())));
+		chatValue.setEditReplyKeyboard(markup);
+		chatValue.setEditReplyParseModeHtml();
+	}
+
+	@Transactional
+	public void listFriendsMe(ChatValue chatValue) {
+		List<User> friendsMe = userService.getFriendMe(chatValue.getUser().getUserId());
+		StringBuilder sb = new StringBuilder();
+		if (friendsMe.isEmpty()) {
+			sb.append("у вас пока нет друзей которым вы бы могли отправить задачи...");
+		} else {
+			checkFriendsMe(friendsMe, sb);
+		}
+		chatValue.setEditText(sb.toString());
+		InlineKeyboardMarkup markup = new InlineKeyboardMarkup(
+				List.of(new InlineKeyboardRow(InlineKeyboardButton.builder()
+						.text("назад")
+						.callbackData(Callbacks.FRIENDS_SETTINGS.getCallbackData())
+						.build())));
+		chatValue.setEditReplyKeyboard(markup);
+		chatValue.setEditReplyParseModeHtml();
+	}
+
+	public void friendsHelp(ChatValue chatValue) {
+		chatValue.setEditText("""
+				<u>основная идея бота - отправлять себе задачи в todoist</u>
+				и дать возможность своим друзьям/семье - тоже отправлять в <u>твой</u> todoist задачи
+				
+				из этого выходит следующее:
+				
+				1. человек у которого привязан аккаунт todoist - может отправлять себе задачи, и ему могут отправлять задачи его друзья, если он их себе добавил
+				
+				2. человек у которого <b>не</b> привязан аккаунт todoist - может отправлять задачи только тем у кого есть аккаунт todoist и только тем из них, кто добавил его в свои друзья
+				
+				3. если человек имеет привязанный todoist и одновременно его добавили к себе в друзья люди у которых тоже привязан аккаунт todoist - то при отправке списка задач, будет предложен выбор, кому их отправлять, себе или одному из друзей.
+				
+				<i>функционал разбиения задач по категориям работает с точки зрения владельца аккаунта todoist. т.е. какие владелец себе категории настроил, так и будет разбиваться его входящий список задач, от себя или от друзей, не важно.</i>
+				
+				ещё раз. чтобы друг мог отправить тебе задачи, у тебя должен быть аккаунт в todoist и ты должен добавить себе контакт друга в настройках бота.
+				""");
+		InlineKeyboardMarkup markup = new InlineKeyboardMarkup(
+				List.of(new InlineKeyboardRow(InlineKeyboardButton.builder()
+						.text("назад")
+						.callbackData(Callbacks.FRIENDS_SETTINGS.getCallbackData())
+						.build())));
+		chatValue.setEditReplyKeyboard(markup);
+		chatValue.setEditReplyParseModeHtml();
+	}
+
+	public void friendsRequest(ChatValue chatValue, State state) {
+		chatValue.setReplyText("""
+				<b> добавление друзей </b>
+				
+				пришлите мне контакт вашего друга, который сможет отправлять вам задачи
+				""");
+		chatValue.setReplyParseModeHtml();
+		chatValue.setState(state);
+	}
+
+	public void doneWithouFriends(ChatValue chatValue, State state) {
+		chatValue.setReplyText("""
+				<i> если бы у вас был токен todoist вы бы могли добавить друзей которые могут отправлять вам задачи </i>
+				
+				но у вас его нет
+				так что бот для вас будет бесполезен до тех пор, пока ваш друг не добавит вас в к себе в профиль, что бы вы могли отправлять ему задачи
+				""");
+		chatValue.setReplyParseModeHtml();
+		chatValue.setState(state);
+	}
+
+	public void addFriend(ChatValue chatValue, Update update) {
+		Contact contact = update.getMessage().getContact();
+		if (userService.addFriend(chatValue, contact)) {
+			chatValue.setReplyText("друг добавлен");
+			InlineKeyboardMarkup markup = new InlineKeyboardMarkup(
+					List.of(new InlineKeyboardRow(InlineKeyboardButton.builder()
+									.text("добавить ещё")
+									.callbackData(Callbacks.START_2_ADD_FRIENDS.getCallbackData())
+									.build()),
+							new InlineKeyboardRow(InlineKeyboardButton.builder()
+									.text("друзья кончились")
+									.callbackData(Callbacks.START_DONE.getCallbackData())
+									.build())
+					));
+			chatValue.setReplyKeyboard(markup);
+		} else {
+			chatValue.setReplyText("такой друг у тебя уже есть, давай другого");
+			InlineKeyboardMarkup markup = new InlineKeyboardMarkup(
+					List.of(new InlineKeyboardRow(InlineKeyboardButton.builder()
+									.text("добавить ещё")
+									.callbackData(Callbacks.START_2_ADD_FRIENDS.getCallbackData())
+									.build()),
+							new InlineKeyboardRow(InlineKeyboardButton.builder()
+									.text("друзья закончились")
+									.callbackData(Callbacks.START_DONE.getCallbackData())
+									.build())
+					));
+			chatValue.setReplyKeyboard(markup);
+		}
 	}
 }
