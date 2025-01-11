@@ -1,11 +1,15 @@
-import Logo from "/shared/ui/Logo/Logo";
+import type { Component } from "solid-js";
+
 import BuyList from "/widgets/BuyList";
 
-export default function Home() {
+import classes from "./Home.module.css";
+
+const Home: Component = () => {
 	return (
-		<div>
-			<Logo />
-			<BuyList />
+		<div class={classes["home-page"]}>
+			<BuyList delimiter="bottom" />
 		</div>
 	);
-}
+};
+
+export default Home;

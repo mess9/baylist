@@ -1,7 +1,7 @@
 .logo {
-  animation: logo-spin infinite 20s linear;
-  height: 3vmin;
   pointer-events: none;
+  height: 3vmin;
+  animation: logo-spin infinite 20s linear;
 }
 
 @keyframes logo-spin {

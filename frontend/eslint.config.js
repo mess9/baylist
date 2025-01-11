@@ -13,6 +13,8 @@ export default [
       rules: {
         "@typescript-eslint/consistent-type-exports": "warn",
         "@typescript-eslint/consistent-type-imports": "warn",
+
+        "@typescript-eslint/no-unused-vars": "warn",
       },
     },
   ]),

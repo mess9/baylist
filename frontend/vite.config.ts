@@ -2,6 +2,7 @@ import { defineConfig } from "vite";
 import solidPlugin from "vite-plugin-solid";
 import eslint from 'vite-plugin-eslint';
 import path from "path";
+import solidSvg from "vite-plugin-solid-svg";
 
 export default defineConfig({
   resolve: {
@@ -14,7 +15,7 @@ export default defineConfig({
       "/assets": path.resolve(__dirname, "src/app/assets"),
     },
   },
-  plugins: [solidPlugin(), eslint()],
+  plugins: [solidPlugin(), eslint(), solidSvg()],
   server: {
     port: 3000,
   },

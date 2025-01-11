@@ -8,7 +8,7 @@
     "esModuleInterop": true,
     "jsx": "preserve",
     "jsxImportSource": "solid-js",
-    "types": ["vite/client", "solid-js"],
+    "types": ["vite-plugin-solid-svg/types-component-solid", "vite/client", "solid-js"],
     "noEmit": true,
     "isolatedModules": true,
     "paths": {

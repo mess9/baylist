@@ -13,9 +13,15 @@ html {
 
 	font-family: "PT Sans", sans-serif;
 	font-size: 62.5%;
+	color: var(--white);
 
-	background-color: #182e4a;
+/*	background-color: #182e4a;*/
 /*	background-color: #12705d;*/
+}
+
+body {
+	font-size: 1.8rem;
+	background-color: var(--background);
 }
 
 @media (max-width: 75em) {
@@ -34,4 +40,8 @@ html {
   html {
     font-size: 55%;
   }
+}
+
+ul {
+	list-style: none;
 }
