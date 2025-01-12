@@ -11,6 +11,7 @@ public enum State {
 	VIEW,
 	SYNC,
 	HELP,
+	FRIENDS,
 
 	DICT_SETTING,
 	DICT_VIEW,

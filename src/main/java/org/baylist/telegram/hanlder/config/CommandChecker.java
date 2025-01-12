@@ -20,13 +20,13 @@ public class CommandChecker {
 		if (!chatValue.isCallback() && chatValue.getInputText().startsWith("/")) {
 			Commands input = Commands.fromValue(chatValue.getInputText());
 			switch (input) {
-				case Commands.START -> chatValue.setState(State.START); // todo первоначальная настройка
+				case Commands.START -> chatValue.setState(State.START);
 				case Commands.CLEAR -> chatValue.setState(State.CLEAR);
 				case Commands.VIEW -> chatValue.setState(State.VIEW);
 				case Commands.REPORT -> chatValue.setState(State.FEEDBACK_REQUEST);
 				case Commands.DICTIONARY -> chatValue.setState(State.DICT_SETTING);
 				case Commands.HELP -> chatValue.setState(State.HELP); //todo сделать хелп
-				case Commands.MENU -> chatValue.setState(State.MENU); //todo сделать меню
+				case Commands.MENU -> chatValue.setState(State.MENU);
 				default -> chatValue.setState(State.ERROR);
 			}
 		}

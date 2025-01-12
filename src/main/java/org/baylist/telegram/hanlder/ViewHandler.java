@@ -2,8 +2,7 @@ package org.baylist.telegram.hanlder;
 
 import lombok.AllArgsConstructor;
 import org.baylist.dto.telegram.ChatValue;
-import org.baylist.dto.telegram.State;
-import org.baylist.service.TodoistService;
+import org.baylist.service.CommonResponseService;
 import org.baylist.telegram.hanlder.config.DialogHandler;
 import org.springframework.stereotype.Component;
 
@@ -11,13 +10,13 @@ import org.springframework.stereotype.Component;
 @AllArgsConstructor
 public class ViewHandler implements DialogHandler {
 
-	private TodoistService todoist;
+	private CommonResponseService commonResponseService;
 
 	// state VIEW
 	@Override
 	public void handle(ChatValue chatValue) {
-		chatValue.setReplyText(todoist.getBuylistProject());
-		chatValue.setReplyParseModeHtml();
-		chatValue.setState(State.DEFAULT);
+		commonResponseService.view(chatValue, false);
 	}
+
+
 }

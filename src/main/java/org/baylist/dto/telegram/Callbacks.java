@@ -11,15 +11,18 @@ public enum Callbacks {
 
 	START("start"),
 	START_DONE("startDone"),
-	TODOIST_TOKEN("todoistToken"),
-	WITHOUT_TODOIST_TOKEN("withoutTodoistToken"),
-	ADD_FRIENDS("addFriends"),
-	NO_FRIENDS("noFriends"),
+	START_1_TODOIST_TOKEN_REQUEST("todoistToken"),
+	START_1_TODOIST_TOKEN_CHANGE("todoistTokenChange"),
+	START_2_FRIENDS_REQUEST("friendsRequest"),
+	START_2_ADD_FRIENDS("addFriends"),
 
 	APPROVE("approve"),
 	CANCEL("галя отмена"),
 
 	VIEW("view"),
+	INFO("info"),
+	MAIN_MENU("mainMenu"),
+	HELP("help"),
 
 	FEEDBACK("feedback"),
 	DONATE("donate"),
@@ -37,6 +40,17 @@ public enum Callbacks {
 	CATEGORY_CHOICE("category:"),
 	REMOVE_CATEGORY("removeCategory"),
 
+	FRIENDS_SETTINGS("friendsSettings"),
+	FRIENDS_HELP("friendsHelp"),
+	MY_FRIENDS("myFriends"),
+	FRIENDS_ME("friendsMe"),
+	REMOVE_FRIEND("removeFriend"),
+	FRIEND_CHOICE("friend:"),
+
+	NOTIFY_SETTINGS("notifySettings"),
+	TODOIST_SETTINGS("todoistSettings"),
+
+
 	;
 
 
@@ -45,7 +59,7 @@ public enum Callbacks {
 	public static Callbacks fromValue(String callbackData) {
 		return Arrays.stream(Callbacks.values())
 				.filter(c -> c.getCallbackData().equals(callbackData))
-				.findFirst()
+				.findAny()
 				.orElseThrow();
 	}
 

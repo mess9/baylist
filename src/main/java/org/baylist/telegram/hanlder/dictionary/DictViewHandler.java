@@ -1,11 +1,13 @@
 package org.baylist.telegram.hanlder.dictionary;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.baylist.dto.telegram.Callbacks;
 import org.baylist.dto.telegram.ChatValue;
 import org.baylist.dto.telegram.PaginationState;
+import org.baylist.service.CommonResponseService;
 import org.baylist.service.DictionaryService;
-import org.baylist.service.ResponseService;
+import org.baylist.service.MenuService;
 import org.baylist.telegram.hanlder.config.DialogHandler;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
@@ -13,6 +15,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKe
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardRow;
 
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -21,11 +24,14 @@ import java.util.stream.Collectors;
 import static org.baylist.dto.Constants.LIMIT_CHAR_FOR_ONE_PAGE;
 
 @Component
-@AllArgsConstructor
+@RequiredArgsConstructor
+@FieldDefaults(makeFinal = true, level = lombok.AccessLevel.PRIVATE)
 public class DictViewHandler implements DialogHandler {
 
-	private ResponseService responseService;
-	private DictionaryService dictionaryService;
+	CommonResponseService commonResponseService;
+	DictionaryService dictionaryService;
+	MenuService menuService;
+
 	private final Map<Long, PaginationState> paginationStateMap = new ConcurrentHashMap<>();
 
 
@@ -36,10 +42,10 @@ public class DictViewHandler implements DialogHandler {
 			String callbackData = chatValue.getCallbackData();
 
 			if (callbackData.equals(Callbacks.CANCEL.getCallbackData())) {
-				responseService.cancelMessage(chatValue);
+				commonResponseService.cancelMessage(chatValue);
 				paginationStateMap.remove(chatValue.getUser().getUserId());
 			} else if (callbackData.equals(Callbacks.DICT_SETTINGS.getCallbackData())) {
-				dictionaryService.settingsMainMenu(chatValue);
+				menuService.dictionaryMainMenu(chatValue, true);
 				paginationStateMap.remove(chatValue.getUser().getUserId());
 			} else if (callbackData.startsWith(Callbacks.CATEGORY_CHOICE.getCallbackData())) {
 				handleCategoryChoice(chatValue, callbackData);
@@ -49,7 +55,7 @@ public class DictViewHandler implements DialogHandler {
 				updatePagination(chatValue, false);
 			}
 		} else {
-			dictionaryService.settingsMainMenu(chatValue);
+			menuService.dictionaryMainMenu(chatValue, true);
 		}
 	}
 
@@ -60,7 +66,7 @@ public class DictViewHandler implements DialogHandler {
 
 		paginationStateMap.put(chatValue.getUser().getUserId(), new PaginationState(1, paginate, categoryName));
 
-		sendPaginatedResponse(chatValue, categoryName, paginate, 1, false);
+		sendPaginatedResponse(chatValue, categoryName, paginate, 1);
 	}
 
 	private void updatePagination(ChatValue chatValue, boolean forward) {
@@ -71,7 +77,7 @@ public class DictViewHandler implements DialogHandler {
 
 			if (newPage >= 1 && newPage <= state.getPages().size()) {
 				state.setCurrentPage(newPage);
-				sendPaginatedResponse(chatValue, state.getCategoryName(), state.getPages(), newPage, true);
+				sendPaginatedResponse(chatValue, state.getCategoryName(), state.getPages(), newPage);
 			}
 		}
 	}
@@ -79,43 +85,49 @@ public class DictViewHandler implements DialogHandler {
 	private void sendPaginatedResponse(ChatValue chatValue,
 	                                   String categoryName,
 	                                   Map<Integer, List<String>> paginate,
-	                                   int currentPage,
-	                                   boolean isEdit) {
+	                                   int currentPage) {
 		StringBuilder sb = new StringBuilder();
-		sb.append("Варианты для категории - ").append(categoryName).append(":\n");
-		paginate.get(currentPage).forEach(v -> sb.append(" - <code>").append(v).append("</code>\n"));
-		InlineKeyboardMarkup markup = new InlineKeyboardMarkup(List.of(
-				new InlineKeyboardRow(List.of(
-						InlineKeyboardButton.builder()
-								.text("<-")
-								.callbackData(Callbacks.DICT_VIEW_PAGINATION_BACK.getCallbackData())
-								.build(),
-						InlineKeyboardButton.builder()
-								.text(currentPage + "/" + paginate.size())
-								.callbackData("empty")
-								.build(),
-						InlineKeyboardButton.builder()
-								.text("->")
-								.callbackData(Callbacks.DICT_VIEW_PAGINATION_FORWARD.getCallbackData())
-								.build()
-				)),
-				new InlineKeyboardRow(List.of(
-						InlineKeyboardButton.builder()
-								.text("назад")
-								.callbackData(Callbacks.DICT_SETTINGS.getCallbackData())
-								.build()
-				))
-		));
-
-		if (isEdit) {
-			chatValue.setEditMessage(sb.toString());
-			chatValue.setEditReplyParseModeHtml();
-			chatValue.setEditReplyKeyboard(markup);
+		InlineKeyboardMarkup markup = null;
+		if (paginate.isEmpty()) {
+			sb.append("Вариантов для категории - <b>\"").append(categoryName).append("\"</b> нет");
 		} else {
-			chatValue.setReplyText(sb.toString());
-			chatValue.setReplyParseModeHtml();
-			chatValue.setReplyKeyboard(markup);
+			sb.append("Варианты для категории - ").append(categoryName).append(":\n");
+			paginate.get(currentPage).forEach(v -> sb.append("<code>").append(v).append("</code>\n"));
+			List<InlineKeyboardRow> rows = new LinkedList<>();
+			rows.add(new InlineKeyboardRow(List.of(
+					InlineKeyboardButton.builder()
+							.text("<-")
+							.callbackData(Callbacks.DICT_VIEW_PAGINATION_BACK.getCallbackData())
+							.build(),
+					InlineKeyboardButton.builder()
+							.text(currentPage + "/" + paginate.size())
+							.callbackData("empty")
+							.build(),
+					InlineKeyboardButton.builder()
+							.text("->")
+							.callbackData(Callbacks.DICT_VIEW_PAGINATION_FORWARD.getCallbackData())
+							.build()
+			)));
+			markup = new InlineKeyboardMarkup(rows);
 		}
+		if (markup == null) {
+			markup = new InlineKeyboardMarkup(List.of(
+					new InlineKeyboardRow(List.of(
+							InlineKeyboardButton.builder()
+									.text("назад")
+									.callbackData(Callbacks.DICT_SETTINGS.getCallbackData())
+									.build()))));
+		} else {
+			markup.getKeyboard().add(new InlineKeyboardRow(List.of(
+					InlineKeyboardButton.builder()
+							.text("назад")
+							.callbackData(Callbacks.DICT_SETTINGS.getCallbackData())
+							.build())));
+		}
+
+		chatValue.setEditText(sb.toString());
+		chatValue.setEditReplyParseModeHtml();
+		chatValue.setEditReplyKeyboard(markup);
 	}
 
 	private Map<Integer, List<String>> paginate(List<String> inputList) {

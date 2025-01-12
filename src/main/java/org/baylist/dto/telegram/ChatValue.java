@@ -24,7 +24,7 @@ public class ChatValue {
 
 	public ChatValue(Update update) {
         this.update = update;
-        if (update.hasMessage() && update.getMessage().hasText()) {
+		if (update.hasMessage()) {
             this.chatId = update.getMessage().getChatId();
         } else {
             this.chatId = update.getCallbackQuery().getMessage().getChatId();
@@ -36,7 +36,10 @@ public class ChatValue {
 
 	//region GETTER
 	public String getInputText() {
-		return update.getMessage().getText();
+		if (update.getMessage().hasText()) {
+			return update.getMessage().getText();
+		}
+		return "";
 	}
 
 	public String getCallbackData() {
@@ -54,11 +57,17 @@ public class ChatValue {
         this.message.setText(text);
     }
 
-	public void setEditMessage(String text) {
+	public void setEditText(String text) {
+		int messageId;
+		if (update.hasMessage()) {
+			messageId = update.getMessage().getMessageId();
+		} else {
+			messageId = update.getCallbackQuery().getMessage().getMessageId();
+		}
 		this.editMessage = EditMessageText.builder()
 				.text(text)
 				.chatId(chatId)
-				.messageId(update.getCallbackQuery().getMessage().getMessageId())
+				.messageId(messageId)
 				.build();
 	}
 

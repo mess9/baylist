@@ -3,6 +3,7 @@ package org.baylist.util.log;
 import lombok.extern.slf4j.Slf4j;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
+import org.telegram.telegrambots.meta.api.objects.Contact;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 import static org.baylist.util.log.LogUtil.reduceEmptyLines;
@@ -39,10 +40,12 @@ public class TgLog {
 	}
 
 	public static void inputLog(Update update) {
-		if (update.hasMessage()) {
+		if (update.hasMessage() && update.getMessage().hasText()) {
 			inputLogMessage(update);
 		} else if (update.hasCallbackQuery()) {
 			inputLogButton(update);
+		} else if (update.hasMessage() && update.getMessage().hasContact()) {
+			inputLogContact(update);
 		}
 	}
 
@@ -50,13 +53,13 @@ public class TgLog {
 	    String user_first_name = update.getMessage().getFrom().getFirstName();
 	    String user_last_name = update.getMessage().getFrom().getLastName();
 	    long user_id = update.getMessage().getFrom().getId();
-        String answer = update.getMessage().getText();
+		String text = update.getMessage().getText();
 
         log.info(" -> Message from {} {} (id = {}) \n Text - {}",
                 user_first_name,
                 user_last_name,
                 user_id,
-                answer);
+		        text);
     }
 
 	private static void inputLogButton(Update update) {
@@ -65,12 +68,29 @@ public class TgLog {
         long user_id = update.getCallbackQuery().getMessage().getChat().getId();
         String data = update.getCallbackQuery().getData();
 
-        log.info(" -> Callback from {} {} (id = {}) \n Data - {}",
+		log.info(" -> Callback from {} {} (id = {}) \n Callback Data - {}",
                 user_first_name,
                 user_last_name,
                 user_id,
                 data);
     }
+
+	private static void inputLogContact(Update update) {
+		String user_first_name = update.getMessage().getFrom().getFirstName();
+		String user_last_name = update.getMessage().getFrom().getLastName();
+		long user_id = update.getMessage().getFrom().getId();
+		Contact contact = update.getMessage().getContact();
+		String contactName = contact.getFirstName();
+		if (contact.getLastName() != null) {
+			contactName = contactName.concat(" ").concat(contact.getLastName());
+		}
+
+		log.info(" -> Contact from {} {} (id = {}) \n Contact -> {}",
+				user_first_name,
+				user_last_name,
+				user_id,
+				contactName);
+	}
 
 
 }
