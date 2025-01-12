@@ -1,14 +1,14 @@
-import { Meta, StoryObj } from "storybook-solidjs";
+import type { Meta, StoryObj } from "storybook-solidjs";
 
 import BuyList from "./BuyList";
 
 type Story = StoryObj<typeof meta>;
 
 const meta = {
-	title: "widgets/BuyList",
-	component: BuyList,
-  tags: ['autodocs'],
-	argTypes: {
+  title: "widgets/BuyList",
+  component: BuyList,
+  tags: ["autodocs"],
+  argTypes: {
     delimiter: {
       control: { type: "select" },
       options: ["top", "bottom"],
@@ -20,6 +20,6 @@ export default meta;
 
 export const List: Story = {
   args: {
-  	delimiter: "bottom"
+    delimiter: "bottom",
   },
-}
+};

@@ -1,7 +1,17 @@
-.buy-list--delimeter-top {
-	border-top: 1px solid black;
+.buy-list {
+	display: flex;
+	flex-direction: column;
+	gap: 0.4rem;
 }
 
-.buy-list--delimeter-bottom {
-	border-bottom: 1px solid black;
+.buy-list__li:last-child {
+	border: none;
+}
+
+.buy-list__li--delimeter-top {
+	border-top: 1px solid var(--white-tenth);
+}
+
+.buy-list__li--delimeter-bottom {
+	border-bottom: 1px solid var(--white-tenth);
 }

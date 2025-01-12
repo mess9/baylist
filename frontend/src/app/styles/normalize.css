@@ -14,14 +14,6 @@ html {
 	font-family: "PT Sans", sans-serif;
 	font-size: 62.5%;
 	color: var(--white);
-
-/*	background-color: #182e4a;*/
-/*	background-color: #12705d;*/
-}
-
-body {
-	font-size: 1.8rem;
-	background-color: var(--background);
 }
 
 @media (max-width: 75em) {
@@ -42,6 +34,26 @@ body {
   }
 }
 
+body {
+	font-size: 1.8rem;
+	background-color: var(--background);
+}
+
 ul {
 	list-style: none;
+}
+
+input, button {
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+
+	border: none;
+
+	background: none;
+
+	-webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+	-webkit-tap-highlight-color: transparent;
 }

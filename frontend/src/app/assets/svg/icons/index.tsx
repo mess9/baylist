@@ -4,6 +4,8 @@ import IconPlusSolid from "./hero/plus-solid.svg";
 import IconEllipsisHorizontalSolid from "./hero/ellipsis-horizontal-solid.svg";
 import IconCheckCircleOutline from "./hero/check-circle.svg";
 import IconCheckCircleEmptyOutline from "./hero/check-circle-empty.svg";
+import IconChevronDownMini from "./hero/chevron-down-mini.svg";
+import IconChevronRightMini from "./hero/chevron-right-mini.svg";
 
 export {
 	IconTrashSolid,
@@ -12,6 +14,8 @@ export {
 	IconEllipsisHorizontalSolid,
 	IconCheckCircleOutline,
 	IconCheckCircleEmptyOutline,
+	IconChevronDownMini,
+	IconChevronRightMini
 };
 
 // BareIcon.tsx !!EXAMPLE!!

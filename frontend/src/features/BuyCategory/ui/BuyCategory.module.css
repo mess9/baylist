@@ -1,11 +1,98 @@
 .buy-category {
-	padding: 0.7rem;
+	padding-bottom: 0.7rem;
 	box-shadow: 0px 0px 13px 2px rgba(0,0,0,0.75);
 }
 
 .buy-category__header {
 	display: flex;
+	gap: 1rem;
+	align-items: center;
 	justify-content: space-between;
-	padding: 0.5rem 0.2rem;
-	font-size: 1.4rem;
+
+	padding: 0.1rem;
+	border-radius: 0.4rem;
+
+	font-size: 1.2rem;
+
+	background: linear-gradient(180deg, rgba(30,30,30,1) 0%, rgba(30,30,30,0.7) 40%, rgba(255,255,255,0.1) 100%);
+}
+
+.buy-category__drop-down-control {
+	cursor: pointer;
+	display: flex;
+	flex-grow: 1;
+	gap: 0.4rem;
+}
+
+.buy-category__drop-down {
+	content: "";
+
+	display: block;
+
+	width: 2.4rem;
+	height: 2.4rem;
+
+	appearance: none;
+	background-color: var(--white);
+
+	mask: url(/assets/svg/icons/hero/chevron-down-mini.svg);
+
+	transition: 0.15s ease transform;
+}
+
+.buy-category__drop-down:hover {
+	cursor: pointer;
+}
+
+@media (hover: hover) and (pointer: fine)  {
+
+}
+
+.buy-category__drop-down:checked {
+	transform: rotate(-90deg);
+}
+
+
+.buy-category__controls {
+	display: flex;
+	gap: 0.6rem;
+	padding-right: 0.4rem;
+}
+
+.buy-category__add-item, .buy-category__more {
+	cursor: pointer;
+
+	width: 3.6rem;
+	height: 3.6rem;
+	padding: 0.2rem;
+	border-radius: 0.4rem;
+
+	transition: 0.2s ease transform;
+	transition: 0.4s ease background-color;
+}
+
+
+.buy-category__add-item {
+	color: var(--bloody-red);
+}
+
+.buy-category__more {
+	color: var(--white);
+}
+
+
+@media (hover: hover) and (pointer: fine)  {
+	.buy-category__add-item:hover, .buy-category__more:hover {
+		transform: scale(1.08);
+	}
+}
+
+@media (hover: none) {
+	.buy-category__add-item:active, .buy-category__more:active {
+		background-color: var(--white-two-tenth);
+	}
+}
+
+.buy-category__add-item:active, .buy-category__more:active {
+	transform: scale(1);
 }

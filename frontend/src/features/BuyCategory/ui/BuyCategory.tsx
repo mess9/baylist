@@ -8,11 +8,16 @@ import classes from "./BuyCategory.module.css";
 const BuyCategory: ParentComponent = (props) => {
 	const c = children(() => props.children);
 	return (
-		<section >
+		<section class={classes["buy-category"]}>
 			<div class={classes["buy-category__header"]}>
-				<h2>Section Header</h2>
-				<button type="button"><IconPlusSolid /></button>
-				<button type="button"><IconEllipsisHorizontalSolid /></button>
+				<label class={classes["buy-category__drop-down-control"]}>
+					<input class={classes["buy-category__drop-down"]} type="checkbox" />
+					<h2>Section Header</h2>
+				</label>
+				<div class={classes["buy-category__controls"]}>
+					<button class={classes["buy-category__add-item"]} type="button"><IconPlusSolid /></button>
+					<button class={classes["buy-category__more"]}type="button"><IconEllipsisHorizontalSolid /></button>
+				</div>
 			</div>
 			{c()}
 		</section>

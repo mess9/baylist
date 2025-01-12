@@ -16,17 +16,16 @@ export default [
 
         "@typescript-eslint/no-unused-vars": "warn",
       },
+      files: ["src/**/*.{ts,tsx}"],
+      languageOptions: {
+        globals: globals.browser,
+        parser: tseslint.parser,
+        parserOptions: {
+          project: "tsconfig.json",
+          tsconfigRootDir: import.meta.dirname,
+        },
+      },
     },
   ]),
   solid,
-  {
-    files: ["src/**/*.{ts,tsx}"],
-    languageOptions: {
-      globals: globals.browser,
-      parser: tseslint.parser,
-      parserOptions: {
-        project: "tsconfig.json",
-      },
-    },
-  },
 ];
