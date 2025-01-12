@@ -3,12 +3,15 @@ package org.baylist.dto.todoist.api;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
+@NoArgsConstructor
 @Data
-@Builder
+@SuperBuilder
 public class Task {
     private String id;
     @JsonProperty("assigner_id")
@@ -42,7 +45,7 @@ public class Task {
     enum Unit {
         minute, day
     }
-
+//ощущение что их лучше выпилить отсюда
     @Data
     static class Due {
         private String date;
@@ -54,7 +57,7 @@ public class Task {
         private String timezone;
         private String lang;
     }
-
+    //ощущение что их лучше выпилить отсюда
     @Data
     static class Duration {
         private Integer amount;

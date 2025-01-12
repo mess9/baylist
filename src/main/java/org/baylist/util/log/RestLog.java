@@ -62,10 +62,14 @@ public class RestLog implements ClientHttpRequestInterceptor {
         String[] parts = trimmed.split(", ");
         StringBuilder sb = new StringBuilder();
         for (String part : parts) {
-            String[] keyValue = part.split(":");
-            String key = keyValue[0];
-            String value = keyValue[1].replaceAll("^\"|\"$", "");
-            sb.append(key).append(" - ").append(value).append("\n");
+            String[] keyValue = part.split(":", 2);
+            if (keyValue.length == 2) {
+                String key = keyValue[0].trim();
+                String value = keyValue[1].trim().replaceAll("^\"|\"$", "");
+                sb.append(key).append(" - ").append(value).append("\n");
+            } else {
+                sb.append(part.trim()).append(" - ").append("NO VALUE").append("\n");
+            }
         }
         return sb.toString();
     }

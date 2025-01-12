@@ -1,6 +1,8 @@
 package org.baylist.util.convert;
 
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.json.JsonWriteFeature;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
@@ -9,6 +11,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -26,8 +29,7 @@ public class ToJson {
         String json = "";
 
         try {
-            ObjectMapper mapper = new ObjectMapper();
-            mapperSetting(mapper);
+            ObjectMapper mapper = getObjectMapper();
 
             json = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(object);
         } catch (JsonProcessingException e) {
@@ -37,14 +39,21 @@ public class ToJson {
         return json;
     }
 
+    @NotNull
+    public static ObjectMapper getObjectMapper() {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.getFactory().configure(JsonWriteFeature.ESCAPE_NON_ASCII.mappedFeature(), false);
+        mapperSetting(mapper);
+        return mapper;
+    }
+
     public static <T> T fromJson(String string, Class<T> valueType) {
         T t = null;
         if (string == null || string.isEmpty()) {
             throw new IllegalArgumentException("JSON cannot be null or empty");
         }
         try {
-            ObjectMapper mapper = new ObjectMapper();
-            mapperSetting(mapper);
+            ObjectMapper mapper = getObjectMapper();
 
             t = mapper.readValue(string, valueType);
         } catch (JsonProcessingException e) {
@@ -75,8 +84,7 @@ public class ToJson {
             throw new IllegalArgumentException("JSON array cannot be null or empty");
         }
         try {
-            ObjectMapper mapper = new ObjectMapper();
-            mapperSetting(mapper);
+            ObjectMapper mapper = getObjectMapper();
 
             list = mapper.readValue(string, new TypeReference<>() {
             });

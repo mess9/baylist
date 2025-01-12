@@ -1,6 +1,7 @@
 package org.baylist.tests.api;
 
 import org.baylist.controller.todoist.Todoist;
+import org.baylist.controller.todoist.TodoistWebClient;
 import org.baylist.dto.todoist.api.Label;
 import org.baylist.dto.todoist.api.Project;
 import org.baylist.dto.todoist.api.Section;
@@ -8,7 +9,9 @@ import org.baylist.dto.todoist.api.Task;
 import org.baylist.tests.BaseTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
+import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -18,10 +21,22 @@ class TodoistGetTest extends BaseTest {
     @Autowired
     Todoist todoistController;
 
+    @Autowired
+    TodoistWebClient todoistWebClient;
+
 
     @Test
     void getAllProjects() {
         List<Project> projects = todoistController.getProjects();
+
+        assertThat(projects)
+                .isNotEmpty()
+                .hasSizeGreaterThan(1);
+    }
+
+    @Test
+    void getAllProjects1() {
+        List<Project> projects = Collections.singletonList(todoistWebClient.get(Project.class));
 
         assertThat(projects)
                 .isNotEmpty()

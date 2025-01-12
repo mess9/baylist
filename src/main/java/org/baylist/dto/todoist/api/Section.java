@@ -3,6 +3,8 @@ package org.baylist.dto.todoist.api;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 @Data
 @Builder
@@ -14,6 +16,6 @@ public class Section {
     private String projectId;
     @JsonProperty("v2_project_id")
     private String v2ProjectId;
-    private int order;
+    private Integer order;
     private String name;
 }

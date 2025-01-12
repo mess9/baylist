@@ -46,6 +46,7 @@ public class TodoistCreateTest extends BaseTest {
                 .name("testSection")
                 .projectId(project.getId())
                 .build();
+
         Section section = todoistController.createSection(testSection);
 
         assertThat(section).isNotNull();
