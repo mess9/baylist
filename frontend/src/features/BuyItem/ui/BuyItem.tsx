@@ -7,9 +7,9 @@ import classes from "./BuyItem.module.css";
 const BuyItem: Component = () => {
 	return (
 		<div class={classes["buy-item"]}>
-			<input class={classes["buy-item__check"]} type="checkbox" />
-			<span class={classes["buy-item__content"]}>ogurec</span>
-			<button class={classes["buy-item__remove"]} type="button">
+			<input class={classes["buy-item__check-input"]} type="checkbox" />
+			<span class={classes["buy-item__content-span"]}>ogurec</span>
+			<button class={classes["buy-item__remove-button"]} type="button">
 				<IconTrashSolid />
 			</button>
 		</div>

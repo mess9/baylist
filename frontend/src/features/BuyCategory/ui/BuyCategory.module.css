@@ -1,4 +1,4 @@
-.buy-category {
+.buy-category-section {
 	padding-bottom: 0.7rem;
 	box-shadow: 0px 0px 13px 2px rgba(0,0,0,0.75);
 }
@@ -6,7 +6,7 @@
 .buy-category__header {
 	display: flex;
 	gap: 1rem;
-	align-items: center;
+	align-items: stretch;
 	justify-content: space-between;
 
 	padding: 0.1rem;
@@ -17,14 +17,24 @@
 	background: linear-gradient(180deg, rgba(30,30,30,1) 0%, rgba(30,30,30,0.7) 40%, rgba(255,255,255,0.1) 100%);
 }
 
-.buy-category__drop-down-control {
+.buy-category__drop-down-control-label {
 	cursor: pointer;
+
 	display: flex;
 	flex-grow: 1;
 	gap: 0.4rem;
+	align-items: center;
+
+	border-radius: 0 0.4rem 0.4rem 0;
+
+ 	transition: 0.15s ease background-color;
 }
 
-.buy-category__drop-down {
+.buy-category__drop-down-control-label:active {
+	background-color: var(--white-two-tenth);
+}
+
+.buy-category__drop-down-checbox {
 	content: "";
 
 	display: block;
@@ -35,12 +45,15 @@
 	appearance: none;
 	background-color: var(--white);
 
+
 	mask: url(/assets/svg/icons/hero/chevron-down-mini.svg);
 
 	transition: 0.15s ease transform;
+
+	mask-repeat: no-repeat;
 }
 
-.buy-category__drop-down:hover {
+.buy-category__drop-down-checbox:hover {
 	cursor: pointer;
 }
 
@@ -48,7 +61,7 @@
 
 }
 
-.buy-category__drop-down:checked {
+.buy-category__drop-down-checbox:checked {
 	transform: rotate(-90deg);
 }
 
@@ -59,7 +72,7 @@
 	padding-right: 0.4rem;
 }
 
-.buy-category__add-item, .buy-category__more {
+.buy-category__add-item-button, .buy-category__more-button {
 	cursor: pointer;
 
 	width: 3.6rem;
@@ -72,27 +85,45 @@
 }
 
 
-.buy-category__add-item {
+.buy-category__add-item-button {
 	color: var(--bloody-red);
 }
 
-.buy-category__more {
+.buy-category__more-button {
 	color: var(--white);
 }
 
 
 @media (hover: hover) and (pointer: fine)  {
-	.buy-category__add-item:hover, .buy-category__more:hover {
+	.buy-category__add-item-button:hover, .buy-category__more-button:hover {
 		transform: scale(1.08);
 	}
 }
 
 @media (hover: none) {
-	.buy-category__add-item:active, .buy-category__more:active {
+	.buy-category__add-item-button:active, .buy-category__more-button:active {
 		background-color: var(--white-two-tenth);
 	}
 }
 
-.buy-category__add-item:active, .buy-category__more:active {
+.buy-category__add-item-button:active, .buy-category__more-button:active {
 	transform: scale(1);
 }
+
+
+.buy-category-ul {
+	overflow: hidden;
+}
+
+.buy-category__item-li:last-child {
+	border: none;
+}
+
+.buy-category__item-li--delimeter-top {
+	border-top: 1px solid var(--white-tenth);
+}
+
+.buy-category__item-li--delimeter-bottom {
+	border-bottom: 1px solid var(--white-tenth);
+}
+

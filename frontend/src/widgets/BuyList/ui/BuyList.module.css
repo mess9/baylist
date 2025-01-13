@@ -1,17 +1,5 @@
-.buy-list {
+.buy-list-ul {
 	display: flex;
 	flex-direction: column;
 	gap: 0.4rem;
-}
-
-.buy-list__li:last-child {
-	border: none;
-}
-
-.buy-list__li--delimeter-top {
-	border-top: 1px solid var(--white-tenth);
-}
-
-.buy-list__li--delimeter-bottom {
-	border-bottom: 1px solid var(--white-tenth);
 }

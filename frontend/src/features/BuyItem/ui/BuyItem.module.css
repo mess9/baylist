@@ -8,7 +8,7 @@
 	padding: 0.2rem 1rem;
 }
 
-.buy-item__content {
+.buy-item__content-span {
 	overflow: hidden;
 	flex-grow: 1;
 
@@ -18,7 +18,7 @@
 	text-overflow: ellipsis;
 }
 
-.buy-item__check {
+.buy-item__check-input {
 	display: flex;
 	align-items: center;
 
@@ -30,7 +30,7 @@
     appearance: none;
 }
 
-.buy-item__check::before {
+.buy-item__check-input::before {
 	content: "";
 
 	display: block;
@@ -47,21 +47,21 @@
 }
 
 @media (hover: hover) and (pointer: fine)  {
-	.buy-item__check:hover {
+	.buy-item__check-input:hover {
 		cursor: pointer;
 	}
 
-	 .buy-item__check:hover::before {
+	 .buy-item__check-input:hover::before {
 	 	opacity: 0.7;
 	 }
 }
 
- .buy-item__check:checked::before {
+.buy-item__check-input:checked::before {
 	opacity: 1;
 }
 
 
-.buy-item__remove {
+.buy-item__remove-button {
 	cursor: pointer;
 
 	width: 2.6rem;
@@ -75,18 +75,18 @@
 }
 
 @media (hover: hover) and (pointer: fine)  {
-	.buy-item__remove:hover {
+	.buy-item__remove-button:hover {
 		transform: scale(1.08);
 	}
 }
 
 @media (hover: none) {
-	.buy-item__remove:active {
+	.buy-item__remove-button:active {
 		background-color: var(--white-two-tenth);
 	}
 }
 
-.buy-item__remove:active {
+.buy-item__remove-button:active {
 	transform: scale(1);
 }
 
