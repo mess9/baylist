@@ -8,7 +8,7 @@ import {
 
 import classes from "./BuyCategory.module.css";
 
-const BuyCategory: ParentComponent<{ delimiter: "top" | "bottom" }> = (
+const BuyCategory: ParentComponent<{ delimiter: "top" | "bottom"/*, "category-id": number*/ }> = (
 	props,
 ) => {
 	const [isExpand, setIsExpand] = createSignal(true);
@@ -85,6 +85,7 @@ const BuyCategory: ParentComponent<{ delimiter: "top" | "bottom" }> = (
 							}}
 						>
 							{props.children}
+							{/*{props["category-id"]}*/}
 						</li>
 					)}
 				</For>

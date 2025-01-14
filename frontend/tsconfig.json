@@ -12,6 +12,7 @@
     "noEmit": true,
     "isolatedModules": true,
     "paths": {
+      "/src/*": ["./src/*"],
       "/app": ["./src/app"],
       "/app/*": ["./src/app/*"],
       "/pages/*": ["./src/pages/*"],
@@ -19,6 +20,9 @@
       "/features/*": ["./src/features/*"],
       "/shared/*": ["./src/shared/*"],
       "/assets/*": ["./src/app/assets/*"]
-    }
+    },
+    "lib": [
+            "es5", "es6", "dom", "dom.iterable"
+        ]
   }
 }

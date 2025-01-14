@@ -1,3 +1,4 @@
+import { BoardExample } from "/src/TmpExampleBoard/tmp-example-board";
 import cn from "/shared/utils/cn";
 
 export default function BaseTest() {
@@ -11,6 +12,7 @@ export default function BaseTest() {
             throw new Error("Oh No");
             
           }}*/}
+      <BoardExample />
     </div>
   )
 }
