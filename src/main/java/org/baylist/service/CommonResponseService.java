@@ -70,12 +70,12 @@ public class CommonResponseService {
 							.text("назад")
 							.callbackData(Callbacks.MAIN_MENU.getCallbackData())
 							.build())));
-			chatValue.setEditText(todoistService.getBuylistProject());
+			chatValue.setEditText(todoistService.getBuylistProject(chatValue));
 			chatValue.setEditReplyParseModeHtml();
 			chatValue.setEditReplyKeyboard(markup);
 			chatValue.setState(State.MENU);
 		} else {
-			chatValue.setReplyText(todoistService.getBuylistProject());
+			chatValue.setReplyText(todoistService.getBuylistProject(chatValue));
 			chatValue.setReplyParseModeHtml();
 			chatValue.setState(State.DEFAULT);
 		}

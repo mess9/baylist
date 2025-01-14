@@ -3,7 +3,6 @@ package org.baylist.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import org.baylist.util.log.RestLog;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
@@ -11,7 +10,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.web.client.RestClient;
 
 import javax.sql.DataSource;
 
@@ -23,7 +21,6 @@ import static org.baylist.util.convert.ToJson.getObjectMapper;
 @EnableScheduling
 public class AppConfig {
 
-    public static final boolean RESPONSE_LOG = false;
     @Value("${spring.datasource.url}")
     private String datasourceUrl;
     @Value("${spring.datasource.username}")
@@ -32,20 +29,6 @@ public class AppConfig {
     private String datasourcePassword;
     @Value("${spring.datasource.driver-class-name}")
     private String datasourceDriverClassName;
-
-    @Bean
-    public RestClient todoistRestClient(@Value("${todoist.baseUrl}") String baseUrl,
-                                        @Value("${todoist.token}") String token) {
-        return RestClient
-                .builder()
-                .baseUrl(baseUrl)
-                .defaultHeaders(h -> {
-                    h.add("Authorization", "Bearer " + token);
-                    h.add("Content-Type", "application/json");
-                })
-                .requestInterceptor(new RestLog())
-                .build();
-    }
 
     @Bean
     public DataSource dataSource() {

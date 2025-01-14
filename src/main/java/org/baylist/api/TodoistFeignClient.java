@@ -1,4 +1,4 @@
-package org.baylist.controller.todoist;
+package org.baylist.api;
 
 import org.baylist.dto.todoist.api.Label;
 import org.baylist.dto.todoist.api.Project;

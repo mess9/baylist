@@ -1,13 +1,12 @@
 ### log ###
 logging:
   level:
-    org.baylist.controller.todoist.TodoistFeignClient: debug
+    org.baylist.api.TodoistFeignClient: debug
     root: info
 
 ### connect ###
 todoist:
   baseUrl: https://api.todoist.com/rest/v2
-  token: ${TOKEN_TODOIST}
 spring:
   liquibase:
     change-log: classpath:/db/changelog/db.changelog-master.xml

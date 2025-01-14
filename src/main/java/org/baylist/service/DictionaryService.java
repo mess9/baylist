@@ -43,9 +43,9 @@ public class DictionaryService {
 	MenuService menuService;
 
 
-	public Map<String, Set<String>> parseInputBuyList(String input/*, Long userId*/) {
+	public Map<String, Set<String>> parseInputBuyList(String input, Long userId) {
 		DictionaryService self = context.getBean(DictionaryService.class);
-		Map<String, Set<String>> dict = self.getDict(123L);
+		Map<String, Set<String>> dict = self.getDict(userId);
 		Map<String, Set<String>> buyList = new HashMap<>();
 		List<String> words = splitInput(input);
 		if (dict != null) {

@@ -49,6 +49,10 @@ public class ChatValue {
 	public State getState() {
 		return user.getDialog().getState();
 	}
+
+	public String getToken() {
+		return "Bearer " + user.getTodoistToken();
+	}
 	//endregion GETTER
 
 

@@ -16,10 +16,10 @@ public class FeignErrorDecoder implements ErrorDecoder {
 		HttpStatus status = HttpStatus.resolve(response.status());
 		if (status != null) {
 			return switch (status) {
-				case BAD_REQUEST -> new IllegalArgumentException("Неверный запрос");
-				case UNAUTHORIZED -> new SecurityException("Не авторизован");
-				case NOT_FOUND -> new RuntimeException("Ресурс не найден");
-				default -> new RuntimeException("Ошибка API: статус = " + status);
+				case BAD_REQUEST -> new TodoistApiException("Неверный запрос");
+				case UNAUTHORIZED -> new TodoistApiException("Не авторизован");
+				case NOT_FOUND -> new TodoistApiException("Ресурс не найден");
+				default -> new TodoistApiException("Ошибка API: статус = " + status);
 			};
 		}
 		return new RuntimeException("Неизвестная ошибка");

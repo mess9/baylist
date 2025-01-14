@@ -1,6 +1,6 @@
 package org.baylist.util.extension;
 
-import org.baylist.controller.todoist.TodoistFeignClient;
+import org.baylist.api.TodoistFeignClient;
 import org.baylist.db.entity.User;
 import org.baylist.service.UserService;
 import org.baylist.util.config.GetStatic;

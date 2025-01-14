@@ -7,7 +7,6 @@ import org.baylist.dto.telegram.Callbacks;
 import org.baylist.dto.telegram.ChatValue;
 import org.baylist.dto.telegram.Commands;
 import org.baylist.dto.telegram.InputTaskState;
-import org.baylist.dto.telegram.State;
 import org.baylist.service.MenuService;
 import org.baylist.service.TodoistService;
 import org.baylist.telegram.hanlder.config.DialogHandler;
@@ -33,7 +32,7 @@ public class DefaultHandler implements DialogHandler {
 		if (chatValue.isCallback()) {
 			String callbackData = chatValue.getCallbackData();
 			if (callbackData.equals(Callbacks.VIEW.getCallbackData())) {
-				chatValue.setReplyText(todoist.getBuylistProject());
+				chatValue.setReplyText(todoist.getBuylistProject(chatValue));
 				chatValue.setReplyParseModeHtml();
 			} else if (callbackData.equals(Callbacks.FRIENDS_SETTINGS.getCallbackData())) {
 				menuService.friendsSettings(chatValue, true);
@@ -43,11 +42,11 @@ public class DefaultHandler implements DialogHandler {
 				menuService.dictionaryMainMenu(chatValue, true);
 			}
 		} else {
-			if (todoist.storageIsEmpty()) {
-				todoist.syncBuyListData();
-			}
-			todoist.sendTasksToTodoist(chatValue);
-			chatValue.setState(State.DEFAULT);
+//			if (todoist.storageIsEmpty()) {
+//				todoist.syncBuyListData(chatValue);
+//			}
+//			todoist.sendTasksToTodoist(chatValue);
+//			chatValue.setState(State.DEFAULT);
 		}
 	}
 
@@ -64,7 +63,7 @@ public class DefaultHandler implements DialogHandler {
 						держи главное меню. мб чем-то поможет. там справка есть.
 						""");
 			} else if (recipients.size() == 1) {
-				todoist.sendTasksToTodoist(chatValue/*, recipients.getFirst()*/);
+				todoist.sendTasksToTodoist(chatValue, recipients.getFirst());
 			} else {
 
 			}

@@ -12,8 +12,8 @@ import org.springframework.context.annotation.Configuration;
 import static org.springframework.util.MimeTypeUtils.APPLICATION_JSON_VALUE;
 
 @Configuration
-@EnableFeignClients(basePackages = "org.baylist.controller.todoist", defaultConfiguration = FeignClientConfig.class)
-public class FeignClientConfig {
+@EnableFeignClients(basePackageClasses = {org.baylist.api.TodoistFeignClient.class}, defaultConfiguration = ApiClientConfig.class)
+public class ApiClientConfig {
 
 	@Bean
 	Logger.Level feignLoggerLevel() {

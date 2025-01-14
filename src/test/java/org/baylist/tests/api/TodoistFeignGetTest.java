@@ -1,6 +1,6 @@
-package org.baylist.tests.api.feign;
+package org.baylist.tests.api;
 
-import org.baylist.controller.todoist.TodoistFeignClient;
+import org.baylist.api.TodoistFeignClient;
 import org.baylist.dto.todoist.api.Label;
 import org.baylist.dto.todoist.api.Project;
 import org.baylist.dto.todoist.api.Section;
