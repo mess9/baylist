@@ -91,7 +91,6 @@ class TodoistGetTest extends BaseTest {
     @Test
     void getSectionByProjectId() {
         List<Section> sections = todoistController.getSections();
-        System.out.println(sections);
         List<Section> sectionsByProjectId = todoistController.getSectionsByProject(Long.parseLong(sections.getFirst().getProjectId()));
 
         assertThat(sectionsByProjectId)

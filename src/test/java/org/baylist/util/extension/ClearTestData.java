@@ -1,6 +1,8 @@
 package org.baylist.util.extension;
 
-import org.baylist.controller.todoist.TodoistController;
+import org.baylist.controller.todoist.TodoistFeignClient;
+import org.baylist.db.entity.User;
+import org.baylist.service.UserService;
 import org.baylist.util.config.GetStatic;
 import org.junit.jupiter.api.extension.AfterAllCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
@@ -15,15 +17,18 @@ public class ClearTestData implements AfterAllCallback {
 
     @Override
     public void afterAll(ExtensionContext context) {
-        TodoistController bean = GetStatic.getBean(TodoistController.class);
+        TodoistFeignClient todoistApi = GetStatic.getBean(TodoistFeignClient.class);
+        UserService userService = GetStatic.getBean(UserService.class);
+        User fil = userService.getFil();
+        String token = "Bearer " + fil.getTodoistToken();
         if (!projects.isEmpty()) {
-            projects.forEach(e -> bean.deleteProject(Long.parseLong(e.getId())));
+            projects.forEach(e -> todoistApi.deleteProject(token, e.getId()));
         }
         if (!sections.isEmpty()) {
-            sections.forEach(e -> bean.deleteSection(Long.parseLong(e.getId())));
+            sections.forEach(e -> todoistApi.deleteSection(token, e.getId()));
         }
         if (!tasks.isEmpty()) {
-            tasks.forEach(e -> bean.deleteTask(Long.parseLong(e.getId())));
+            tasks.forEach(e -> todoistApi.deleteTask(token, e.getId()));
         }
     }
 }

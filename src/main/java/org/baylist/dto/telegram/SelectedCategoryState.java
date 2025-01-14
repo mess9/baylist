@@ -9,7 +9,7 @@ import java.util.List;
 @AllArgsConstructor
 public class SelectedCategoryState {
 
-	private List<String> categories;
+	private List<String> categories; //todo переписать на id
 	private List<String> selectedCategories;
 
 }

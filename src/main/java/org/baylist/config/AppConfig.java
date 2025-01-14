@@ -1,5 +1,6 @@
 package org.baylist.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.baylist.util.log.RestLog;
@@ -13,6 +14,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.client.RestClient;
 
 import javax.sql.DataSource;
+
+import static org.baylist.util.convert.ToJson.getObjectMapper;
 
 @EnableAspectJAutoProxy
 @Configuration
@@ -30,8 +33,7 @@ public class AppConfig {
     @Value("${spring.datasource.driver-class-name}")
     private String datasourceDriverClassName;
 
-
-    @Bean //todo добавить реализацию на RestTemplate
+    @Bean
     public RestClient todoistRestClient(@Value("${todoist.baseUrl}") String baseUrl,
                                         @Value("${todoist.token}") String token) {
         return RestClient
@@ -70,6 +72,11 @@ public class AppConfig {
 
             return dataSource;
         }
+    }
+
+    @Bean
+    public ObjectMapper objectMapper() {
+        return getObjectMapper();
     }
 
 }

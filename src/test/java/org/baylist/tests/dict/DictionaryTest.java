@@ -20,7 +20,7 @@ public class DictionaryTest extends BaseTest {
 
     @Test
     void getDictionary() {
-        var buyCategoryDict = dictionaryService.getDict();
+	    var buyCategoryDict = dictionaryService.getDict(123L);
 
         s.assertThat(buyCategoryDict.keySet()).hasSizeGreaterThan(3);
         s.assertThat(buyCategoryDict.values()).hasSizeGreaterThan(3);

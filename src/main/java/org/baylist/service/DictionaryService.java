@@ -11,7 +11,9 @@ import org.baylist.db.repo.VariantRepository;
 import org.baylist.dto.telegram.Callbacks;
 import org.baylist.dto.telegram.ChatValue;
 import org.baylist.dto.telegram.State;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
@@ -41,26 +43,21 @@ public class DictionaryService {
 	MenuService menuService;
 
 
-
-    public Map<String, Set<String>> parseInputBuyList(String input) {
-        Map<String, Set<String>> buyList = new HashMap<>();
-
-        List<String> words = splitInput(input);
-        words.forEach(word -> {
-            String category = getDict().entrySet().stream()
-                    .filter(entry -> entry.getValue().contains(word))
-                    .map(Map.Entry::getKey)
-                    .findAny()
-                    .orElse(UNKNOWN_CATEGORY);
-            buyList.computeIfAbsent(category, v -> new HashSet<>()).add(word);
-        });
+	public Map<String, Set<String>> parseInputBuyList(String input/*, Long userId*/) {
+		DictionaryService self = context.getBean(DictionaryService.class);
+		Map<String, Set<String>> dict = self.getDict(123L);
+		Map<String, Set<String>> buyList = new HashMap<>();
+		List<String> words = splitInput(input);
+		if (dict != null) {
+			words.forEach(word -> {
+				String category = findCategoryInDictionary(word, dict);
+				buyList.computeIfAbsent(category, v -> new HashSet<>()).add(word);
+			});
+		} else {
+			buyList.put(UNKNOWN_CATEGORY, new HashSet<>(words));
+		}
 
         return buyList;
-    }
-
-    private List<String> splitInput(String input) {
-        return Arrays.stream(input.split("\n")).toList();
-        // мб позже добавить вариант разделения по запятым или пробелам, хз пока
     }
 
 	public boolean addDictCategory(String categoryName, Long userId) {
@@ -74,14 +71,19 @@ public class DictionaryService {
 		}
     }
 
-    public Map<String, Set<String>> getDict() {
-        return categoryRepository.findAll().stream().collect(Collectors.toMap(
-                Category::getName,
-		        c -> variantRepository.findAllByCategoryId(c.getId())
-                        .stream()
-                        .map(Variant::getName)
-                        .collect(Collectors.toSet())
-        ));
+	@Cacheable(value = "dict", key = "#userId")
+	public Map<String, Set<String>> getDict(Long userId) {
+		List<Category> categories = categoryRepository.findAllByUserId(userId);
+		if (categories.isEmpty()) {
+			return null;
+		} else {
+			return categories.stream().collect(Collectors.toMap(
+					Category::getName,
+					c -> variantRepository.findAllByCategoryId(c.getId())
+							.stream()
+							.map(Variant::getName)
+							.collect(Collectors.toSet())));
+		}
     }
 
     public List<String> getCategories() {
@@ -168,5 +170,19 @@ public class DictionaryService {
 	@Transactional
 	public List<Category> getCategoriesByUserId(Long userId) {
 		return categoryRepository.findAllByUserId(userId);
+	}
+
+	private List<String> splitInput(String input) {
+		return Arrays.stream(input.split("\n")).toList();
+		// мб позже добавить вариант разделения по запятым или пробелам, хз пока
+	}
+
+	@NotNull
+	private static String findCategoryInDictionary(String word, Map<String, Set<String>> dict) {
+		return dict.entrySet().stream()
+				.filter(entry -> entry.getValue().contains(word))
+				.map(Map.Entry::getKey)
+				.findAny()
+				.orElse(UNKNOWN_CATEGORY);
 	}
 }

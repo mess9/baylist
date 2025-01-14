@@ -1,8 +1,8 @@
 ### log ###
 logging:
   level:
+    org.baylist.controller.todoist.TodoistFeignClient: debug
     root: info
-#    root: debug
 
 ### connect ###
 todoist:
@@ -28,6 +28,13 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
     open-in-view: true
+  cloud:
+    openfeign:
+      client:
+        config:
+          todoistClient:
+            loggerLevel: full
+
 
 ### deploy ###
 management:

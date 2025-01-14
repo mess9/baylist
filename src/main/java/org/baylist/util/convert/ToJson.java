@@ -9,6 +9,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -26,8 +27,7 @@ public class ToJson {
         String json = "";
 
         try {
-            ObjectMapper mapper = new ObjectMapper();
-            mapperSetting(mapper);
+            ObjectMapper mapper = getObjectMapper();
 
             json = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(object);
         } catch (JsonProcessingException e) {
@@ -37,20 +37,11 @@ public class ToJson {
         return json;
     }
 
-    public static <T> T fromJson(String string, Class<T> valueType) {
-        T t = null;
-        if (string == null || string.isEmpty()) {
-            throw new IllegalArgumentException("JSON cannot be null or empty");
-        }
-        try {
-            ObjectMapper mapper = new ObjectMapper();
-            mapperSetting(mapper);
-
-            t = mapper.readValue(string, valueType);
-        } catch (JsonProcessingException e) {
-            log.info("Failed to convert from JSON\n{}", string, e);
-        }
-        return t;
+    @NotNull
+    public static ObjectMapper getObjectMapper() {
+        ObjectMapper mapper = new ObjectMapper();
+        mapperSetting(mapper);
+        return mapper;
     }
 
     public static <T> T fromYaml(String string, Class<T> valueType) {
@@ -69,22 +60,19 @@ public class ToJson {
         return t;
     }
 
-    public static <T> List<T> fromJsonList(String string) {
-        List<T> list = null;
+    public static <T> T fromJson(String string, Class<T> valueType) {
+        T t = null;
         if (string == null || string.isEmpty()) {
-            throw new IllegalArgumentException("JSON array cannot be null or empty");
+            throw new IllegalArgumentException("JSON cannot be null or empty");
         }
         try {
-            ObjectMapper mapper = new ObjectMapper();
-            mapperSetting(mapper);
+            ObjectMapper mapper = getObjectMapper();
 
-            list = mapper.readValue(string, new TypeReference<>() {
-            });
+            t = mapper.readValue(string, valueType);
         } catch (JsonProcessingException e) {
-            String failMessage = "Failed to convert from JSON\n" + string;
-            log.info(failMessage, e);
+            log.info("Failed to convert from JSON\n{}", string, e);
         }
-        return list;
+        return t;
     }
 
     public static <T> List<T> fromJsonList(String string, Class<T> valueType) {
@@ -121,5 +109,22 @@ public class ToJson {
 
         mapper.registerModule(localDateTimeDeserializer);
         mapper.registerModule(localDateTimeSerializer);
+    }
+
+    public static <T> List<T> fromJsonList(String string) {
+        List<T> list = null;
+        if (string == null || string.isEmpty()) {
+            throw new IllegalArgumentException("JSON array cannot be null or empty");
+        }
+        try {
+            ObjectMapper mapper = getObjectMapper();
+
+            list = mapper.readValue(string, new TypeReference<>() {
+            });
+        } catch (JsonProcessingException e) {
+            String failMessage = "Failed to convert from JSON\n" + string;
+            log.info(failMessage, e);
+        }
+        return list;
     }
 }

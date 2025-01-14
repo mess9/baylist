@@ -27,6 +27,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static org.baylist.dto.Constants.FIL_USER_ID;
+import static org.baylist.dto.Constants.STRING_FIL_USER_ID;
 
 @Component
 @RequiredArgsConstructor
@@ -141,7 +142,7 @@ public class UserService {
 		chatValue.setState(State.START);
 	}
 
-	@Cacheable(value = "user", key = "#result.userId")
+	@Cacheable(value = "user", unless = "#result == null", key = STRING_FIL_USER_ID)
 	public User getFil() {
 		return userRepository.findByUserId(FIL_USER_ID);
 	}

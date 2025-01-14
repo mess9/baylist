@@ -1,11 +1,13 @@
 package org.baylist.service;
 
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.baylist.controller.todoist.Todoist;
+import org.baylist.controller.todoist.TodoistFeignClient;
+import org.baylist.db.entity.User;
 import org.baylist.dto.telegram.Callbacks;
 import org.baylist.dto.telegram.ChatValue;
-import org.baylist.dto.telegram.Commands;
 import org.baylist.dto.todoist.ProjectDb;
 import org.baylist.dto.todoist.Repository;
 import org.baylist.dto.todoist.SectionDb;
@@ -20,7 +22,6 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKe
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardRow;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -38,9 +39,25 @@ import static org.baylist.dto.Constants.UNKNOWN_CATEGORY;
 public class TodoistService {
 
 	private final Todoist todoistController;
+	private final TodoistFeignClient todoistApi;
 	private final DictionaryService dictionaryService;
 	private final Repository repository;
+	private final UserService userService;
 	private RestLog restLog;
+
+	public Project createProject(String token, Project project) {
+		return todoistApi.createProject(token, project);
+	}
+
+	public Section createSection(String token, Section section) {
+		return todoistApi.createSection(token, section);
+	}
+
+
+	public Task createTask(String token, Task task) {
+		return todoistApi.createTask(token, task);
+	}
+
 
 	public void createProject(ChatValue chatValue) {
 		restLog.setAuthToken(chatValue.getUser().getTodoistToken());
@@ -93,45 +110,46 @@ public class TodoistService {
 		}
 	}
 
-	public void sendTasksToTodoist(ChatValue chatValue) {
+	@Transactional
+	public List<User> checkRecipients(ChatValue chatValue) {
+		User iUser = chatValue.getUser();
+		boolean isExistToken = userService.isExistToken(iUser.getUserId());
+		List<User> friendMe = userService.getFriendMe(iUser.getUserId());
+
+		if (isExistToken) friendMe.add(iUser);
+		return friendMe;
+	}
+
+
+	public void sendTasksToTodoist(ChatValue chatValue/*, User recipient*/) {
 		SendMessage message = chatValue.getMessage();
 		String input = chatValue.getUpdate().getMessage().getText();
 
-		if (validateInput(input)) {
+		Map<String, Set<String>> inputTasks = dictionaryService.parseInputBuyList(input/*, recipient.getUserId()*/);
+		Optional<ProjectDb> buyListProjectDb = repository.getBuyListProject();
 
-			Map<String, Set<String>> inputTasks = dictionaryService.parseInputBuyList(input);
-			Optional<ProjectDb> buyListProjectDb = repository.getBuyListProject();
+		if (buyListProjectDb.isPresent()) {
+			ProjectDb buylistProject = buyListProjectDb.get();
+			String projectId = buylistProject.getProject().getId();
+			List<Task> tasks = buylistProject.getTasks();
+			List<SectionDb> sections = buylistProject.getSections();
+			List<String> submittedTasks = new ArrayList<>();
 
-			if (buyListProjectDb.isPresent()) {
-				ProjectDb buylistProject = buyListProjectDb.get();
-				String projectId = buylistProject.getProject().getId();
-				List<Task> tasks = buylistProject.getTasks();
-				List<SectionDb> sections = buylistProject.getSections();
-				List<String> submittedTasks = new ArrayList<>();
+			submittedTasks.addAll(sendTasksWithoutCategory(inputTasks, tasks, projectId));
+			submittedTasks.addAll(sendTasksWithNotExistCategory(inputTasks, sections, projectId));
+			submittedTasks.addAll(sendTasksWithExistCategory(inputTasks, sections, projectId));
 
-				submittedTasks.addAll(sendTasksWithoutCategory(inputTasks, tasks, projectId));
-				submittedTasks.addAll(sendTasksWithNotExistCategory(inputTasks, sections, projectId));
-				submittedTasks.addAll(sendTasksWithExistCategory(inputTasks, sections, projectId));
-
-				resultMessage(submittedTasks, message);
-			} else {
-				message.setText("проект buylist в todoist не существует," +
-						" хотите провести первоначальную настройку (кнопки да/нет)");
-				//todo для многопользовательского использования вынести создание проекта в первоначальную настройку
-			}
+			resultMessage(submittedTasks, message);
 		} else {
-			message.setText("что-то коряво написано, не могу разобрать");
+			message.setText("проект buylist в todoist не существует," +
+					" хотите провести первоначальную настройку (кнопки да/нет)");
+			//todo для многопользовательского использования вынести создание проекта в первоначальную настройку
 		}
+
 	}
 
 
 	//private
-	private boolean validateInput(String input) {
-		return input.length() > 3 &&
-				Arrays.stream(Commands.values()).noneMatch(c -> input.contains(c.getCommand()));
-		//вероятно в будущем тут будет добавлен ещё ряд условий
-	}
-
 	private Set<String> sendTasksWithoutCategory(Map<String, Set<String>> inputTasks,
 	                                             List<Task> tasks,
 	                                             String projectId) {
