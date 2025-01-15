@@ -1,13 +1,12 @@
 ### log ###
 logging:
   level:
+    org.baylist.api.TodoistFeignClient: debug
     root: info
-#    root: debug
 
 ### connect ###
 todoist:
   baseUrl: https://api.todoist.com/rest/v2
-  token: ${TOKEN_TODOIST}
 spring:
   liquibase:
     change-log: classpath:/db/changelog/db.changelog-master.xml
@@ -28,6 +27,13 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
     open-in-view: true
+  cloud:
+    openfeign:
+      client:
+        config:
+          todoistClient:
+            loggerLevel: full
+
 
 ### deploy ###
 management:

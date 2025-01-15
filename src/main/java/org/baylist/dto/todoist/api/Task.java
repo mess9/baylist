@@ -3,11 +3,13 @@ package org.baylist.dto.todoist.api;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.Data;
+import lombok.extern.jackson.Jacksonized;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
+@Jacksonized
 @Builder
 public class Task {
     private String id;

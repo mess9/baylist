@@ -3,9 +3,11 @@ package org.baylist.dto.todoist.api;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.Data;
+import lombok.extern.jackson.Jacksonized;
 
 @Data
 @Builder
+@Jacksonized
 public class Section {
     private String id;
     @JsonProperty("v2_id")

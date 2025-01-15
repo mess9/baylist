@@ -23,8 +23,19 @@ public class CatchCreatedEntity {
     public void createProject() {
     }
 
+    @Pointcut("execution(public * org.baylist.service.TodoistService.createProject(..))")
+    public void createProjectFeign() {
+    }
+
     @AfterReturning(pointcut = "createProject()", returning = "result")
     public void catchProject(Object result) {
+        if (result instanceof Project catchProject) {
+            projects.add(catchProject);
+        }
+    }
+
+    @AfterReturning(pointcut = "createProjectFeign()", returning = "result")
+    public void catchProjectFeign(Object result) {
         if (result instanceof Project catchProject) {
             projects.add(catchProject);
         }
@@ -34,8 +45,19 @@ public class CatchCreatedEntity {
     public void createSection() {
     }
 
+    @Pointcut("execution(public * org.baylist.service.TodoistService.createSection(..))")
+    public void createSectionFeign() {
+    }
+
     @AfterReturning(pointcut = "createSection()", returning = "result")
     public void catchSection(Object result) {
+        if (result instanceof Section catchSection) {
+            sections.add(catchSection);
+        }
+    }
+
+    @AfterReturning(pointcut = "createSectionFeign()", returning = "result")
+    public void catchSectionFeign(Object result) {
         if (result instanceof Section catchSection) {
             sections.add(catchSection);
         }
@@ -45,8 +67,19 @@ public class CatchCreatedEntity {
     public void createTask() {
     }
 
+    @Pointcut("execution(public * org.baylist.service.TodoistService.createTask(..))")
+    public void createTaskFeign() {
+    }
+
     @AfterReturning(pointcut = "createTask()", returning = "result")
     public void catchTask(Object result) {
+        if (result instanceof Task catchTask) {
+            tasks.add(catchTask);
+        }
+    }
+
+    @AfterReturning(pointcut = "createTaskFeign()", returning = "result")
+    public void catchTaskFeign(Object result) {
         if (result instanceof Task catchTask) {
             tasks.add(catchTask);
         }

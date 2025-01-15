@@ -27,7 +27,7 @@ public class ClearHandler implements DialogHandler {
 		if (chatValue.isCallback()) {
 			String callbackData = chatValue.getCallbackData();
 			if (callbackData.equals(Callbacks.APPROVE.getCallbackData())) {
-				chatValue.setReplyText(todoist.clearBuyList());
+				chatValue.setReplyText(todoist.clearBuyList(chatValue));
 			} else if (callbackData.equals(Callbacks.CANCEL.getCallbackData())) {
 				commonResponseService.cancelMessage(chatValue);
 			}

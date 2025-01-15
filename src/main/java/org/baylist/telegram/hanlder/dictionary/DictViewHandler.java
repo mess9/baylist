@@ -31,8 +31,7 @@ public class DictViewHandler implements DialogHandler {
 	CommonResponseService commonResponseService;
 	DictionaryService dictionaryService;
 	MenuService menuService;
-
-	private final Map<Long, PaginationState> paginationStateMap = new ConcurrentHashMap<>();
+	Map<Long, PaginationState> paginationStateMap = new ConcurrentHashMap<>();
 
 
 	// state DICT_VIEW

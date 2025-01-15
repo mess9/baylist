@@ -46,7 +46,7 @@ public class Dialog {
 
 	@Column(name = "state")
 	@Enumerated(EnumType.STRING)
-	private State state;
+	private State state; //todo убрать таблицу диалог, перенести стейт в таблицу юзер
 
 	@Column(name = "selected_category")
 	private String selectedCategory;

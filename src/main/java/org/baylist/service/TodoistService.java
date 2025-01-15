@@ -1,18 +1,19 @@
 package org.baylist.service;
 
-import lombok.AllArgsConstructor;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.baylist.controller.todoist.Todoist;
+import org.baylist.api.TodoistFeignClient;
+import org.baylist.db.entity.User;
 import org.baylist.dto.telegram.Callbacks;
 import org.baylist.dto.telegram.ChatValue;
-import org.baylist.dto.telegram.Commands;
 import org.baylist.dto.todoist.ProjectDb;
 import org.baylist.dto.todoist.Repository;
 import org.baylist.dto.todoist.SectionDb;
 import org.baylist.dto.todoist.api.Project;
 import org.baylist.dto.todoist.api.Section;
 import org.baylist.dto.todoist.api.Task;
-import org.baylist.util.log.RestLog;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
@@ -20,7 +21,6 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKe
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardRow;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -33,19 +33,32 @@ import static org.baylist.dto.Constants.UNKNOWN_CATEGORY;
 
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Slf4j
+@FieldDefaults(makeFinal = true, level = lombok.AccessLevel.PRIVATE)
 public class TodoistService {
 
-	private final Todoist todoistController;
-	private final DictionaryService dictionaryService;
-	private final Repository repository;
-	private RestLog restLog;
+	TodoistFeignClient todoistApi;
+	DictionaryService dictionaryService;
+	Repository repository;
+	UserService userService;
+
+	public Project createProject(String token, Project project) {
+		return todoistApi.createProject(token, project);
+	}
+
+	public Section createSection(String token, Section section) {
+		return todoistApi.createSection(token, section);
+	}
+
+	public Task createTask(String token, Task task) {
+		return todoistApi.createTask(token, task);
+	}
+
 
 	public void createProject(ChatValue chatValue) {
-		restLog.setAuthToken(chatValue.getUser().getTodoistToken());
-		if (todoistController.getProjects().stream().noneMatch(p -> p.getName().equalsIgnoreCase(BUYLIST_PROJECT))) {
-			todoistController.createProject(Project.builder()
+		if (todoistApi.getProjects(chatValue.getToken()).stream().noneMatch(p -> p.getName().equalsIgnoreCase(BUYLIST_PROJECT))) {
+			todoistApi.createProject(chatValue.getToken(), Project.builder()
 					.name(BUYLIST_PROJECT)
 					.build());
 		}
@@ -55,36 +68,36 @@ public class TodoistService {
 		return repository.isEmpty();
 	}
 
-	public void syncBuyListData() {
-		log.info("request to todoist for get data by buylist project");
-		List<Project> projects = todoistController.getProjects();
-		Optional<Project> buylistProject = projects
-				.stream().filter(p -> p.getName().equalsIgnoreCase(BUYLIST_PROJECT))
-				.findAny();
-		if (buylistProject.isPresent()) {
-			Long projectId = Long.valueOf(buylistProject.get().getId());
-			List<Section> todoistBuylistSections = todoistController.getSectionsByProject(projectId);
-			List<Task> todoistBuylistTasks = todoistController.getTasksByProject(projectId);
-			repository.fillStorage(List.of(buylistProject.get()), todoistBuylistSections, todoistBuylistTasks);
-		} else {
-			log.error("buylist project not found");
-		}
-	}
-
-	public String clearBuyList() {
+	public String clearBuyList(ChatValue chatValue) {
 		Optional<ProjectDb> buyListProject = repository.getBuyListProject();
 		if (buyListProject.isPresent()) {
 			ProjectDb project = buyListProject.get();
-			project.getTasks().forEach(t -> todoistController.deleteTask(Long.parseLong(t.getId())));
-			syncBuyListData();
+			project.getTasks().forEach(t -> todoistApi.deleteTask(chatValue.getToken(), t.getId()));
+			syncBuyListData(chatValue);
 			return "список покупок беспощадно изничтожен";
 		} else {
 			return "проекта со списком покупок не существует";
 		}
 	}
 
-	public String getBuylistProject() {
-		syncBuyListData();
+	public void syncBuyListData(ChatValue chatValue) {
+		log.info("request to todoist for get data by buylist project");
+		List<Project> projects = todoistApi.getProjects(chatValue.getToken());
+		Optional<Project> buylistProject = projects
+				.stream().filter(p -> p.getName().equalsIgnoreCase(BUYLIST_PROJECT))
+				.findAny();
+		if (buylistProject.isPresent()) {
+			String projectId = buylistProject.get().getId();
+			List<Section> todoistBuylistSections = todoistApi.getSectionsByProject(chatValue.getToken(), projectId);
+			List<Task> todoistBuylistTasks = todoistApi.getTasksByProject(chatValue.getToken(), projectId);
+			repository.fillStorage(List.of(buylistProject.get()), todoistBuylistSections, todoistBuylistTasks);
+		} else {
+			log.error("buylist project not found");
+		}
+	}
+
+	public String getBuylistProject(ChatValue chatValue) {
+		syncBuyListData(chatValue);
 		Optional<ProjectDb> projectByName = repository.getProjectByName(BUYLIST_PROJECT);
 		if (projectByName.isPresent()) {
 			return projectByName.get().toString();
@@ -93,52 +106,54 @@ public class TodoistService {
 		}
 	}
 
-	public void sendTasksToTodoist(ChatValue chatValue) {
+	@Transactional
+	public List<User> checkRecipients(ChatValue chatValue) {
+		User iUser = chatValue.getUser();
+		boolean isExistToken = userService.isExistToken(iUser.getUserId());
+		List<User> friendMe = userService.getFriendMe(iUser.getUserId());
+
+		if (isExistToken) friendMe.add(iUser);
+		return friendMe;
+	}
+
+
+	public void sendTasksToTodoist(ChatValue chatValue, User recipient) {
 		SendMessage message = chatValue.getMessage();
 		String input = chatValue.getUpdate().getMessage().getText();
 
-		if (validateInput(input)) {
+		Map<String, Set<String>> inputTasks = dictionaryService.parseInputBuyList(input, recipient.getUserId());
+		Optional<ProjectDb> buyListProjectDb = repository.getBuyListProject();
 
-			Map<String, Set<String>> inputTasks = dictionaryService.parseInputBuyList(input);
-			Optional<ProjectDb> buyListProjectDb = repository.getBuyListProject();
+		if (buyListProjectDb.isPresent()) {
+			ProjectDb buylistProject = buyListProjectDb.get();
+			String projectId = buylistProject.getProject().getId();
+			List<Task> tasks = buylistProject.getTasks();
+			List<SectionDb> sections = buylistProject.getSections();
+			List<String> submittedTasks = new ArrayList<>();
 
-			if (buyListProjectDb.isPresent()) {
-				ProjectDb buylistProject = buyListProjectDb.get();
-				String projectId = buylistProject.getProject().getId();
-				List<Task> tasks = buylistProject.getTasks();
-				List<SectionDb> sections = buylistProject.getSections();
-				List<String> submittedTasks = new ArrayList<>();
+			submittedTasks.addAll(sendTasksWithoutCategory(inputTasks, tasks, projectId, chatValue.getToken()));
+			submittedTasks.addAll(sendTasksWithNotExistCategory(inputTasks, sections, projectId, chatValue.getToken()));
+			submittedTasks.addAll(sendTasksWithExistCategory(inputTasks, sections, projectId, chatValue.getToken()));
 
-				submittedTasks.addAll(sendTasksWithoutCategory(inputTasks, tasks, projectId));
-				submittedTasks.addAll(sendTasksWithNotExistCategory(inputTasks, sections, projectId));
-				submittedTasks.addAll(sendTasksWithExistCategory(inputTasks, sections, projectId));
-
-				resultMessage(submittedTasks, message);
-			} else {
-				message.setText("проект buylist в todoist не существует," +
-						" хотите провести первоначальную настройку (кнопки да/нет)");
-				//todo для многопользовательского использования вынести создание проекта в первоначальную настройку
-			}
+			resultMessage(submittedTasks, message);
 		} else {
-			message.setText("что-то коряво написано, не могу разобрать");
+			message.setText("проект buylist в todoist не существует," +
+					" хотите провести первоначальную настройку (кнопки да/нет)");
+			//todo для многопользовательского использования вынести создание проекта в первоначальную настройку
 		}
+
 	}
 
 
 	//private
-	private boolean validateInput(String input) {
-		return input.length() > 3 &&
-				Arrays.stream(Commands.values()).noneMatch(c -> input.contains(c.getCommand()));
-		//вероятно в будущем тут будет добавлен ещё ряд условий
-	}
-
 	private Set<String> sendTasksWithoutCategory(Map<String, Set<String>> inputTasks,
 	                                             List<Task> tasks,
-	                                             String projectId) {
+	                                             String projectId,
+	                                             String token) {
 		Set<String> unknownSectionInputTask = inputTasks.get(UNKNOWN_CATEGORY);
 		if (unknownSectionInputTask != null && !unknownSectionInputTask.isEmpty()) {
 			tasks.stream().map(Task::getContent).toList().forEach(unknownSectionInputTask::remove);
-			sendTasks(unknownSectionInputTask, projectId);
+			sendTasks(unknownSectionInputTask, projectId, token);
 			return unknownSectionInputTask;
 		} else {
 			return Set.of();
@@ -147,20 +162,22 @@ public class TodoistService {
 
 	private Set<String> sendTasksWithNotExistCategory(Map<String, Set<String>> inputTasks,
 	                                                  List<SectionDb> sections,
-	                                                  String projectId) {
+	                                                  String projectId,
+	                                                  String token) {
 		List<Section> createdSections = getNotExistSections(inputTasks, sections).stream()
-				.map(s -> sendSection(s, projectId)).toList();
+				.map(s -> sendSection(s, projectId, token)).toList();
 		Set<String> inputTaskSet = new HashSet<>();
 		createdSections.forEach(s -> {
 			inputTaskSet.addAll(inputTasks.get(s.getName()));
-			sendTasks(inputTaskSet, s, projectId);
+			sendTasks(inputTaskSet, s, projectId, token);
 		});
 		return inputTaskSet;
 	}
 
 	private Set<String> sendTasksWithExistCategory(Map<String, Set<String>> inputTasks,
 	                                               List<SectionDb> sections,
-	                                               String projectId) {
+	                                               String projectId,
+	                                               String token) {
 		Set<String> submittedTasks = new HashSet<>();
 		sections.forEach(s -> {
 			String sectionName = s.getSection().getName();
@@ -173,7 +190,7 @@ public class TodoistService {
 							.map(Task::getContent)
 							.collect(Collectors.toSet()));
 				}
-				sendTasks(inputTaskSet, section, projectId);
+				sendTasks(inputTaskSet, section, projectId, token);
 				submittedTasks.addAll(inputTaskSet);
 			}
 		});
@@ -199,13 +216,6 @@ public class TodoistService {
 		message.setReplyMarkup(keyboard);
 	}
 
-	private void sendTasks(Set<String> taskList, String buyListProjectId) {
-		taskList.forEach(t -> todoistController.createTask(Task.builder()
-				.content(t)
-				.projectId(buyListProjectId)
-				.build()));
-	}
-
 	private List<String> getNotExistSections(Map<String, Set<String>> inputTasks, List<SectionDb> sections) {
 		return inputTasks.keySet().stream()
 				.filter(is -> !is.equals(UNKNOWN_CATEGORY))
@@ -213,17 +223,24 @@ public class TodoistService {
 				.toList();
 	}
 
-	private Section sendSection(String sectionInput, String buyListProjectId) {
-		return todoistController.createSection(Section.builder()
+	private Section sendSection(String sectionInput, String buyListProjectId, String token) {
+		return createSection(token, Section.builder()
 				.name(sectionInput)
 				.projectId(buyListProjectId)
 				.build());
 	}
 
-	private void sendTasks(Set<String> taskList, Section section, String buyListProjectId) {
-		taskList.forEach(t -> todoistController.createTask(Task.builder()
+	private void sendTasks(Set<String> taskList, Section section, String buyListProjectId, String token) {
+		taskList.forEach(t -> createTask(token, Task.builder()
 				.content(t)
 				.sectionId(section.getId())
+				.projectId(buyListProjectId)
+				.build()));
+	}
+
+	private void sendTasks(Set<String> taskList, String buyListProjectId, String token) {
+		taskList.forEach(t -> createTask(token, Task.builder()
+				.content(t)
 				.projectId(buyListProjectId)
 				.build()));
 	}
