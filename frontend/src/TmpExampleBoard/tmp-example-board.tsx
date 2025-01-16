@@ -159,9 +159,12 @@ export const BoardExample = () => {
             addGroup(2, "In Progress");
             addGroup(3, "Done");
             addItem(4, "Make waves", 1);
-            addItem(5, "Party!.", 1);
-            addItem(6, "Meet friends.", 2);
-            addItem(7, "Do shopping.", 3);
+            addItem(5, "Party1!", 1);
+            addItem(6, "Party2!", 1);
+            addItem(7, "Party3!", 1);
+            addItem(8, "Party4!", 1);
+            addItem(9, "Meet friends.", 2);
+            addItem(10, "Do shopping.", 3);
         });
     };
 
@@ -324,7 +327,7 @@ export const BoardExample = () => {
                 collisionDetector={closestEntity}
             >
                 <DragDropSensors />
-                <div class="columns">
+                <div>
                     <SortableProvider ids={groupIds()}>
                         <For each={groups()}>
                             {(group) => (

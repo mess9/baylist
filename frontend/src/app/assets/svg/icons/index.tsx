@@ -6,6 +6,7 @@ import IconCheckCircleOutline from "./hero/check-circle.svg";
 import IconCheckCircleEmptyOutline from "./hero/check-circle-empty.svg";
 import IconChevronDownMini from "./hero/chevron-down-mini.svg";
 import IconChevronRightMini from "./hero/chevron-right-mini.svg";
+import IconDnDHandler from "./hero/dnd-handler.svg";
 
 export {
 	IconTrashSolid,
@@ -15,7 +16,8 @@ export {
 	IconCheckCircleOutline,
 	IconCheckCircleEmptyOutline,
 	IconChevronDownMini,
-	IconChevronRightMini
+	IconChevronRightMini,
+	IconDnDHandler
 };
 
 // BareIcon.tsx !!EXAMPLE!!

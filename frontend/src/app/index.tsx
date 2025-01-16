@@ -1,7 +1,7 @@
 import { ErrorBoundary } from "solid-js";
 import { Router, Route } from "@solidjs/router";
 
-import Home from "/pages/Home";
+import BuyList from "/pages/BuyList";
 import BaseTest from "/shared/ui/TestComponents";
 
 import "./index.css";
@@ -12,7 +12,7 @@ export default function App() {
             fallback={(err) => (console.log(err), (<span>{`${err}`}</span>))}
         >
             <Router>
-                <Route path="/" component={Home} />
+                <Route path="/" component={BuyList} />
                 <Route path="/test" component={BaseTest} />
             </Router>
         </ErrorBoundary>

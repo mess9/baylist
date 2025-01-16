@@ -1,5 +1,6 @@
 import { BoardExample } from "/src/TmpExampleBoard/tmp-example-board";
 import cn from "/shared/utils/cn";
+import { SortableVerticalListExample } from "/src/TmpExampleBoard/tmp-exmp-vert";
 
 export default function BaseTest() {
   return (
@@ -13,6 +14,7 @@ export default function BaseTest() {
             
           }}*/}
       <BoardExample />
+      <SortableVerticalListExample />
     </div>
   )
 }
