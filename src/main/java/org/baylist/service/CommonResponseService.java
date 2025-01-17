@@ -117,7 +117,7 @@ public class CommonResponseService {
 				.callbackData(callbacks.getCallbackData() + r.getUserId())
 				.build())));
 		rows.add(new InlineKeyboardRow(InlineKeyboardButton.builder()
-				.text("не интересует")
+				.text("отмена")
 				.callbackData(Callbacks.CANCEL.getCallbackData())
 				.build()));
 		return new InlineKeyboardMarkup(rows);

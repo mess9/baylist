@@ -37,7 +37,11 @@ public class MenuService {
 						.build()),
 				new InlineKeyboardRow(InlineKeyboardButton.builder()
 						.text("\uD83D\uDEAB удалить друга :(")
-						.callbackData(Callbacks.REMOVE_FRIEND.getCallbackData())
+						.callbackData(Callbacks.REMOVE_MY_FRIEND.getCallbackData())
+						.build()),
+				new InlineKeyboardRow(InlineKeyboardButton.builder()
+						.text("\uD83E\uDDF9 удалиться из друзей")
+						.callbackData(Callbacks.REMOVE_FROM_FRIEND.getCallbackData())
 						.build()),
 				new InlineKeyboardRow(InlineKeyboardButton.builder()
 						.text("\uD83C\uDFE0 главное меню")
