@@ -69,6 +69,7 @@ public class Bot implements SpringLongPollingBot, LongPollingSingleThreadUpdateC
 	}
 
 	@AfterBotRegistration
+	@SuppressWarnings("unused")
 	public void afterRegistration(BotSession botSession) {
 		log.info("Registered bot running state is: {}", botSession.isRunning());
 		commandChecker.setCommandList(telegramClient);

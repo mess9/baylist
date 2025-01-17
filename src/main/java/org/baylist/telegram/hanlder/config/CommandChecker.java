@@ -25,6 +25,7 @@ public class CommandChecker {
 				case Commands.VIEW -> chatValue.setState(State.VIEW);
 				case Commands.REPORT -> chatValue.setState(State.FEEDBACK_REQUEST);
 				case Commands.DICTIONARY -> chatValue.setState(State.DICT_SETTING);
+				case Commands.DEFAULT -> chatValue.setState(State.DEFAULT);
 				case Commands.HELP -> chatValue.setState(State.HELP); //todo сделать хелп
 				case Commands.MENU -> chatValue.setState(State.MENU);
 				default -> chatValue.setState(State.ERROR);
@@ -36,12 +37,13 @@ public class CommandChecker {
 	public void setCommandList(TelegramClient telegramClient) {
 		try {
 			telegramClient.execute(new SetMyCommands(List.of(
+					new BotCommand(Commands.MENU.getCommand(), Commands.MENU.getDescription()),
 					new BotCommand(Commands.VIEW.getCommand(), Commands.VIEW.getDescription()),
 					new BotCommand(Commands.CLEAR.getCommand(), Commands.CLEAR.getDescription()),
 					new BotCommand(Commands.DICTIONARY.getCommand(), Commands.DICTIONARY.getDescription()),
+					new BotCommand(Commands.DEFAULT.getCommand(), Commands.DEFAULT.getDescription()),
 					new BotCommand(Commands.HELP.getCommand(), Commands.HELP.getDescription()),
 					new BotCommand(Commands.START.getCommand(), Commands.START.getDescription()),
-					new BotCommand(Commands.MENU.getCommand(), Commands.MENU.getDescription()),
 					new BotCommand(Commands.REPORT.getCommand(), Commands.REPORT.getDescription())
 			)));
 		} catch (TelegramApiException e) {

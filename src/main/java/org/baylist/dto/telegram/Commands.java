@@ -14,6 +14,7 @@ public enum Commands {
 	VIEW("/view", "посмотреть текущий список покупок"),
 	REPORT("/report", "обратная связь, донаты, пожелания автору"),
 	DICTIONARY("/dictionary", "редактировать словарик"),
+	DEFAULT("/default", "режим ввода задач"),
 	HELP("/help", "описание функционала бота, примеры использования"),
 	MENU("/menu", "главное меню бота"),
 	NOT_COMMAND("is_not_command", "for error handler"),

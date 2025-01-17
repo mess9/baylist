@@ -11,5 +11,8 @@
     <include file="migrations/4.user-add-token.yaml" relativeToChangelogFile="true"/>
     <include file="migrations/6.category-add-user.yaml" relativeToChangelogFile="true"/>
     <include file="migrations/7.friends-table.yaml" relativeToChangelogFile="true"/>
+    <include file="migrations/8.history-table.yaml" relativeToChangelogFile="true"/>
+    <include file="migrations/9.history-add-id.yaml" relativeToChangelogFile="true"/>
+
 
 </databaseChangeLog>

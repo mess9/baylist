@@ -26,26 +26,34 @@ public class MainMenuHandler implements DialogHandler {
 	@Override
 	public void handle(ChatValue chatValue) {
 		if (chatValue.isCallback()) {
-			Callbacks callback = Callbacks.fromValue(chatValue.getCallbackData());
-			switch (callback) {
-				case CANCEL -> responseService.cancel(chatValue);
-				case MAIN_MENU, START_2_FRIENDS_REQUEST -> menuService.mainMenu(chatValue, true);
-				case DICT_SETTINGS -> menuService.dictionaryMainMenu(chatValue, true);
-				//change token
-				case START_1_TODOIST_TOKEN_REQUEST -> {
-					if (userService.isExistToken(chatValue.getUser().getUserId())) {
-						responseService.existToken(chatValue);
-					} else {
-						responseService.tokenRequest(chatValue);
+			String callbackData = chatValue.getCallbackData();
+			if (callbackData.startsWith(Callbacks.VIEW_TASK_TO.getCallbackData())) {
+				Long userId = Long.valueOf(callbackData.substring(Callbacks.VIEW_TASK_TO.getCallbackData().length()));
+				responseService.view(chatValue, userService.getUserFromDb(userId), true);
+			} else {
+				Callbacks callback = Callbacks.fromValue(chatValue.getCallbackData());
+				switch (callback) {
+					case CANCEL -> responseService.cancel(chatValue);
+					case MAIN_MENU, START_2_FRIENDS_REQUEST -> menuService.mainMenu(chatValue, true);
+					case DICT_SETTINGS -> menuService.dictionaryMainMenu(chatValue, true);
+					//change token
+					case START_1_TODOIST_TOKEN_REQUEST -> {
+						if (userService.isExistToken(chatValue.getUser().getUserId())) {
+							responseService.existToken(chatValue);
+						} else {
+							responseService.tokenRequest(chatValue);
+						}
 					}
+					case START_1_TODOIST_TOKEN_CHANGE -> responseService.tokenRequest(chatValue);
+					case FRIENDS_SETTINGS -> menuService.friendsSettings(chatValue, true);
+					case NOTIFY_SETTINGS -> menuService.notifySettings(chatValue); //todo notifications
+					case HELP -> menuService.help(chatValue);
+					case FRIENDS_HELP -> responseService.friendsHelp(chatValue);
+					case DICT_HELP -> responseService.dictHelp(chatValue);
+					case VIEW -> responseService.checkAndView(chatValue, true);
+					case INFO -> responseService.info(chatValue);
+					default -> chatValue.setState(State.ERROR);
 				}
-				case START_1_TODOIST_TOKEN_CHANGE -> responseService.tokenRequest(chatValue);
-				case FRIENDS_SETTINGS -> menuService.friendsSettings(chatValue, true);
-//				case NOTIFY_SETTINGS -> menuService.notifySettings(chatValue); //todo notifications
-//				case HELP -> menuService.help(chatValue); //todo help
-				case VIEW -> responseService.view(chatValue, true);
-				case INFO -> responseService.info(chatValue);
-				default -> chatValue.setState(State.ERROR);
 			}
 		} else {
 			Update update = chatValue.getUpdate();

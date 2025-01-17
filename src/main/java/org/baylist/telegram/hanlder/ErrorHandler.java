@@ -15,7 +15,13 @@ public class ErrorHandler implements DialogHandler {
 	@Override
 	public void handle(ChatValue chatValue) {
 		if (chatValue.isCallback()) {
-			chatValue.setReplyText("у-у-упс. что-то пошло не так");
+			chatValue.setReplyText("""
+					у-у-упс. что-то пошло не так :(
+					
+					/report - сообщить об ошибке
+					/menu - в главное меню
+					/default - в режим ввода задач
+					""");
 			chatValue.setState(State.DEFAULT);
 		} else {
 			if (chatValue.getInputText() != null && chatValue.getInputText().startsWith("/")) {

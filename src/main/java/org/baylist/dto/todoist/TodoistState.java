@@ -5,24 +5,28 @@ import org.baylist.dto.todoist.api.Section;
 import org.baylist.dto.todoist.api.Task;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import static org.baylist.dto.Constants.BUYLIST_PROJECT;
 
 @Component
-public class Repository {
+public class TodoistState {
 
-    private final Storage storage = new Storage();
+    private final List<ProjectDto> projects;
 
-    public void fillStorage(List<Project> projects,
-                            List<Section> sections,
-                            List<Task> tasks) {
+    public TodoistState(List<Project> projects,
+                        List<Section> sections,
+                        List<Task> tasks) {
+        this.projects = fillStorage(projects, sections, tasks);
+    }
 
-        List<ProjectDb> projectDbs = projects.stream().map(p -> {
-                    ProjectDb projectDb = new ProjectDb();
-                    projectDb.setProject(p);
+    private List<ProjectDto> fillStorage(List<Project> projects,
+                                         List<Section> sections,
+                                         List<Task> tasks) {
+        return projects.stream().map(p -> {
+                    ProjectDto projectDto = new ProjectDto();
+                    projectDto.setProject(p);
 
                     List<Section> listSection = sections
                             .stream()
@@ -32,51 +36,40 @@ public class Repository {
                             .stream()
                             .filter(t -> t.getProjectId().equals(p.getId()))
                             .toList();
-                    projectDb.setTasks(tasksByProject);
+                    projectDto.setTasks(tasksByProject);
 
-                    List<SectionDb> list = listSection
+                    List<SectionDto> list = listSection
                             .stream()
                             .map(s -> {
-                                SectionDb sectionDb = new SectionDb();
-                                sectionDb.setSection(s);
+                                SectionDto sectionDto = new SectionDto();
+                                sectionDto.setSection(s);
 
                                 List<Task> tasksBySection = tasks
                                         .stream()
                                         .filter(t -> t.getSectionId() != null && t.getSectionId().equals(s.getId()))
                                         .toList();
-                                sectionDb.setTasks(tasksBySection);
-                                return sectionDb;
+                                sectionDto.setTasks(tasksBySection);
+                                return sectionDto;
                             })
                             .toList();
-                    projectDb.setSections(list);
-                    return projectDb;
+                    projectDto.setSections(list);
+                    return projectDto;
                 })
                 .toList();
-        storage.setProjects(projectDbs);
     }
 
     public boolean isEmpty() {
-        return storage.isEmpty();
+        return projects.isEmpty();
     }
 
-    public Optional<ProjectDb> getProjectByName(String name) {
-        return storage.getProjects()
-                .stream()
+    public Optional<ProjectDto> getProjectByName(String name) {
+        return projects.stream()
                 .filter(p -> p.getProject().getName().equalsIgnoreCase(name))
                 .findAny();
     }
 
-    public List<SectionDb> getSections() {
-        return storage.getProjects()
-                .stream().filter(p -> p.getProject().getName().equals(BUYLIST_PROJECT))
-                .map(ProjectDb::getSections)
-                .findAny()
-                .orElse(new ArrayList<>());
-    }
-
-    public Optional<ProjectDb> getBuyListProject() {
-        return storage.getProjects()
-                .stream()
+    public Optional<ProjectDto> getBuyListProject() {
+        return projects.stream()
                 .filter(project -> project.getProject().getName().equals(BUYLIST_PROJECT))
                 .findAny();
     }

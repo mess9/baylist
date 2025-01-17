@@ -1,13 +1,13 @@
 package org.baylist.service;
 
 import jakarta.transaction.Transactional;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.baylist.db.entity.Category;
 import org.baylist.db.entity.Variant;
 import org.baylist.db.repo.CategoryRepository;
 import org.baylist.db.repo.VariantRepository;
+import org.baylist.dto.telegram.Action;
 import org.baylist.dto.telegram.Callbacks;
 import org.baylist.dto.telegram.ChatValue;
 import org.baylist.dto.telegram.State;
@@ -30,7 +30,6 @@ import java.util.stream.Collectors;
 
 import static org.baylist.dto.Constants.UNKNOWN_CATEGORY;
 
-@Getter
 @Component
 @RequiredArgsConstructor
 @FieldDefaults(makeFinal = true, level = lombok.AccessLevel.PRIVATE)
@@ -39,11 +38,11 @@ public class DictionaryService {
 	ApplicationContext context;
 	CategoryRepository categoryRepository;
 	VariantRepository variantRepository;
-	UserService userService;
 	MenuService menuService;
+	HistoryService historyService;
 
 
-	public Map<String, Set<String>> parseInputBuyList(String input, Long userId) {
+	public Map<String, Set<String>> parseInputWithDict(String input, Long userId) {
 		DictionaryService self = context.getBean(DictionaryService.class);
 		Map<String, Set<String>> dict = self.getDict(userId);
 		Map<String, Set<String>> buyList = new HashMap<>();
@@ -65,6 +64,7 @@ public class DictionaryService {
 		Category categoryByName = getCategoryByNameFromDb(categoryName);
 		if (categoryByName == null) {
 			categoryRepository.save(new Category(categoryName, userId));
+			historyService.changeDict(userId, Action.ADD_CATEGORY, categoryName);
 			return true;
 		} else {
 			return false;
@@ -96,18 +96,26 @@ public class DictionaryService {
 
 	public void addVariantToCategory(ChatValue chatValue, String category) {
         String input = chatValue.getInputText();
-        String[] split = input.split("\n");
-        List<String> variants = Arrays.stream(split).map(String::trim).distinct().toList();
-		Category categoryDb = getCategoryByNameFromDb(category);
-	    if (categoryDb == null) {
-		    menuService.dictionaryMainMenu(chatValue, false);
-            chatValue.setReplyText("категория не найдена");
-        } else {
-		    addVariantsToCategory(variants, categoryDb);
-		    menuService.dictionaryMainMenu(chatValue, false);
-            chatValue.setReplyText(variants.size() + ": вариантов добавлено в категорию - " + category);
-        }
-        chatValue.setState(State.DICT_SETTING);
+		if (validate(input)) {
+			String[] split = input.split("\n");
+			List<String> variants = Arrays.stream(split).map(String::trim).distinct().toList();
+			Category categoryDb = getCategoryByNameFromDb(category);
+			if (categoryDb == null) {
+				menuService.dictionaryMainMenu(chatValue, false);
+				chatValue.setReplyText("категория не найдена");
+			} else {
+				addVariantsToCategory(variants, categoryDb);
+				historyService.changeDict(chatValue.getUser().getUserId(), Action.ADD_VARIANT, variants.toString());
+				menuService.dictionaryMainMenu(chatValue, false);
+				chatValue.setReplyText(variants.size() + ": вариантов добавлено в категорию - " + category);
+			}
+			chatValue.setState(State.DICT_SETTING);
+		} else {
+			menuService.dictionaryMainMenu(chatValue, false);
+			chatValue.setReplyText("варианты не были добавлены. т.к. я не разобрал что добавлять\n" +
+					"рекомендуется следовать рекомендациям по вводу вариантов");
+		}
+
     }
 
 	public void addVariantsToCategory(List<String> variants, Category categoryDb) {
@@ -160,9 +168,16 @@ public class DictionaryService {
 		categoryRepository.save(category);
 	}
 
+	public boolean validate(String variants) {
+		return variants != null && !variants.isBlank() && variants.length() >= 2;
+		//валидация
+		// 1. на принадлежность вариантов категории
+		// 2. на то что варианты разделены \n
+	}
+
 	@Transactional
-	public void removeVariants(String variants) {
-		for (String s : variants.split("\n")) {
+	public void removeVariants(List<String> variants) {
+		for (String s : variants) {
 			variantRepository.deleteByName(s.trim());
 		}
 	}
@@ -185,4 +200,6 @@ public class DictionaryService {
 				.findAny()
 				.orElse(UNKNOWN_CATEGORY);
 	}
+
+
 }

@@ -9,11 +9,11 @@ import org.baylist.telegram.hanlder.MainMenuHandler;
 import org.baylist.telegram.hanlder.StartHandler;
 import org.baylist.telegram.hanlder.ViewHandler;
 import org.baylist.telegram.hanlder.dictionary.DictAddCategoryHandler;
-import org.baylist.telegram.hanlder.dictionary.DictAddTasksToCategoryHandler;
+import org.baylist.telegram.hanlder.dictionary.DictAddVariantToCategoryHandler;
+import org.baylist.telegram.hanlder.dictionary.DictMenuHandler;
 import org.baylist.telegram.hanlder.dictionary.DictRemoveCategoryHandler;
 import org.baylist.telegram.hanlder.dictionary.DictRemoveVariantHandler;
 import org.baylist.telegram.hanlder.dictionary.DictRenameCategoryHandler;
-import org.baylist.telegram.hanlder.dictionary.DictMenuHandler;
 import org.baylist.telegram.hanlder.dictionary.DictViewHandler;
 import org.baylist.telegram.hanlder.feedback.FeedbackAnswerHandler;
 import org.baylist.telegram.hanlder.feedback.FeedbackRequestHandler;
@@ -37,7 +37,7 @@ public class StateHandlerConfig {
 			FeedbackAnswerHandler feedbackAnswerHandler,
 			DictMenuHandler dictMenuHandler,
 			DictAddCategoryHandler dictAddCategoryHandler,
-			DictAddTasksToCategoryHandler dictAddTasksToCategoryHandler,
+			DictAddVariantToCategoryHandler dictAddVariantToCategoryHandler,
 			DictViewHandler dictViewHandler,
 			DictRemoveCategoryHandler dictRemoveCategoryHandler,
 			DictRenameCategoryHandler dictRenameCategoryHandler,
@@ -55,7 +55,7 @@ public class StateHandlerConfig {
 		stateHandlers.put(State.FEEDBACK_ANSWER, feedbackAnswerHandler);
 		stateHandlers.put(State.DICT_SETTING, dictMenuHandler);
 		stateHandlers.put(State.DICT_ADD_CATEGORY, dictAddCategoryHandler);
-		stateHandlers.put(State.DICT_ADD_TASK_TO_CATEGORY, dictAddTasksToCategoryHandler);
+		stateHandlers.put(State.DICT_ADD_TASK_TO_CATEGORY, dictAddVariantToCategoryHandler);
 		stateHandlers.put(State.DICT_VIEW, dictViewHandler);
 		stateHandlers.put(State.DICT_REMOVE_CATEGORY, dictRemoveCategoryHandler);
 		stateHandlers.put(State.DICT_RENAME_CATEGORY, dictRenameCategoryHandler);

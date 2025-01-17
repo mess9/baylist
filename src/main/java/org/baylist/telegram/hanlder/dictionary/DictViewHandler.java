@@ -28,7 +28,7 @@ import static org.baylist.dto.Constants.LIMIT_CHAR_FOR_ONE_PAGE;
 @FieldDefaults(makeFinal = true, level = lombok.AccessLevel.PRIVATE)
 public class DictViewHandler implements DialogHandler {
 
-	CommonResponseService commonResponseService;
+	CommonResponseService responseService;
 	DictionaryService dictionaryService;
 	MenuService menuService;
 	Map<Long, PaginationState> paginationStateMap = new ConcurrentHashMap<>();
@@ -41,7 +41,7 @@ public class DictViewHandler implements DialogHandler {
 			String callbackData = chatValue.getCallbackData();
 
 			if (callbackData.equals(Callbacks.CANCEL.getCallbackData())) {
-				commonResponseService.cancelMessage(chatValue);
+				responseService.cancelMessage(chatValue);
 				paginationStateMap.remove(chatValue.getUser().getUserId());
 			} else if (callbackData.equals(Callbacks.DICT_SETTINGS.getCallbackData())) {
 				menuService.dictionaryMainMenu(chatValue, true);
@@ -92,6 +92,7 @@ public class DictViewHandler implements DialogHandler {
 		} else {
 			sb.append("Варианты для категории - ").append(categoryName).append(":\n");
 			paginate.get(currentPage).forEach(v -> sb.append("<code>").append(v).append("</code>\n"));
+			sb.append("\n<i>прошу перечислить в столбик, один или больше вариантов из этой категории</i>\n>");
 			List<InlineKeyboardRow> rows = new LinkedList<>();
 			rows.add(new InlineKeyboardRow(List.of(
 					InlineKeyboardButton.builder()

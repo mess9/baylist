@@ -27,6 +27,9 @@ public enum Callbacks {
 	FEEDBACK("feedback"),
 	DONATE("donate"),
 
+	SEND_TASK_TO("sendTaskTo:"),
+	VIEW_TASK_TO("viewTaskTo:"),
+
 	DICT_SETTINGS("dictSettings"),
 	DICT_VIEW("dictView"),
 	DICT_VIEW_PAGINATION_BACK("dictViewPaginationBack"),

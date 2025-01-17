@@ -14,10 +14,10 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 @FieldDefaults(makeFinal = true, level = lombok.AccessLevel.PRIVATE)
-public class DictAddTasksToCategoryHandler implements DialogHandler {
+public class DictAddVariantToCategoryHandler implements DialogHandler {
 
 	DictionaryService dictionaryService;
-	CommonResponseService commonResponseService;
+	CommonResponseService responseService;
 	MenuService menuService;
 
 	//todo валидация на уникальность вариантов среди всех категорий пользователя
@@ -28,7 +28,7 @@ public class DictAddTasksToCategoryHandler implements DialogHandler {
 		if (chatValue.isCallback()) {
 			String callbackData = chatValue.getCallbackData();
 			if (callbackData.equals(Callbacks.CANCEL.getCallbackData())) {
-				commonResponseService.cancelMessage(chatValue);
+				responseService.cancelMessage(chatValue);
 			} else if (callbackData.equals(Callbacks.DICT_SETTINGS.getCallbackData())) {
 				menuService.dictionaryMainMenu(chatValue, true);
 			} else if (callbackData.startsWith(Callbacks.CATEGORY_CHOICE.getCallbackData())) {
@@ -36,7 +36,7 @@ public class DictAddTasksToCategoryHandler implements DialogHandler {
 				chatValue.setEditText("""
 						добавляйте варианты задач в категорию - %s
 						
-						просто вводите их в столбик, одну, две или больше
+						просто вводите их в столбик, один, два или больше
 						
 						<code>- название задачи должно быть в одну строчку</code>
 						<code>- состоять из одного или нескольких слов</code>

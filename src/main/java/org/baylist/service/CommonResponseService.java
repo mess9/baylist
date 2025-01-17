@@ -1,6 +1,7 @@
 package org.baylist.service;
 
 import jakarta.transaction.Transactional;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.baylist.db.entity.Category;
@@ -16,23 +17,27 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardRow;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static org.baylist.util.Util.getName;
+
 @Component
 @RequiredArgsConstructor
-@FieldDefaults(makeFinal = true, level = lombok.AccessLevel.PRIVATE)
+@FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 public class CommonResponseService {
 
-	TodoistService todoistService;
+	TodoistService todoist;
 	UserService userService;
 	DictionaryService dictionaryService;
+	MenuService menuService;
 
-	//тут будет форматирование и локализация ответа
 
 	public void cancelMessage(ChatValue chatValue) {
-		chatValue.setReplyText("ок. в следующий раз будут деяния. а пока я отдохну");
+		chatValue.setReplyText("ок. в следующий раз будут деяния\n" +
+				"а пока в режиме ожидания списка задач.");
 		chatValue.setState(State.DEFAULT);
 	}
 
@@ -63,24 +68,59 @@ public class CommonResponseService {
 		}
 	}
 
-	public void view(ChatValue chatValue, boolean isMenu) {
+	public void checkAndView(ChatValue chatValue, boolean isMenu) {
+		List<User> recipients = todoist.checkRecipients(chatValue);
+
+		if (recipients.isEmpty()) {
+			menuService.mainMenu(chatValue, false);
+			chatValue.setReplyText("""
+					нет возможности посмотреть то чего не существует.
+					<i>но может быть однажды...</i>
+					""");
+			chatValue.setReplyParseModeHtml();
+		} else if (recipients.size() == 1) {
+			view(chatValue, recipients.getFirst(), isMenu);
+		} else {
+			chatValue.setReplyText("выберите чьи задачки посмотреть");
+			chatValue.setReplyKeyboard(recipientsKeyboard(recipients, false));
+		}
+	}
+
+	public void view(ChatValue chatValue, User recipient, boolean isMenu) {
 		if (isMenu) {
 			InlineKeyboardMarkup markup = new InlineKeyboardMarkup(List.of(
 					new InlineKeyboardRow(InlineKeyboardButton.builder()
 							.text("назад")
 							.callbackData(Callbacks.MAIN_MENU.getCallbackData())
 							.build())));
-			chatValue.setEditText(todoistService.getBuylistProject(chatValue));
+			chatValue.setEditText(todoist.getBuylistProject(recipient));
 			chatValue.setEditReplyParseModeHtml();
 			chatValue.setEditReplyKeyboard(markup);
 			chatValue.setState(State.MENU);
 		} else {
-			chatValue.setReplyText(todoistService.getBuylistProject(chatValue));
+			chatValue.setReplyText(todoist.getBuylistProject(recipient));
 			chatValue.setReplyParseModeHtml();
 			chatValue.setState(State.DEFAULT);
 		}
+	}
 
-
+	public InlineKeyboardMarkup recipientsKeyboard(List<User> recipients, boolean isSend) {
+		List<InlineKeyboardRow> rows = new LinkedList<>();
+		Callbacks callbacks;
+		if (isSend) {
+			callbacks = Callbacks.SEND_TASK_TO;
+		} else {
+			callbacks = Callbacks.VIEW_TASK_TO;
+		}
+		recipients.forEach(r -> rows.add(new InlineKeyboardRow(InlineKeyboardButton.builder()
+				.text(getName(r))
+				.callbackData(callbacks.getCallbackData() + r.getUserId())
+				.build())));
+		rows.add(new InlineKeyboardRow(InlineKeyboardButton.builder()
+				.text("не интересует")
+				.callbackData(Callbacks.CANCEL.getCallbackData())
+				.build()));
+		return new InlineKeyboardMarkup(rows);
 	}
 
 	@Transactional
@@ -109,9 +149,7 @@ public class CommonResponseService {
 
 		sb.append("<b>сводная информация:</b>\n")
 				.append("вас зовут - ")
-				.append(user.getFirstName())
-				.append(" ")
-				.append(user.getLastName())
+				.append(getName(user))
 				.append("\n\n");
 		if (existToken) {
 			sb.append("вы подключены к todoist\n\n");
@@ -156,16 +194,12 @@ public class CommonResponseService {
 			if (friends.size() > 1) {
 				sb.append("у вас есть друзья:\n");
 				friends.forEach(f -> sb.append(" <code>")
-						.append(f.getFirstName())
-						.append(" ")
-						.append(f.getLastName())
+						.append(getName(f))
 						.append("</code>\n"));
 			} else {
 				sb.append("у вас есть друг!\n");
 				friends.forEach(f -> sb.append(" <code>")
-						.append(f.getFirstName())
-						.append(" ")
-						.append(f.getLastName())
+						.append(getName(f))
 						.append("</code>\n"));
 			}
 		} else {
@@ -177,16 +211,12 @@ public class CommonResponseService {
 		if (friendList.size() > 1) {
 			sb.append("друзья, которым вы можете отправлять задачи:\n");
 			friendList.forEach(f -> sb.append(" <code>")
-					.append(f.getFirstName())
-					.append(" ")
-					.append(f.getLastName())
+					.append(getName(f))
 					.append("</code>\n"));
 		} else {
 			sb.append("друг, которому вы можете отправлять задачи:\n");
 			friendList.forEach(f -> sb.append(" <code>")
-					.append(f.getFirstName())
-					.append(" ")
-					.append(f.getLastName())
+					.append(getName(f))
 					.append("</code>\n"));
 		}
 	}
@@ -213,11 +243,14 @@ public class CommonResponseService {
 
 	public void tokenRequest(ChatValue chatValue) {
 		chatValue.setReplyText("""
+				🔑 подключение todoist
 				<b> как получить токен </b>
 				0. регистрируемся на todoist.com
 				1. переходим по ссылке https://todoist.com/prefs/integrations
 				2. переключаемся на вкладку "для разработчиков"
 				3. копируем токен и отправляем его боту (вставить в чат, в ответ на это сообщение)
+				
+				👉 в будущем todoist станет опциональным, но пока <i>и так сойдёт</i> 😊.
 				""");
 		chatValue.setReplyParseModeHtml();
 	}
@@ -231,7 +264,7 @@ public class CommonResponseService {
 			start(chatValue);
 		} else if (matcher.matches() && inputText.length() == 40) {
 			userService.saveToken(chatValue, inputText);
-			todoistService.createProject(chatValue);
+			todoist.createProject(chatValue);
 			InlineKeyboardMarkup markup;
 			if (isStart) {
 				markup = InlineKeyboardMarkup.builder()
@@ -260,16 +293,15 @@ public class CommonResponseService {
 			}
 
 			chatValue.setReplyText("""
-					токен получен, спасибо
+					🔑 токен получен, спасибо!
 					
-					в todoist будет создан проект "baylist"
-					куда и будут отправляться задачи от вас и ваших друзей
-					(если они у вас есть)
+					в <b>todoist</b> будет создан проект <b>"buylist"</b>, куда будут отправляться задачи от вас и ваших друзей
+					<i>(если они у вас есть 😏)</i>.
 					
-					проект будет создан даже если лимит по проектам закончился
-					это такая api магия
+					даже если лимит проектов в todoist исчерпан, бот всё равно его создаст – это такая api-магия ✨
 					""");
 			chatValue.setReplyKeyboard(markup);
+			chatValue.setEditReplyParseModeHtml();
 		} else {
 			chatValue.setReplyText("""
 					неверный токен, попробуйте ещё раз
@@ -277,42 +309,6 @@ public class CommonResponseService {
 					или воспользуйтесь командой /report дабы описать что именно пошло не так.
 					""");
 		}
-	}
-
-	public void start(ChatValue chatValue) {
-		chatValue.setReplyText("""
-				yay! приветствую.
-				этот бот написан филом, что бы отправлять ему список покупок
-				
-				основная идея такова. писать боту в телеграме и он бы добавлял задачи в todoist
-				
-				такая вот автоматизация пользовательского опыта.
-				раньше я накидывал в избранное в тг список дел и покупок перед выходом из дома,
-				чтобы ничего не забыть. но это имеет свои минусы, например нельзя отмечать уже сделанное/купленное, дабы оно не мозолило глаз,
-				и приходится распределять задачи по категориям/местам вручную, или придётся видеть перед собой плоский не структурированный список.
-				
-				бот умеет принимать в себя список дел/покупок, разбивать их по категориям и отправлять в todoist.
-				
-				категории и то, что в них попадает, полностью настраивается пользователем.
-				
-				так же возможно и совместное использование бота
-				ваши друзья/семья могут накидывать вам в этого бота что-то, дабы не забыть это купить/сделать.
-				так что ботом можно пользоваться как в роли реципиента, так и в роли отправителя задач, так и в обеих ролях одновременно.
-				
-				для того чтобы мочь получать задачи от себя или друзей, нужно зарегистрироваться в todoist и получить там токен.
-				(инструкция по получению токена будет чуть позже)
-				(позже планируется уйти от todoist или сделать его опциональным, но пока <i>и так сойдёт</i>, todoist вполне неплох)
-				
-				а теперь этап первоначальной настройки.
-				""");
-		InlineKeyboardMarkup markup = new InlineKeyboardMarkup(
-				List.of(new InlineKeyboardRow(InlineKeyboardButton.builder()
-						.text("начать настройку")
-						.callbackData(Callbacks.START.getCallbackData())
-						.build())));
-		chatValue.setReplyKeyboard(markup);
-		chatValue.setReplyParseModeHtml();
-		chatValue.setState(State.START);
 	}
 
 	@Transactional
@@ -350,40 +346,78 @@ public class CommonResponseService {
 		chatValue.setEditReplyParseModeHtml();
 	}
 
-	public void friendsHelp(ChatValue chatValue) {
-		chatValue.setEditText("""
-				<u>основная идея бота - отправлять себе задачи в todoist</u>
-				и дать возможность своим друзьям/семье - тоже отправлять в <u>твой</u> todoist задачи
+	public void start(ChatValue chatValue) {
+		chatValue.setReplyText("""
+				🎉 YAY
+				бот создан филом, чтобы удобно отправлять списки покупок и дел.
 				
-				из этого выходит следующее:
+				🛠 основная идея
+				бот помогает автоматически добавлять задачи в <b>todoist</b> прямо из telegram.
 				
-				1. человек у которого привязан аккаунт todoist - может отправлять себе задачи, и ему могут отправлять задачи его друзья, если он их себе добавил
+				раньше я просто писал списки в «избранное» в telegram, <b>но:</b>
+				❌ нельзя отмечать выполненные задачи
+				❌ приходится разбивать задачи по категориям вручную
 				
-				2. человек у которого <b>не</b> привязан аккаунт todoist - может отправлять задачи только тем у кого есть аккаунт todoist и только тем из них, кто добавил его в свои друзья
+				✔️ а тут бот принимает списки задач, сам разбивает их на категории и отправляет в todoist 📌.
 				
-				3. если человек имеет привязанный todoist и одновременно его добавили к себе в друзья люди у которых тоже привязан аккаунт todoist - то при отправке списка задач, будет предложен выбор, кому их отправлять, себе или одному из друзей.
+				📂 гибкая настройка категорий
+				<s>нужно</s>можно создать свои категории и варианты задач для них
 				
-				<i>функционал разбиения задач по категориям работает с точки зрения владельца аккаунта todoist. т.е. какие владелец себе категории настроил, так и будет разбиваться его входящий список задач, от себя или от друзей, не важно.</i>
+				👥 совместное использование
+				можете использовать бота вместе с друзьями и семьёй:
 				
-				ещё раз. чтобы друг мог отправить тебе задачи, у тебя должен быть аккаунт в todoist и ты должен добавить себе контакт друга в настройках бота.
+				отправлять задачи себе 📝
+				получать задачи от других 🏷
+				и так и так одновременно 🔄
+				
+				🔑 подключение todoist
+				чтобы бот мог отправлять вам задачи, нужно:
+				зарегистрироваться в <b>todoist</b>
+				получить api-токен (инструкция будет позже 📌)
+				👉 в будущем todoist станет опциональным, но пока <i>и так сойдёт</i> 😊.
+				
+				⚙ первоначальная настройка
+				теперь давайте настроим бота! 🚀
 				""");
 		InlineKeyboardMarkup markup = new InlineKeyboardMarkup(
 				List.of(new InlineKeyboardRow(InlineKeyboardButton.builder()
-						.text("назад")
-						.callbackData(Callbacks.FRIENDS_SETTINGS.getCallbackData())
+						.text("начать настройку")
+						.callbackData(Callbacks.START.getCallbackData())
 						.build())));
-		chatValue.setEditReplyKeyboard(markup);
-		chatValue.setEditReplyParseModeHtml();
+		chatValue.setReplyKeyboard(markup);
+		chatValue.setReplyParseModeHtml();
+		chatValue.setState(State.START);
 	}
 
-	public void friendsRequest(ChatValue chatValue, State state) {
-		chatValue.setReplyText("""
-				<b> добавление друзей </b>
+	public void dictHelp(ChatValue chatValue) {
+		chatValue.setEditText("""
+				📖 как работает словарик
 				
-				пришлите мне контакт вашего друга, который сможет отправлять вам задачи
+				<i><b>категории</b> и <b>варианты</b> – это мой <u>внутренний словарик</u>. он помогает автоматически распределять задачи по категориям в todoist.</i>
+				
+				🔹 <b>категории</b> в todoist появятся только после первой задачи, отправленной в них.
+				🔹 чтобы я правильно раскидывал задачи, мне нужно заранее знать о них – для этого мы и заполняем словарик.
+				
+				📌 пример:
+				в словарике есть две категории:
+				
+				🛒 <i>продукты</i>: <code>помидоры, картошка, морковка</code>
+				📦 <i>пункты выдачи</i>: <code>вб, озон, почта</code>
+				если ты отправишь мне:
+				<code>морковка</code>
+				<code>вб</code>
+				
+				то в todoist появятся две категории, и в каждой будет по одной задаче ✅.
+				
+				если задача не матчится ни в одну из категорий(или если их нет) - она будет добавлена в список задач вне всяких категорий
 				""");
-		chatValue.setReplyParseModeHtml();
-		chatValue.setState(state);
+		chatValue.setEditReplyParseModeHtml();
+		chatValue.setState(State.DICT_SETTING);
+		chatValue.setEditReplyKeyboard(new InlineKeyboardMarkup(List.of(new InlineKeyboardRow(
+				InlineKeyboardButton.builder()
+						.text("ok")
+						.callbackData(Callbacks.DICT_SETTINGS.getCallbackData())
+						.build()))));
 	}
 
 	public void doneWithouFriends(ChatValue chatValue, State state) {
@@ -427,4 +461,50 @@ public class CommonResponseService {
 			chatValue.setReplyKeyboard(markup);
 		}
 	}
+
+	public void friendsHelp(ChatValue chatValue) {
+		chatValue.setEditText("""
+				<u>основная идея бота – отправлять себе задачи в todoist</u> и позволять друзьям/семье делать то же самое, отправляя задачи <u>в твой</u> todoist.
+				
+				из этого следует:
+				
+				1️⃣ если у тебя привязан todoist, ты можешь:
+				
+				отправлять себе задачи 📌
+				получать задачи от друзей, если добавил их в бота 👥
+				2️⃣ если у тебя <b>нет</b> привязанного todoist, ты можешь:
+				
+				отправлять задачи только тем, у кого он есть ✅
+				только если этот человек добавил тебя в друзья 🔑
+				3️⃣ если у тебя есть todoist и тебя добавили в друзья другие пользователи с todoist, то при отправке задач появится выбор:
+				
+				отправить себе 📌
+				отправить одному из друзей 👥
+				<i>разбиение задач по категориям работает по настройкам владельца todoist. как он настроил категории – так и будут распределяться входящие задачи, от него самого или от друзей.</i>
+				
+				🔹 <b>важно:</b> чтобы друг мог отправлять тебе задачи, у тебя должен быть todoist и ты должен добавить его в друзья в настройках бота.
+				""");
+		InlineKeyboardMarkup markup = new InlineKeyboardMarkup(
+				List.of(new InlineKeyboardRow(InlineKeyboardButton.builder()
+						.text("назад")
+						.callbackData(Callbacks.FRIENDS_SETTINGS.getCallbackData())
+						.build())));
+		chatValue.setEditReplyKeyboard(markup);
+		chatValue.setEditReplyParseModeHtml();
+	}
+
+	public void friendsRequest(ChatValue chatValue, State state) {
+		chatValue.setReplyText("""
+				<b> добавление друзей! </b>
+				
+				Как поделиться контактом
+				— открываем чат с нужным человеком
+				— нажмите значок трех точек. откроется окошко меню. выберите пункт «Поделиться контактом».
+				— откроется окно — со списком контактов. выберете бот buylist (имя для поиска - buylistFAbot)
+				""");
+		chatValue.setReplyParseModeHtml();
+		chatValue.setState(state);
+	}
+
+
 }

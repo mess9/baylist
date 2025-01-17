@@ -1,0 +1,19 @@
+package org.baylist.dto.telegram;
+
+public enum Action {
+
+	SEND_TASK,
+
+	ADD_FRIEND,
+	REMOVE_FRIEND,
+
+	REGISTERED,
+
+	ADD_CATEGORY,
+	REMOVE_CATEGORY,
+	RENAME_CATEGORY,
+	ADD_VARIANT,
+	REMOVE_VARIANT,
+
+
+}
