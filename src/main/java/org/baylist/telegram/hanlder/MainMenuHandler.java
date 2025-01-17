@@ -33,7 +33,7 @@ public class MainMenuHandler implements DialogHandler {
 			} else {
 				Callbacks callback = Callbacks.fromValue(chatValue.getCallbackData());
 				switch (callback) {
-					case CANCEL -> responseService.cancel(chatValue);
+					case CANCEL -> responseService.cancel(chatValue, true);
 					case MAIN_MENU, START_2_FRIENDS_REQUEST -> menuService.mainMenu(chatValue, true);
 					case DICT_SETTINGS -> menuService.dictionaryMainMenu(chatValue, true);
 					//change token
@@ -57,12 +57,14 @@ public class MainMenuHandler implements DialogHandler {
 			}
 		} else {
 			Update update = chatValue.getUpdate();
-			if (update.hasMessage() && update.getMessage().hasText() && update.getMessage().getText().equals(Commands.MENU.getCommand())) {
+			if (update.hasMessage() && update.getMessage().hasText() && update.getMessage().getText().equals(Commands.MENU.getCommand()) ||
+					update.hasMessage() && update.getMessage().hasText() && update.getMessage().getText().equals(Commands.MENU_MENU.getCommand())) {
 				menuService.mainMenu(chatValue, false);
 			} else if (update.hasMessage() && update.getMessage().hasText() && update.getMessage().getText().length() == 40) {
 				responseService.tokenResponse(chatValue, false);
 			} else {
 				menuService.mainMenu(chatValue, false);
+				chatValue.setReplyText("чёт токен какой-то не правильный");
 			}
 		}
 	}

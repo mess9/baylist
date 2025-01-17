@@ -47,8 +47,10 @@ public enum Callbacks {
 	FRIENDS_HELP("friendsHelp"),
 	MY_FRIENDS("myFriends"),
 	FRIENDS_ME("friendsMe"),
-	REMOVE_FRIEND("removeFriend"),
-	FRIEND_CHOICE("friend:"),
+	REMOVE_MY_FRIEND("removeFriend"),
+	REMOVE_FROM_FRIEND("removeFromFriend"),
+	FRIEND_REMOVE_MY_CHOICE("friendMy:"),
+	FRIEND_REMOVE_FROM_CHOICE("friendFrom:"),
 
 	NOTIFY_SETTINGS("notifySettings"),
 	TODOIST_SETTINGS("todoistSettings"),

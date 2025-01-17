@@ -1,5 +1,6 @@
 package org.baylist.service;
 
+import jakarta.persistence.PersistenceException;
 import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -55,7 +56,11 @@ public class UserService {
 
 	@Transactional
 	public void saveUserInDb(User user) {
-		userRepository.save(user);
+		try {
+			userRepository.save(user);
+		} catch (PersistenceException e) {
+			log.error("не получается сохранить пользователя{}", e.getMessage());
+		}
 	}
 
 	@Transactional
@@ -157,7 +162,7 @@ public class UserService {
 
 	@Transactional
 	@CacheEvict(value = "user", key = "#chatValue.getUser().userId")
-	public void removeFriendsList(ChatValue chatValue) {
+	public void removeMyFriendsList(ChatValue chatValue) {
 		User userFromDb = getUserFromDb(chatValue.getUser().getUserId());
 		List<User> friends = userFromDb.getFriends();
 		InlineKeyboardMarkup markup;
@@ -173,7 +178,7 @@ public class UserService {
 		} else {
 			List<InlineKeyboardRow> rows = new LinkedList<>();
 			friends.forEach(f -> rows.add(new InlineKeyboardRow(InlineKeyboardButton.builder()
-					.callbackData(Callbacks.FRIEND_CHOICE.getCallbackData() + ":" + f.getUserId())
+					.callbackData(Callbacks.FRIEND_REMOVE_MY_CHOICE.getCallbackData() + ":" + f.getUserId())
 					.text(getName(f))
 					.build())));
 			rows.add(new InlineKeyboardRow(InlineKeyboardButton.builder()
@@ -187,13 +192,45 @@ public class UserService {
 	}
 
 	@Transactional
-	public void removeFriend(ChatValue chatValue) {
-		Long userId = Long.parseLong(chatValue.getCallbackData().substring(Callbacks.FRIEND_CHOICE.getCallbackData().length() + 1));
-		User friend = userRepository.findByUserId(userId);
+	@CacheEvict(value = "user", key = "#chatValue.getUser().userId")
+	public void removeFromFriendsList(ChatValue chatValue) {
+		User userFromDb = getUserFromDb(chatValue.getUser().getUserId());
+		List<User> friendMe = getFriendMe(userFromDb.getUserId());
+
+		InlineKeyboardMarkup markup;
+		if (friendMe.isEmpty()) {
+			chatValue.setEditText("тебя никто не добавлял себе в друзья");
+			chatValue.setEditReplyParseModeHtml();
+			markup = new InlineKeyboardMarkup(
+					List.of(new InlineKeyboardRow(InlineKeyboardButton.builder()
+							.text("ээх")
+							.callbackData(Callbacks.FRIENDS_SETTINGS.getCallbackData())
+							.build())
+					));
+		} else {
+			List<InlineKeyboardRow> rows = new LinkedList<>();
+			friendMe.forEach(f -> rows.add(new InlineKeyboardRow(InlineKeyboardButton.builder()
+					.callbackData(Callbacks.FRIEND_REMOVE_FROM_CHOICE.getCallbackData() + ":" + f.getUserId())
+					.text(getName(f))
+					.build())));
+			rows.add(new InlineKeyboardRow(InlineKeyboardButton.builder()
+					.text("назад")
+					.callbackData(Callbacks.FRIENDS_SETTINGS.getCallbackData())
+					.build()));
+			markup = new InlineKeyboardMarkup(rows);
+			chatValue.setEditText("выберете друга, которому вы не хотите отправлять задачи");
+		}
+		chatValue.setEditReplyKeyboard(markup);
+	}
+
+	@Transactional
+	public void removeMyFriend(ChatValue chatValue) {
+		Long friendUserId = Long.parseLong(chatValue.getCallbackData().substring(Callbacks.FRIEND_REMOVE_MY_CHOICE.getCallbackData().length() + 1));
+		User friend = userRepository.findByUserId(friendUserId);
 		User user = getUserFromDb(chatValue.getUser().getUserId());
 		user.getFriends().remove(friend);
 		userRepository.save(user);
-		historyService.changeFriend(chatValue.getUser(), friend, Action.REMOVE_FRIEND);
+		historyService.changeFriend(chatValue.getUser(), friend, Action.REMOVE_MY_FRIEND);
 
 		chatValue.setEditText("вы удалили друга\nживите дальше в проклятом мире, который сами и создали");
 		InlineKeyboardMarkup markup = new InlineKeyboardMarkup(
@@ -203,6 +240,29 @@ public class UserService {
 						.build())
 				));
 		chatValue.setEditReplyKeyboard(markup);
+	}
+
+	@Transactional
+	public void removeFromFriend(ChatValue chatValue) {
+		Long friendUserId = Long.parseLong(chatValue.getCallbackData().substring(Callbacks.FRIEND_REMOVE_FROM_CHOICE.getCallbackData().length() + 1));
+		User friend = getUserFromDb(friendUserId);
+		User user = getUserFromDb(chatValue.getUser().getUserId());
+		friend.getFriends().remove(user);
+		userRepository.save(friend);
+		historyService.changeFriend(chatValue.getUser(), friend, Action.REMOVE_FROM_FRIEND);
+
+		chatValue.setEditText("""
+				друг тебе доверился, открылся
+				а ты его, вычеркнул
+				<i>живи теперь с этим</i>""");
+		InlineKeyboardMarkup markup = new InlineKeyboardMarkup(
+				List.of(new InlineKeyboardRow(InlineKeyboardButton.builder()
+						.text("ээх")
+						.callbackData(Callbacks.FRIENDS_SETTINGS.getCallbackData())
+						.build())
+				));
+		chatValue.setEditReplyKeyboard(markup);
+		chatValue.setEditReplyParseModeHtml();
 	}
 
 	//private

@@ -17,7 +17,7 @@ import java.util.List;
 public class CommandChecker {
 
 	public void checkCommandInput(ChatValue chatValue) {
-		if (!chatValue.isCallback() && chatValue.getInputText().startsWith("/")) {
+		if (!chatValue.isCallback()) {
 			Commands input = Commands.fromValue(chatValue.getInputText());
 			switch (input) {
 				case Commands.START -> chatValue.setState(State.START);
@@ -25,9 +25,11 @@ public class CommandChecker {
 				case Commands.VIEW -> chatValue.setState(State.VIEW);
 				case Commands.REPORT -> chatValue.setState(State.FEEDBACK_REQUEST);
 				case Commands.DICTIONARY -> chatValue.setState(State.DICT_SETTING);
-				case Commands.DEFAULT -> chatValue.setState(State.DEFAULT);
+				case Commands.DEFAULT, DEFAULT_MENU -> chatValue.setState(State.DEFAULT);
 				case Commands.HELP -> chatValue.setState(State.HELP); //todo сделать хелп
-				case Commands.MENU -> chatValue.setState(State.MENU);
+				case Commands.MENU, MENU_MENU -> chatValue.setState(State.MENU);
+				case NOT_COMMAND -> {
+				}
 				default -> chatValue.setState(State.ERROR);
 			}
 		}

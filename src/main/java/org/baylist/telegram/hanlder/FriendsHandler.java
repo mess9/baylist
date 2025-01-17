@@ -27,13 +27,15 @@ public class FriendsHandler implements DialogHandler {
 	public void handle(ChatValue chatValue) {
 		if (chatValue.isCallback()) {
 			String callbackData = chatValue.getCallbackData();
-			if (callbackData.startsWith(Callbacks.FRIEND_CHOICE.getCallbackData())) {
-				userService.removeFriend(chatValue);
+			if (callbackData.startsWith(Callbacks.FRIEND_REMOVE_MY_CHOICE.getCallbackData())) {
+				userService.removeMyFriend(chatValue);
+			} else if (callbackData.startsWith(Callbacks.FRIEND_REMOVE_FROM_CHOICE.getCallbackData())) {
+				userService.removeFromFriend(chatValue);
 			} else {
 				Callbacks callback = Callbacks.fromValue(callbackData);
 				switch (callback) {
 					case MAIN_MENU -> menuService.mainMenu(chatValue, true);
-					case CANCEL -> responseService.cancel(chatValue);
+					case CANCEL -> responseService.cancel(chatValue, true);
 					case FRIENDS_SETTINGS, START_DONE -> menuService.friendsSettings(chatValue, true);
 					case MY_FRIENDS -> responseService.listMyFriends(chatValue);
 					case FRIENDS_ME -> responseService.listFriendsMe(chatValue);
@@ -45,7 +47,8 @@ public class FriendsHandler implements DialogHandler {
 							responseService.doneWithouFriends(chatValue, State.FRIENDS);
 						}
 					}
-					case REMOVE_FRIEND -> userService.removeFriendsList(chatValue);
+					case REMOVE_MY_FRIEND -> userService.removeMyFriendsList(chatValue);
+					case REMOVE_FROM_FRIEND -> userService.removeFromFriendsList(chatValue);
 				}
 			}
 		} else {

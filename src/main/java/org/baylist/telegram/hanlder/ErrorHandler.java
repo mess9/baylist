@@ -18,6 +18,8 @@ public class ErrorHandler implements DialogHandler {
 			chatValue.setReplyText("""
 					у-у-упс. что-то пошло не так :(
 					
+					настоятельная просьба не тыкать кнопочки выше по течению диалога, только ближайшие
+					
 					/report - сообщить об ошибке
 					/menu - в главное меню
 					/default - в режим ввода задач

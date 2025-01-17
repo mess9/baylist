@@ -20,6 +20,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardRow;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -188,7 +189,10 @@ public class DictionaryService {
 	}
 
 	private List<String> splitInput(String input) {
-		return Arrays.stream(input.split("\n")).toList();
+		if (input != null) {
+			return Arrays.stream(input.split("\n")).toList();
+		}
+		return new ArrayList<>();
 		// мб позже добавить вариант разделения по запятым или пробелам, хз пока
 	}
 

@@ -6,7 +6,6 @@ import org.baylist.db.entity.User;
 import org.baylist.dto.telegram.Callbacks;
 import org.baylist.dto.telegram.ChatValue;
 import org.baylist.dto.telegram.Commands;
-import org.baylist.dto.telegram.State;
 import org.baylist.service.CommonResponseService;
 import org.baylist.service.MenuService;
 import org.baylist.service.TodoistService;
@@ -49,15 +48,18 @@ public class DefaultHandler implements DialogHandler {
 					case FRIENDS_SETTINGS -> menuService.friendsSettings(chatValue, true);
 					case MAIN_MENU -> menuService.mainMenu(chatValue, true);
 					case DICT_SETTINGS -> menuService.dictionaryMainMenu(chatValue, true);
-					case CANCEL -> responseService.cancel(chatValue);
+					case CANCEL -> responseService.cancel(chatValue, true);
 				}
 			}
 		} else {
-			if (chatValue.getInputText().equals(Commands.DEFAULT.getCommand())) {
-				responseService.cancel(chatValue);
+			String inputText = chatValue.getInputText();
+			if (inputText.equals(Commands.DEFAULT.getCommand())) {
+				responseService.cancel(chatValue, false);
+			} else if (inputText.equals(Commands.DEFAULT_MENU.getCommand())) {
+				responseService.cancel(chatValue, false);
+			} else {
+				checkAndInput(chatValue);
 			}
-			checkAndInput(chatValue);
-			chatValue.setState(State.DEFAULT);
 		}
 	}
 

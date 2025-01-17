@@ -17,6 +17,8 @@ public enum Commands {
 	DEFAULT("/default", "режим ввода задач"),
 	HELP("/help", "описание функционала бота, примеры использования"),
 	MENU("/menu", "главное меню бота"),
+	MENU_MENU("\uD83D\uDCD1 меню", "главное меню бота"),
+	DEFAULT_MENU("✏ ввод задач", "главное меню бота"),
 	NOT_COMMAND("is_not_command", "for error handler"),
 	;
 

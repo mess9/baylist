@@ -47,7 +47,7 @@ public class DictViewHandler implements DialogHandler {
 				menuService.dictionaryMainMenu(chatValue, true);
 				paginationStateMap.remove(chatValue.getUser().getUserId());
 			} else if (callbackData.startsWith(Callbacks.CATEGORY_CHOICE.getCallbackData())) {
-				handleCategoryChoice(chatValue, callbackData);
+				handleCategoryChoice(chatValue, callbackData, false);
 			} else if (callbackData.equals(Callbacks.DICT_VIEW_PAGINATION_FORWARD.getCallbackData())) {
 				updatePagination(chatValue, true);
 			} else if (callbackData.equals(Callbacks.DICT_VIEW_PAGINATION_BACK.getCallbackData())) {
@@ -58,14 +58,14 @@ public class DictViewHandler implements DialogHandler {
 		}
 	}
 
-	public void handleCategoryChoice(ChatValue chatValue, String callbackData) {
+	public void handleCategoryChoice(ChatValue chatValue, String callbackData, boolean isRemove) {
 		String categoryName = callbackData.substring(Callbacks.CATEGORY_CHOICE.getCallbackData().length());
 		List<String> variants = dictionaryService.getVariants(categoryName);
 		Map<Integer, List<String>> paginate = paginate(variants);
 
 		paginationStateMap.put(chatValue.getUser().getUserId(), new PaginationState(1, paginate, categoryName));
 
-		sendPaginatedResponse(chatValue, categoryName, paginate, 1);
+		sendPaginatedResponse(chatValue, categoryName, paginate, 1, isRemove);
 	}
 
 	private void updatePagination(ChatValue chatValue, boolean forward) {
@@ -76,7 +76,7 @@ public class DictViewHandler implements DialogHandler {
 
 			if (newPage >= 1 && newPage <= state.getPages().size()) {
 				state.setCurrentPage(newPage);
-				sendPaginatedResponse(chatValue, state.getCategoryName(), state.getPages(), newPage);
+				sendPaginatedResponse(chatValue, state.getCategoryName(), state.getPages(), newPage, false);
 			}
 		}
 	}
@@ -84,7 +84,8 @@ public class DictViewHandler implements DialogHandler {
 	private void sendPaginatedResponse(ChatValue chatValue,
 	                                   String categoryName,
 	                                   Map<Integer, List<String>> paginate,
-	                                   int currentPage) {
+	                                   int currentPage,
+	                                   boolean isRemove) {
 		StringBuilder sb = new StringBuilder();
 		InlineKeyboardMarkup markup = null;
 		if (paginate.isEmpty()) {
@@ -92,7 +93,9 @@ public class DictViewHandler implements DialogHandler {
 		} else {
 			sb.append("Варианты для категории - ").append(categoryName).append(":\n");
 			paginate.get(currentPage).forEach(v -> sb.append("<code>").append(v).append("</code>\n"));
-			sb.append("\n<i>прошу перечислить в столбик, один или больше вариантов из этой категории</i>\n>");
+			if (isRemove) {
+				sb.append("\n<i>введи список вариантов которые нужно удалить, в столбик. один или больше вариантов из этой категории</i>\n");
+			}
 			List<InlineKeyboardRow> rows = new LinkedList<>();
 			rows.add(new InlineKeyboardRow(List.of(
 					InlineKeyboardButton.builder()
