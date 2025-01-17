@@ -1,9 +1,9 @@
-.buy-category-section {
+.category-section {
 	padding-bottom: 0.7rem;
 	box-shadow: 0px 0px 13px 2px rgba(0,0,0,0.75);
 }
 
-.buy-category__header {
+.category__header {
 	display: flex;
 	gap: 1rem;
 	align-items: stretch;
@@ -17,7 +17,7 @@
 	background: linear-gradient(180deg, rgba(30,30,30,1) 0%, rgba(30,30,30,0.7) 40%, rgba(255,255,255,0.1) 100%);
 }
 
-.buy-category__drop-down-control-label {
+.category__drop-down-control-label {
 	cursor: pointer;
 
 	display: flex;
@@ -30,11 +30,11 @@
  	transition: 0.15s ease background-color;
 }
 
-.buy-category__drop-down-control-label:active {
+.category__drop-down-control-label:active {
 	background-color: var(--white-two-tenth);
 }
 
-.buy-category__drop-down-checbox {
+.category__drop-down-checbox {
 	content: "";
 
 	display: block;
@@ -53,7 +53,7 @@
 	mask-repeat: no-repeat;
 }
 
-.buy-category__drop-down-checbox:hover {
+.category__drop-down-checbox:hover {
 	cursor: pointer;
 }
 
@@ -61,18 +61,18 @@
 
 }
 
-.buy-category__drop-down-checbox:checked {
+.category__drop-down-checbox:checked {
 	transform: rotate(-90deg);
 }
 
 
-.buy-category__controls {
+.category__controls {
 	display: flex;
 	gap: 0.6rem;
 	padding-right: 0.4rem;
 }
 
-.buy-category__add-item-button, .buy-category__more-button {
+.category__add-item-button, .category__more-button {
 	cursor: pointer;
 
 	width: 3.6rem;
@@ -85,45 +85,45 @@
 }
 
 
-.buy-category__add-item-button {
+.category__add-item-button {
 	color: var(--bloody-red);
 }
 
-.buy-category__more-button {
+.category__more-button {
 	color: var(--white);
 }
 
 
 @media (hover: hover) and (pointer: fine)  {
-	.buy-category__add-item-button:hover, .buy-category__more-button:hover {
+	.category__add-item-button:hover, .category__more-button:hover {
 		transform: scale(1.08);
 	}
 }
 
 @media (hover: none) {
-	.buy-category__add-item-button:active, .buy-category__more-button:active {
+	.category__add-item-button:active, .category__more-button:active {
 		background-color: var(--white-two-tenth);
 	}
 }
 
-.buy-category__add-item-button:active, .buy-category__more-button:active {
+.category__add-item-button:active, .category__more-button:active {
 	transform: scale(1);
 }
 
 
-.buy-category-ul {
+.category-ul {
 	overflow: hidden;
 }
 
-.buy-category__item-li:last-child {
+.category__item-li:last-child {
 	border: none;
 }
 
-.buy-category__item-li--delimeter-top {
+.category__item-li--delimeter-top {
 	border-top: 1px solid var(--white-tenth);
 }
 
-.buy-category__item-li--delimeter-bottom {
+.category__item-li--delimeter-bottom {
 	border-bottom: 1px solid var(--white-tenth);
 }
 

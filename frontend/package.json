@@ -43,7 +43,6 @@
   },
   "dependencies": {
     "@solidjs/router": "^0.15.2",
-    "@thisbeyond/solid-dnd": "^0.7.5",
     "solid-js": "^1.9.3"
   },
   "eslintConfig": {
