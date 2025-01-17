@@ -1,8 +1,11 @@
 package org.baylist.telegram;
 
+import lombok.AccessLevel;
+import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.baylist.dto.telegram.ChatValue;
 import org.baylist.dto.telegram.State;
+import org.baylist.service.MenuService;
 import org.baylist.service.UserService;
 import org.baylist.telegram.hanlder.config.CommandChecker;
 import org.baylist.telegram.hanlder.config.DialogHandler;
@@ -25,21 +28,26 @@ import static org.baylist.util.log.TgLog.outputLog;
 
 @Component
 @Slf4j
+@FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 public class Bot implements SpringLongPollingBot, LongPollingSingleThreadUpdateConsumer {
 
-	private final String TOKEN_TG = System.getenv("TOKEN_TG");
-	private final UserService userService;
-	private final TelegramClient telegramClient;
-	private final CommandChecker commandChecker;
-	private final Map<State, DialogHandler> stateHandlers;
+	String TOKEN_TG = System.getenv("TOKEN_TG");
+	UserService userService;
+	MenuService menuService;
+	TelegramClient telegramClient;
+	CommandChecker commandChecker;
+	Map<State, DialogHandler> stateHandlers;
+
 
 	public Bot(UserService userService,
 	           CommandChecker commandChecker,
+	           MenuService menuService,
 	           Map<State, DialogHandler> stateHandlers) {
 		telegramClient = new OkHttpTelegramClient(getBotToken());
 		this.userService = userService;
 		this.commandChecker = commandChecker;
 		this.stateHandlers = stateHandlers;
+		this.menuService = menuService;
 	}
 
 
@@ -54,6 +62,8 @@ public class Bot implements SpringLongPollingBot, LongPollingSingleThreadUpdateC
 		stateHandlers.get(state).handle(chatValue);
 
 		userService.saveUserInCache(chatValue.getUser());
+
+		menuService.defaultMenu(chatValue);
 		sendMessageToTelegram(chatValue);
 	}
 

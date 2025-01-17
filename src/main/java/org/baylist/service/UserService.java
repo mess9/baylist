@@ -1,5 +1,6 @@
 package org.baylist.service;
 
+import jakarta.persistence.PersistenceException;
 import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -55,7 +56,11 @@ public class UserService {
 
 	@Transactional
 	public void saveUserInDb(User user) {
-		userRepository.save(user);
+		try {
+			userRepository.save(user);
+		} catch (PersistenceException e) {
+			log.error("не получается сохранить пользователя{}", e.getMessage());
+		}
 	}
 
 	@Transactional

@@ -4,11 +4,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.baylist.dto.telegram.Callbacks;
 import org.baylist.dto.telegram.ChatValue;
+import org.baylist.dto.telegram.Commands;
 import org.baylist.dto.telegram.State;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardRow;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 
 import java.util.List;
 
@@ -16,6 +20,20 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 public class MenuService {
+
+	public void defaultMenu(ChatValue chatValue) {
+		if (chatValue.getMessage() != null) {
+			if (chatValue.getMessage().getReplyMarkup() == null) {
+				ReplyKeyboardMarkup markup = new ReplyKeyboardMarkup(
+						List.of(new KeyboardRow(List.of(
+								KeyboardButton.builder().text(Commands.DEFAULT_MENU.getCommand()).build(),
+								KeyboardButton.builder().text(Commands.MENU_MENU.getCommand()).build()
+						))), true, false, true, " =^..^= кнопотьки =^..^= ", true
+				);
+				chatValue.setReplyKeyboard(markup);
+			}
+		}
+	}
 
 	public void friendsSettings(ChatValue chatValue, boolean isEdit) {
 		InlineKeyboardMarkup markup = new InlineKeyboardMarkup(List.of(
@@ -150,7 +168,7 @@ public class MenuService {
 						.callbackData(Callbacks.INFO.getCallbackData())
 						.build()),
 				new InlineKeyboardRow(InlineKeyboardButton.builder()
-						.text("❓ справка")
+						.text("❓        справка⠀⠀⠀⠀⠀⠀⠀")
 						.callbackData(Callbacks.HELP.getCallbackData())
 						.build()),
 				new InlineKeyboardRow(InlineKeyboardButton.builder()

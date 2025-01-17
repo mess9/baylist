@@ -35,7 +35,7 @@ public class FriendsHandler implements DialogHandler {
 				Callbacks callback = Callbacks.fromValue(callbackData);
 				switch (callback) {
 					case MAIN_MENU -> menuService.mainMenu(chatValue, true);
-					case CANCEL -> responseService.cancel(chatValue);
+					case CANCEL -> responseService.cancel(chatValue, true);
 					case FRIENDS_SETTINGS, START_DONE -> menuService.friendsSettings(chatValue, true);
 					case MY_FRIENDS -> responseService.listMyFriends(chatValue);
 					case FRIENDS_ME -> responseService.listFriendsMe(chatValue);

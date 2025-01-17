@@ -7,6 +7,7 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 
 @Data
 public class ChatValue {
@@ -83,7 +84,7 @@ public class ChatValue {
 		this.editMessage.setParseMode("html");
 	}
 
-    public void setReplyKeyboard(InlineKeyboardMarkup markup) {
+	public void setReplyKeyboard(ReplyKeyboard markup) {
         this.message.setReplyMarkup(markup);
     }
 

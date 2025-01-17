@@ -125,11 +125,22 @@ public class StartHandler implements DialogHandler {
 	}
 
 	private static void error(ChatValue chatValue) {
-		chatValue.setReplyText("не понимаю");
+		chatValue.setReplyText("""
+				не могу понять сообщение :(
+				
+				я бот простой, прочитать только то могу, что ожидаю тут увидеть, например токен, или контакт
+				(если был введён токен или контакт - то вероятно в них закралась ошибка, перезапусти настройку и попробуй ещё раз)
+				другой текст я пока не понимаю
+				
+				если у тебя не настроена связь с todoist и/или никто из твоих друзей не добавил тебя себе в этом боте как потенциального отправителя задач
+				то увы, для тебя, этот бот пока что будет бесполезен
+				
+				(потом, когда мы сделаем свой ui вместо todoist - нигде не нужно будет регистрироваться, а пока только так)
+				""");
 		InlineKeyboardMarkup markup = new InlineKeyboardMarkup(
 				List.of(new InlineKeyboardRow(InlineKeyboardButton.builder()
 						.text("давай всё заново")
-						.callbackData(Callbacks.START_2_FRIENDS_REQUEST.getCallbackData())
+						.callbackData(Callbacks.START.getCallbackData())
 						.build())
 				));
 		chatValue.setReplyKeyboard(markup);

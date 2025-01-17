@@ -38,7 +38,7 @@ public class DictRemoveVariantHandler implements DialogHandler {
 			} else if (callbackData.equals(Callbacks.DICT_SETTINGS.getCallbackData())) {
 				menuService.dictionaryMainMenu(chatValue, true);
 			} else if (callbackData.startsWith(Callbacks.CATEGORY_CHOICE.getCallbackData())) {
-				dictViewHandler.handleCategoryChoice(chatValue, callbackData);
+				dictViewHandler.handleCategoryChoice(chatValue, callbackData, true);
 			}
 		} else {
 			String variants = chatValue.getInputText();
