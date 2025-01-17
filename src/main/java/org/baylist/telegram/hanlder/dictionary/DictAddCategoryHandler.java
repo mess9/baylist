@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
 public class DictAddCategoryHandler implements DialogHandler {
 
 	DictionaryService dictionaryService;
-	CommonResponseService commonResponseService;
+	CommonResponseService responseService;
 	MenuService menuService;
 
 	//todo валидация на уникальность категорий пользователя
@@ -32,7 +32,7 @@ public class DictAddCategoryHandler implements DialogHandler {
 				chatValue.setReplyText("ок, продолжим редактировать словарик");
 				menuService.dictionaryMainMenu(chatValue, true);
 			} else if (callbackData.equals(Callbacks.CANCEL.getCallbackData())) {
-				commonResponseService.cancelMessage(chatValue);
+				responseService.cancelMessage(chatValue);
 			}
 		} else {
 			String category = chatValue.getUpdate().getMessage().getText().trim().toLowerCase();

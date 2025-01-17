@@ -10,12 +10,12 @@ import org.springframework.stereotype.Component;
 @AllArgsConstructor
 public class ViewHandler implements DialogHandler {
 
-	private CommonResponseService commonResponseService;
+	private CommonResponseService responseService;
 
 	// state VIEW
 	@Override
 	public void handle(ChatValue chatValue) {
-		commonResponseService.view(chatValue, false);
+		responseService.checkAndView(chatValue, false);
 	}
 
 

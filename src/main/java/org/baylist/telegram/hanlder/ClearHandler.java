@@ -19,7 +19,7 @@ import java.util.List;
 public class ClearHandler implements DialogHandler {
 
 	private TodoistService todoist;
-	private CommonResponseService commonResponseService;
+	private CommonResponseService responseService;
 
 	// state CLEAR
 	@Override
@@ -29,7 +29,7 @@ public class ClearHandler implements DialogHandler {
 			if (callbackData.equals(Callbacks.APPROVE.getCallbackData())) {
 				chatValue.setReplyText(todoist.clearBuyList(chatValue));
 			} else if (callbackData.equals(Callbacks.CANCEL.getCallbackData())) {
-				commonResponseService.cancelMessage(chatValue);
+				responseService.cancelMessage(chatValue);
 			}
 			chatValue.setState(State.DEFAULT);
 		} else {

@@ -2,14 +2,19 @@ package org.baylist.telegram.hanlder.dictionary;
 
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.baylist.dto.telegram.Action;
 import org.baylist.dto.telegram.Callbacks;
 import org.baylist.dto.telegram.ChatValue;
 import org.baylist.dto.telegram.State;
 import org.baylist.service.CommonResponseService;
 import org.baylist.service.DictionaryService;
+import org.baylist.service.HistoryService;
 import org.baylist.service.MenuService;
 import org.baylist.telegram.hanlder.config.DialogHandler;
 import org.springframework.stereotype.Component;
+
+import java.util.Arrays;
+import java.util.List;
 
 
 @Component
@@ -18,9 +23,10 @@ import org.springframework.stereotype.Component;
 public class DictRemoveVariantHandler implements DialogHandler {
 
 	DictionaryService dictionaryService;
-	CommonResponseService commonResponseService;
+	CommonResponseService responseService;
 	DictViewHandler dictViewHandler;
 	MenuService menuService;
+	HistoryService historyService;
 
 	// state DICT_REMOVE_VARIANT
 	@Override
@@ -28,7 +34,7 @@ public class DictRemoveVariantHandler implements DialogHandler {
 		if (chatValue.isCallback()) {
 			String callbackData = chatValue.getCallbackData();
 			if (callbackData.equals(Callbacks.CANCEL.getCallbackData())) {
-				commonResponseService.cancelMessage(chatValue);
+				responseService.cancelMessage(chatValue);
 			} else if (callbackData.equals(Callbacks.DICT_SETTINGS.getCallbackData())) {
 				menuService.dictionaryMainMenu(chatValue, true);
 			} else if (callbackData.startsWith(Callbacks.CATEGORY_CHOICE.getCallbackData())) {
@@ -36,22 +42,20 @@ public class DictRemoveVariantHandler implements DialogHandler {
 			}
 		} else {
 			String variants = chatValue.getInputText();
-			if (validate(variants)) {
-				dictionaryService.removeVariants(variants);
+			if (dictionaryService.validate(variants)) {
+				List<String> variantList = Arrays.stream(variants.split("\n")).toList();
+				dictionaryService.removeVariants(variantList);
+				historyService.changeDict(chatValue.getUser().getUserId(), Action.REMOVE_VARIANT, variantList.toString());
 				menuService.dictionaryMainMenu(chatValue, false);
 				chatValue.setState(State.DICT_SETTING);
-				commonResponseService.textChoiceRemoveVariant(chatValue, true);
+				responseService.textChoiceRemoveVariant(chatValue, true);
 			} else {
-				commonResponseService.textChoiceRemoveVariant(chatValue, false);
-				//todo в это ветвление не попасть, нужна валидация на список вариантов
+				responseService.textChoiceRemoveVariant(chatValue, false);
 			}
 
 		}
 	}
 
-	private boolean validate(String variants) {
-		return variants != null && !variants.isBlank();
-	}
 }
 
 

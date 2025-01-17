@@ -2,12 +2,14 @@ package org.baylist.telegram.hanlder.dictionary;
 
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.baylist.dto.telegram.Action;
 import org.baylist.dto.telegram.Callbacks;
 import org.baylist.dto.telegram.ChatValue;
 import org.baylist.dto.telegram.SelectedCategoryState;
 import org.baylist.dto.telegram.State;
 import org.baylist.service.CommonResponseService;
 import org.baylist.service.DictionaryService;
+import org.baylist.service.HistoryService;
 import org.baylist.service.MenuService;
 import org.baylist.service.TgButtonService;
 import org.baylist.telegram.hanlder.config.DialogHandler;
@@ -25,9 +27,10 @@ public class DictRemoveCategoryHandler implements DialogHandler {
 
 	Map<Long, SelectedCategoryState> selectedCategoryState = new ConcurrentHashMap<>();
 	DictionaryService dictionaryService;
-	CommonResponseService commonResponseService;
+	CommonResponseService responseService;
 	TgButtonService tgButtonService;
 	MenuService menuService;
+	HistoryService historyService;
 
 	// state DICT_REMOVE_CATEGORY
 	@Override
@@ -47,7 +50,7 @@ public class DictRemoveCategoryHandler implements DialogHandler {
 				} else {
 					selectedCategoryState.put(userId, new SelectedCategoryState(categories, new ArrayList<>(List.of(category))));
 				}
-				commonResponseService.textChoiceRemoveCategory(chatValue, true);
+				responseService.textChoiceRemoveCategory(chatValue, true);
 				tgButtonService.categoriesChoiceKeyboardEdit(chatValue, State.DICT_REMOVE_CATEGORY,
 						selectedCategoryState.get(userId));
 			} else if (callbackData.startsWith(Callbacks.REMOVE_CATEGORY.getCallbackData())) {
@@ -64,6 +67,7 @@ public class DictRemoveCategoryHandler implements DialogHandler {
 							"категория - [ <b>" + selectedCategories.getFirst() + "</b> ] - удалена",
 							true);
 				}
+				historyService.changeDict(chatValue.getUser().getUserId(), Action.REMOVE_CATEGORY, selectedCategories.toString());
 				chatValue.setState(State.DICT_SETTING);
 				chatValue.setReplyParseModeHtml();
 			} else if (callbackData.equals(Callbacks.DICT_SETTINGS.getCallbackData())) {

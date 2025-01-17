@@ -5,9 +5,9 @@ import lombok.experimental.FieldDefaults;
 import org.baylist.dto.telegram.Callbacks;
 import org.baylist.dto.telegram.ChatValue;
 import org.baylist.dto.telegram.State;
+import org.baylist.service.CommonResponseService;
 import org.baylist.service.DictionaryService;
 import org.baylist.service.MenuService;
-import org.baylist.service.CommonResponseService;
 import org.baylist.service.TgButtonService;
 import org.baylist.telegram.hanlder.config.DialogHandler;
 import org.springframework.stereotype.Component;
@@ -22,7 +22,7 @@ import java.util.List;
 @FieldDefaults(makeFinal = true, level = lombok.AccessLevel.PRIVATE)
 public class DictMenuHandler implements DialogHandler {
 
-	CommonResponseService commonResponseService;
+	CommonResponseService responseService;
 	DictionaryService dictionaryService;
 	TgButtonService tgButtonService;
 	MenuService menuService;
@@ -35,14 +35,14 @@ public class DictMenuHandler implements DialogHandler {
 			Callbacks callback = Callbacks.fromValue(chatValue.getCallbackData());
 			switch (callback) {
 				case MAIN_MENU -> menuService.mainMenu(chatValue, true);
-				case CANCEL -> commonResponseService.cancelMessage(chatValue);
+				case CANCEL -> responseService.cancelMessage(chatValue);
 				case DICT_VIEW -> dictView(chatValue);
 				case DICT_ADD_CATEGORY -> addCategory(chatValue);
 				case DICT_ADD_TASKS_TO_CATEGORY -> addTaskToCategory(chatValue);
 				case DICT_REMOVE_CATEGORY -> removeCategory(chatValue);
 				case DICT_RENAME_CATEGORY -> renameCategory(chatValue);
 				case DICT_REMOVE_VARIANT -> removeVariants(chatValue);
-				case DICT_HELP -> dictHelp(chatValue);
+				case DICT_HELP -> responseService.dictHelp(chatValue);
 				case DICT_SETTINGS -> menuService.dictionaryMainMenu(chatValue, true);
 				default -> chatValue.setState(State.ERROR);
 			}
@@ -84,7 +84,7 @@ public class DictMenuHandler implements DialogHandler {
 	}
 
 	private void removeCategory(ChatValue chatValue) {
-		commonResponseService.textChoiceRemoveCategory(chatValue, true);
+		responseService.textChoiceRemoveCategory(chatValue, true);
 		tgButtonService.setCategoriesChoiceKeyboard(chatValue, State.DICT_REMOVE_CATEGORY, true);
 	}
 
@@ -96,34 +96,6 @@ public class DictMenuHandler implements DialogHandler {
 	private void removeVariants(ChatValue chatValue) {
 		chatValue.setEditText("выбери категорию, из которой удалить варианты задач");
 		tgButtonService.setCategoriesChoiceKeyboard(chatValue, State.DICT_REMOVE_VARIANT, true);
-	}
-
-	private static void dictHelp(ChatValue chatValue) {
-		chatValue.setEditText("""
-				<i><b>категории</b> и <b>варианты</b>, это мой <u>внутренний словарик</u> для того что бы я мог раскидать список вводимых тобой задач, по категориям в проекте todoist.</i>
-				<i>категория не появятся в проекте todoist до тех пор пока я не отправлю в неё задачку.</i>
-				<i>а чтобы задачка туда отправилась, я должен про неё знать. для этого мы сейчас и заполняем этот словарик</i>
-				
-				<b>пример использования:</b>
-				в словарике есть 2 категории
-				категория 1 - <i>продукты</i>.
-				категория 2 - <i>пункты выдачи</i>.
-				в <i>продуктах</i> есть варианты -> <code>помидоры, картошка, морковка</code>
-				в <i>пунктах выдачи</i> -> <code>вб, озон, почта</code>
-				
-				если ты отправишь мне сообщение из двух строк
-				<code>морковка</code>
-				<code>вб</code>
-				
-				то в проекте todoist - появится 2 категории, и в каждой по одной задаче
-				""");
-		chatValue.setEditReplyParseModeHtml();
-		chatValue.setState(State.DICT_SETTING);
-		chatValue.setEditReplyKeyboard(new InlineKeyboardMarkup(List.of(new InlineKeyboardRow(
-				InlineKeyboardButton.builder()
-						.text("ok")
-						.callbackData(Callbacks.DICT_SETTINGS.getCallbackData())
-						.build()))));
 	}
 
 

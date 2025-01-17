@@ -59,4 +59,8 @@ public class User {
 	)
 	private List<User> friends = new ArrayList<>();
 
+	public String getBearerToken() {
+		return "Bearer " + todoistToken;
+	}
+
 }

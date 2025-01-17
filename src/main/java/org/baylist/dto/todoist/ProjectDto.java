@@ -9,11 +9,11 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Data
-public class ProjectDb {
+public class ProjectDto {
 
 	private Project project;
 	private List<Task> tasks;
-	private List<SectionDb> sections;
+	private List<SectionDto> sections;
 
 
 	@Override

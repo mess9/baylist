@@ -1,12 +1,15 @@
 package org.baylist.service;
 
 import jakarta.transaction.Transactional;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.baylist.db.entity.Dialog;
 import org.baylist.db.entity.User;
 import org.baylist.db.repo.UserRepository;
+import org.baylist.dto.telegram.Action;
 import org.baylist.dto.telegram.Callbacks;
 import org.baylist.dto.telegram.ChatValue;
 import org.baylist.dto.telegram.State;
@@ -28,16 +31,20 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static org.baylist.dto.Constants.FIL_USER_ID;
 import static org.baylist.dto.Constants.STRING_FIL_USER_ID;
+import static org.baylist.util.Util.getName;
 
 @Component
 @RequiredArgsConstructor
 @Slf4j
+@FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 public class UserService {
 
-	private final UserRepository userRepository;
-	private final ApplicationContext context;
+	UserRepository userRepository;
+	ApplicationContext context;
+	HistoryService historyService;
+
 	@Getter
-	private final Set<Long> modifiedUserIds = ConcurrentHashMap.newKeySet();
+	Set<Long> modifiedUserIds = ConcurrentHashMap.newKeySet();
 
 
 	@CachePut(value = "user", key = "#user.userId")
@@ -86,6 +93,7 @@ public class UserService {
 			if (existFriend(user, friend.getUserId())) {
 				return false;
 			} else {
+				historyService.changeFriend(chatValue.getUser(), friend, Action.ADD_FRIEND);
 				return saveFriend(user, friend);
 			}
 		} else {
@@ -164,18 +172,10 @@ public class UserService {
 					));
 		} else {
 			List<InlineKeyboardRow> rows = new LinkedList<>();
-			friends.forEach(f -> {
-				String name;
-				if (f.getLastName() != null) {
-					name = f.getFirstName() + " " + f.getLastName();
-				} else {
-					name = f.getFirstName();
-				}
-				rows.add(new InlineKeyboardRow(InlineKeyboardButton.builder()
-						.callbackData(Callbacks.FRIEND_CHOICE.getCallbackData() + ":" + f.getUserId())
-						.text(name)
-						.build()));
-			});
+			friends.forEach(f -> rows.add(new InlineKeyboardRow(InlineKeyboardButton.builder()
+					.callbackData(Callbacks.FRIEND_CHOICE.getCallbackData() + ":" + f.getUserId())
+					.text(getName(f))
+					.build())));
 			rows.add(new InlineKeyboardRow(InlineKeyboardButton.builder()
 					.text("назад")
 					.callbackData(Callbacks.FRIENDS_SETTINGS.getCallbackData())
@@ -193,6 +193,7 @@ public class UserService {
 		User user = getUserFromDb(chatValue.getUser().getUserId());
 		user.getFriends().remove(friend);
 		userRepository.save(user);
+		historyService.changeFriend(chatValue.getUser(), friend, Action.REMOVE_FRIEND);
 
 		chatValue.setEditText("вы удалили друга\nживите дальше в проклятом мире, который сами и создали");
 		InlineKeyboardMarkup markup = new InlineKeyboardMarkup(
@@ -221,6 +222,7 @@ public class UserService {
 		userRepository.save(newUser);
 		chatValue.setUser(newUser);
 		log.info("registered new user - {}", newUser.getFirstName());
+		historyService.register(newUser, Action.REGISTERED);
 	}
 
 }

@@ -7,7 +7,7 @@ import org.baylist.dto.todoist.api.Task;
 import java.util.List;
 
 @Data
-public class SectionDb {
+public class SectionDto {
 
     private Section section;
     private List<Task> tasks;
