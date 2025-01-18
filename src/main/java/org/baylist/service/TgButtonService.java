@@ -43,29 +43,22 @@ public class TgButtonService {
 		List<InlineKeyboardRow> categoryButtons = selectedCategoryState.getCategories().stream()
 				.peek(c -> maxLength.set(Math.max(maxLength.get(), c.length())))
 				.map(c -> {
-					StringBuilder sb = new StringBuilder();
+					String invisibleSpace = "⠀";
+					String leftPadding = "☐ - ";
 					if (selectedCategoryState.getSelectedCategories().contains(c)) {
-						return new InlineKeyboardRow(
-								InlineKeyboardButton.builder()
-										.text(sb
-												.append("☑  -   ")
-												.append(" ".repeat(maxLength.get() - c.length()))
-												.append(c)
-												.toString())
-										.callbackData(Callbacks.CATEGORY_CHOICE.getCallbackData() + c)
-										.build());
-					} else {
-						return new InlineKeyboardRow(
-								InlineKeyboardButton.builder()
-										.text(sb
-												.append("☐  -   ")
-												.append(" ".repeat(maxLength.get() - c.length()))
-												.append(c)
-												.toString())
-										.callbackData(Callbacks.CATEGORY_CHOICE.getCallbackData() + c)
-										.build());
+						leftPadding = "☑ - ";
 					}
-				}).collect(Collectors.toList());
+
+					int paddingSize = maxLength.get() - c.length();
+					String paddedText = leftPadding + c + (invisibleSpace.repeat(paddingSize));
+
+					return new InlineKeyboardRow(
+							InlineKeyboardButton.builder()
+									.text(paddedText)
+									.callbackData(Callbacks.CATEGORY_CHOICE.getCallbackData() + c)
+									.build());
+				})
+				.collect(Collectors.toList());
 		categoryButtons.add(new InlineKeyboardRow(List.of(InlineKeyboardButton.builder()
 						.text("сжечь!")
 						.callbackData(Callbacks.REMOVE_CATEGORY.getCallbackData())
