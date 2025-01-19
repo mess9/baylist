@@ -2,6 +2,7 @@ package org.baylist.telegram.hanlder.dictionary;
 
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.baylist.db.entity.Category;
 import org.baylist.dto.telegram.Action;
 import org.baylist.dto.telegram.Callbacks;
 import org.baylist.dto.telegram.ChatValue;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
@@ -38,41 +40,50 @@ public class DictRemoveCategoryHandler implements DialogHandler {
 		if (chatValue.isCallback()) {
 			String callbackData = chatValue.getCallbackData();
 			if (callbackData.startsWith(Callbacks.CATEGORY_CHOICE.getCallbackData())) {
-				String category = callbackData.substring(Callbacks.CATEGORY_CHOICE.getCallbackData().length());
-				List<String> categories = dictionaryService.getCategories();
-				Long userId = chatValue.getUser().getUserId();
+				List<Category> allCategories = dictionaryService.getCategoriesByUserId(chatValue.getUserId());
+
+				Long removalCategoryId = Long.parseLong(callbackData.substring(Callbacks.CATEGORY_CHOICE.getCallbackData().length()));
+				Category removalCategory = allCategories.stream().filter(c -> Objects.equals(c.getId(), removalCategoryId)).findFirst().orElse(null);
+
+				Long userId = chatValue.getUserId();
+
 				if (selectedCategoryState.containsKey(userId)) {
-					if (!selectedCategoryState.get(userId).getSelectedCategories().contains(category)) {
-						selectedCategoryState.get(userId).getSelectedCategories().add(category);
+					SelectedCategoryState selectedState = selectedCategoryState.get(userId);
+					if (!selectedState.getSelectedCategories().contains(removalCategory)) {
+						selectedState.getSelectedCategories().add(removalCategory);
 					} else {
-						selectedCategoryState.get(userId).getSelectedCategories().remove(category);
+						selectedState.getSelectedCategories().remove(removalCategory);
 					}
 				} else {
-					selectedCategoryState.put(userId, new SelectedCategoryState(categories, new ArrayList<>(List.of(category))));
+					if (removalCategory != null) {
+						selectedCategoryState.put(userId, new SelectedCategoryState(allCategories, new ArrayList<>(List.of(removalCategory))));
+					}
 				}
-				responseService.textChoiceRemoveCategory(chatValue, true);
+				responseService.textChoiceRemoveCategory(chatValue);
 				tgButtonService.categoriesChoiceKeyboardEdit(chatValue, State.DICT_REMOVE_CATEGORY,
 						selectedCategoryState.get(userId));
 			} else if (callbackData.startsWith(Callbacks.REMOVE_CATEGORY.getCallbackData())) {
-				List<String> selectedCategories = selectedCategoryState.get(chatValue.getUser().getUserId()).getSelectedCategories();
-				selectedCategories.forEach(dictionaryService::removeCategory);
+				List<Category> selectedCategories = selectedCategoryState.get(chatValue.getUserId()).getSelectedCategories();
+				dictionaryService.removeCategory(selectedCategories);
 				if (selectedCategories.size() > 1) {
 					StringBuilder sb = new StringBuilder();
-					selectedCategories.forEach(c -> sb.append(" - <b>").append(c).append("</b>\n"));
+					selectedCategories.forEach(c -> sb.append(" - <b>").append(c.getName()).append("</b>\n"));
 					dictionaryService.settingsShortMenu(chatValue,
 							"категории:\n" + sb + "\nудалены",
 							true);
 				} else {
 					dictionaryService.settingsShortMenu(chatValue,
-							"категория - [ <b>" + selectedCategories.getFirst() + "</b> ] - удалена",
+							"категория - [ <b>" + selectedCategories.getFirst().getName() + "</b> ] - удалена",
 							true);
 				}
-				historyService.changeDict(chatValue.getUser().getUserId(), Action.REMOVE_CATEGORY, selectedCategories.toString());
+				selectedCategoryState.remove(chatValue.getUserId());
+				historyService.changeDict(chatValue.getUserId(), Action.REMOVE_CATEGORY,
+						selectedCategories.stream().map(Category::getName).toList().toString());
 				chatValue.setState(State.DICT_SETTING);
 				chatValue.setReplyParseModeHtml();
 			} else if (callbackData.equals(Callbacks.DICT_SETTINGS.getCallbackData())) {
 				menuService.dictionaryMainMenu(chatValue, true);
-				selectedCategoryState.remove(chatValue.getUser().getUserId());
+				selectedCategoryState.remove(chatValue.getUserId());
 			}
 		}
 	}

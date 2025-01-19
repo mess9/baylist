@@ -2,6 +2,7 @@ package org.baylist.dto.telegram;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import org.baylist.db.entity.Category;
 
 import java.util.List;
 
@@ -9,7 +10,7 @@ import java.util.List;
 @AllArgsConstructor
 public class SelectedCategoryState {
 
-	private List<String> categories; //todo переписать на id
-	private List<String> selectedCategories;
+	private List<Category> categories;
+	private List<Category> selectedCategories;
 
 }

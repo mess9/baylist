@@ -1,6 +1,7 @@
 package org.baylist.service;
 
 import lombok.AllArgsConstructor;
+import org.baylist.db.entity.Category;
 import org.baylist.dto.telegram.Callbacks;
 import org.baylist.dto.telegram.ChatValue;
 import org.baylist.dto.telegram.SelectedCategoryState;
@@ -22,13 +23,19 @@ public class TgButtonService {
 
 
 	public void setCategoriesChoiceKeyboard(ChatValue chatValue, State state, boolean isEdit) {
-		List<String> categories = dictionaryService.getCategories();
-		InlineKeyboardMarkup markup = new InlineKeyboardMarkup(categories.stream()
+		List<Category> categories = dictionaryService.getCategoriesByUserId(chatValue.getUserId());
+		List<InlineKeyboardRow> rows = categories.stream()
 				.map(c -> new InlineKeyboardRow(
 						InlineKeyboardButton.builder()
-								.text(c)
-								.callbackData(Callbacks.CATEGORY_CHOICE.getCallbackData() + c)
-								.build())).toList());
+								.text(c.getName())
+								.callbackData(Callbacks.CATEGORY_CHOICE.getCallbackData() + c.getId())
+								.build())).collect(Collectors.toList());
+		rows.add(new InlineKeyboardRow(
+				InlineKeyboardButton.builder()
+						.text("⏪ назад")
+						.callbackData(Callbacks.DICT_SETTINGS.getCallbackData())
+						.build()));
+		InlineKeyboardMarkup markup = new InlineKeyboardMarkup(rows);
 		if (isEdit) {
 			chatValue.setEditReplyKeyboard(markup);
 		} else {
@@ -41,31 +48,24 @@ public class TgButtonService {
 	                                         SelectedCategoryState selectedCategoryState) {
 		AtomicInteger maxLength = new AtomicInteger();
 		List<InlineKeyboardRow> categoryButtons = selectedCategoryState.getCategories().stream()
-				.peek(c -> maxLength.set(Math.max(maxLength.get(), c.length())))
+				.peek(c -> maxLength.set(Math.max(maxLength.get(), c.getName().length())))
 				.map(c -> {
-					StringBuilder sb = new StringBuilder();
+					String invisibleSpace = "⠀";
+					String leftPadding = "\uD83D\uDFE9 - ";
 					if (selectedCategoryState.getSelectedCategories().contains(c)) {
-						return new InlineKeyboardRow(
-								InlineKeyboardButton.builder()
-										.text(sb
-												.append("☑  -   ")
-												.append(" ".repeat(maxLength.get() - c.length()))
-												.append(c)
-												.toString())
-										.callbackData(Callbacks.CATEGORY_CHOICE.getCallbackData() + c)
-										.build());
-					} else {
-						return new InlineKeyboardRow(
-								InlineKeyboardButton.builder()
-										.text(sb
-												.append("☐  -   ")
-												.append(" ".repeat(maxLength.get() - c.length()))
-												.append(c)
-												.toString())
-										.callbackData(Callbacks.CATEGORY_CHOICE.getCallbackData() + c)
-										.build());
+						leftPadding = "✅ - ";
 					}
-				}).collect(Collectors.toList());
+
+					int paddingSize = maxLength.get() - c.getName().length();
+					String paddedText = leftPadding + c.getName() + (invisibleSpace.repeat(paddingSize));
+
+					return new InlineKeyboardRow(
+							InlineKeyboardButton.builder()
+									.text(paddedText)
+									.callbackData(Callbacks.CATEGORY_CHOICE.getCallbackData() + c.getId())
+									.build());
+				})
+				.collect(Collectors.toList());
 		categoryButtons.add(new InlineKeyboardRow(List.of(InlineKeyboardButton.builder()
 						.text("сжечь!")
 						.callbackData(Callbacks.REMOVE_CATEGORY.getCallbackData())

@@ -2,6 +2,7 @@ package org.baylist.telegram.hanlder.dictionary;
 
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.baylist.db.entity.Category;
 import org.baylist.dto.telegram.Callbacks;
 import org.baylist.dto.telegram.ChatValue;
 import org.baylist.dto.telegram.State;
@@ -16,6 +17,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKe
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardRow;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -38,7 +40,7 @@ public class DictMenuHandler implements DialogHandler {
 				case CANCEL -> responseService.cancelMessage(chatValue);
 				case DICT_VIEW -> dictView(chatValue);
 				case DICT_ADD_CATEGORY -> addCategory(chatValue);
-				case DICT_ADD_TASKS_TO_CATEGORY -> addTaskToCategory(chatValue);
+				case DICT_ADD_TASKS_TO_CATEGORY -> addVariantsToCategory(chatValue);
 				case DICT_REMOVE_CATEGORY -> removeCategory(chatValue);
 				case DICT_RENAME_CATEGORY -> renameCategory(chatValue);
 				case DICT_REMOVE_VARIANT -> removeVariants(chatValue);
@@ -53,13 +55,20 @@ public class DictMenuHandler implements DialogHandler {
 
 	private void dictView(ChatValue chatValue) {
 		chatValue.setEditText("внутрь какой категории заглянуть?");
-		List<String> categories = dictionaryService.getCategories();
-		InlineKeyboardMarkup markup = new InlineKeyboardMarkup(categories.stream()
+		List<Category> categories = dictionaryService.getCategoriesByUserId(chatValue.getUserId());
+
+		List<InlineKeyboardRow> rows = categories.stream()
 				.map(c -> new InlineKeyboardRow(
 						InlineKeyboardButton.builder()
-								.text(c)
-								.callbackData(Callbacks.CATEGORY_CHOICE.getCallbackData() + c)
-								.build())).toList());
+								.text(c.getName())
+								.callbackData(Callbacks.CATEGORY_CHOICE.getCallbackData() + c.getId())
+								.build())).collect(Collectors.toList());
+		rows.add(new InlineKeyboardRow(
+				InlineKeyboardButton.builder()
+						.text("⏪ назад")
+						.callbackData(Callbacks.DICT_SETTINGS.getCallbackData())
+						.build()));
+		InlineKeyboardMarkup markup = new InlineKeyboardMarkup(rows);
 		chatValue.setEditReplyKeyboard(markup);
 		chatValue.setState(State.DICT_VIEW);
 	}
@@ -78,13 +87,13 @@ public class DictMenuHandler implements DialogHandler {
 		chatValue.setState(State.DICT_ADD_CATEGORY);
 	}
 
-	private void addTaskToCategory(ChatValue chatValue) {
+	private void addVariantsToCategory(ChatValue chatValue) {
 		chatValue.setEditText("в какую именно категорию добавить варианты задач?");
 		tgButtonService.setCategoriesChoiceKeyboard(chatValue, State.DICT_ADD_TASK_TO_CATEGORY, true);
 	}
 
 	private void removeCategory(ChatValue chatValue) {
-		responseService.textChoiceRemoveCategory(chatValue, true);
+		responseService.textChoiceRemoveCategory(chatValue);
 		tgButtonService.setCategoriesChoiceKeyboard(chatValue, State.DICT_REMOVE_CATEGORY, true);
 	}
 

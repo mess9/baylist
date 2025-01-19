@@ -2,6 +2,7 @@ package org.baylist.telegram.hanlder.dictionary;
 
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.baylist.db.entity.Category;
 import org.baylist.dto.telegram.Action;
 import org.baylist.dto.telegram.Callbacks;
 import org.baylist.dto.telegram.ChatValue;
@@ -15,6 +16,8 @@ import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 
 @Component
@@ -27,6 +30,7 @@ public class DictRemoveVariantHandler implements DialogHandler {
 	DictViewHandler dictViewHandler;
 	MenuService menuService;
 	HistoryService historyService;
+	Map<Long, Category> selectedCategory = new ConcurrentHashMap<>();
 
 	// state DICT_REMOVE_VARIANT
 	@Override
@@ -38,21 +42,29 @@ public class DictRemoveVariantHandler implements DialogHandler {
 			} else if (callbackData.equals(Callbacks.DICT_SETTINGS.getCallbackData())) {
 				menuService.dictionaryMainMenu(chatValue, true);
 			} else if (callbackData.startsWith(Callbacks.CATEGORY_CHOICE.getCallbackData())) {
-				dictViewHandler.handleCategoryChoice(chatValue, callbackData, true);
+				Category category = dictViewHandler.getCategoryFromCallback(chatValue.getUserId(), callbackData);
+				selectedCategory.put(chatValue.getUserId(), category);
+				dictViewHandler.handleCategoryChoice(chatValue, category, true);
 			}
 		} else {
 			String variants = chatValue.getInputText();
-			if (dictionaryService.validate(variants)) {
-				List<String> variantList = Arrays.stream(variants.split("\n")).toList();
-				dictionaryService.removeVariants(variantList);
-				historyService.changeDict(chatValue.getUser().getUserId(), Action.REMOVE_VARIANT, variantList.toString());
-				menuService.dictionaryMainMenu(chatValue, false);
-				chatValue.setState(State.DICT_SETTING);
-				responseService.textChoiceRemoveVariant(chatValue, true);
+			if (dictionaryService.validateVariants(variants)) {
+				List<String> variantList = Arrays.stream(variants.split("\n")).map(String::trim).toList();
+				Category category = selectedCategory.get(chatValue.getUserId());
+				boolean removeSuccess = dictionaryService.removeVariants(variantList, category);
+				if (removeSuccess) {
+					selectedCategory.remove(chatValue.getUserId());
+					historyService.changeDict(chatValue.getUserId(), Action.REMOVE_VARIANT, variantList.toString());
+					menuService.dictionaryMainMenu(chatValue, false);
+					chatValue.setState(State.DICT_SETTING);
+					responseService.textChoiceRemoveVariant(chatValue, true);
+				} else {
+					responseService.textChoiceRemoveVariant(chatValue, false);
+				}
 			} else {
-				responseService.textChoiceRemoveVariant(chatValue, false);
+				chatValue.setReplyText("введённые варианты не прошли валидацию на корректность\n" +
+						"пустой список, или меньше двух символов");
 			}
-
 		}
 	}
 

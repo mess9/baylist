@@ -1,7 +1,5 @@
 package org.baylist.tests.dict;
 
-import org.assertj.core.api.SoftAssertions;
-import org.assertj.core.api.junit.jupiter.InjectSoftAssertions;
 import org.baylist.service.DictionaryService;
 import org.baylist.tests.BaseTest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,9 +8,6 @@ public class DictionaryTest extends BaseTest {
 
     @Autowired
     DictionaryService dictionaryService;
-
-    @InjectSoftAssertions
-    private SoftAssertions s;
 
     //нужно переписать все тесты
 

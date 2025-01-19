@@ -8,6 +8,12 @@ logging:
 todoist:
   baseUrl: https://api.todoist.com/rest/v2
 spring:
+  ai:
+    openai:
+      api-key: ${OPENAI_TOKEN}
+      chat:
+        options:
+          model: gpt-4o-mini
   liquibase:
     change-log: classpath:/db/changelog/db.changelog-master.xml
     enabled: true

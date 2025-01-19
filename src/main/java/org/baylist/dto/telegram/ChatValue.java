@@ -54,6 +54,10 @@ public class ChatValue {
 	public String getToken() {
 		return "Bearer " + user.getTodoistToken();
 	}
+
+	public Long getUserId() {
+		return user.getUserId();
+	}
 	//endregion GETTER
 
 

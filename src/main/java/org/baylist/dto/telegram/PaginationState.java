@@ -12,5 +12,6 @@ public class PaginationState {
 
 	private int currentPage;
 	private Map<Integer, List<String>> pages;
+	private Long categoryId;
 	private String categoryName;
 }

@@ -41,7 +41,7 @@ public class FriendsHandler implements DialogHandler {
 					case FRIENDS_ME -> responseService.listFriendsMe(chatValue);
 					case FRIENDS_HELP -> responseService.friendsHelp(chatValue);
 					case START_2_ADD_FRIENDS -> {
-						if (userService.isExistToken(chatValue.getUser().getUserId())) {
+						if (userService.isExistToken(chatValue.getUserId())) {
 							responseService.friendsRequest(chatValue, State.FRIENDS);
 						} else {
 							responseService.doneWithouFriends(chatValue, State.FRIENDS);
