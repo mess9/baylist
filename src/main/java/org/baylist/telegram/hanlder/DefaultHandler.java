@@ -36,7 +36,7 @@ public class DefaultHandler implements DialogHandler {
 			String callbackData = chatValue.getCallbackData();
 			if (callbackData.startsWith(Callbacks.SEND_TASK_TO.getCallbackData())) {
 				Long recipientId = Long.valueOf(callbackData.substring(Callbacks.SEND_TASK_TO.getCallbackData().length()));
-				Long userId = chatValue.getUser().getUserId();
+				Long userId = chatValue.getUserId();
 				todoist.sendTasksToTodoist(chatValue, userService.getUserFromDb(recipientId), inputTasksState.get(userId));
 			} else if (callbackData.startsWith(Callbacks.VIEW_TASK_TO.getCallbackData())) {
 				Long userId = Long.valueOf(callbackData.substring(Callbacks.VIEW_TASK_TO.getCallbackData().length()));
@@ -79,7 +79,7 @@ public class DefaultHandler implements DialogHandler {
 			} else if (recipients.size() == 1) {
 				todoist.sendTasksToTodoist(chatValue, recipients.getFirst(), input);
 			} else {
-				inputTasksState.put(chatValue.getUser().getUserId(), input);
+				inputTasksState.put(chatValue.getUserId(), input);
 				chatValue.setReplyText("выберите кому отправить задачки");
 				chatValue.setReplyKeyboard(responseService.recipientsKeyboard(recipients, true));
 			}

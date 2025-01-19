@@ -54,6 +54,8 @@ public enum Callbacks {
 
 	NOTIFY_SETTINGS("notifySettings"),
 	TODOIST_SETTINGS("todoistSettings"),
+	BOT_HELP("botHelp"),
+	TODOIST_HELP("todoistHelp"),
 
 
 	;

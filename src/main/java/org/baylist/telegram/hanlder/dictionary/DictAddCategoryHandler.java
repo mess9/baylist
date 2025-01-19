@@ -36,14 +36,18 @@ public class DictAddCategoryHandler implements DialogHandler {
 			}
 		} else {
 			String category = chatValue.getUpdate().getMessage().getText().trim().toLowerCase();
-			Long userId = chatValue.getUser().getUserId();
+			Long userId = chatValue.getUserId();
 			if (dictionaryService.addDictCategory(category, userId)) {
 				dictionaryService.settingsShortMenu(chatValue,
 						"категория - [ <b>" + category + "</b> ] - добавлена",
 						false);
 			} else {
 				dictionaryService.settingsShortMenu(chatValue,
-						"такая категория уже существует",
+						"""
+								такая категория уже существует
+								 или
+								 введённое имя боту не понравилось
+								 (пусто имя, имя меньше 2-х букв)""",
 						false);
 			}
 			chatValue.setState(State.DICT_SETTING);

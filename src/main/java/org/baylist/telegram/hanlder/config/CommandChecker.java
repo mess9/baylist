@@ -28,6 +28,7 @@ public class CommandChecker {
 				case Commands.DEFAULT, DEFAULT_MENU -> chatValue.setState(State.DEFAULT);
 				case Commands.HELP -> chatValue.setState(State.HELP); //todo сделать хелп
 				case Commands.MENU, MENU_MENU -> chatValue.setState(State.MENU);
+				case Commands.AI -> chatValue.setState(State.AI);
 				case NOT_COMMAND -> {
 				}
 				default -> chatValue.setState(State.ERROR);

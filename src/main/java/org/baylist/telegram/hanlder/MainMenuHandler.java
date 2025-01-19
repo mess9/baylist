@@ -38,7 +38,7 @@ public class MainMenuHandler implements DialogHandler {
 					case DICT_SETTINGS -> menuService.dictionaryMainMenu(chatValue, true);
 					//change token
 					case START_1_TODOIST_TOKEN_REQUEST -> {
-						if (userService.isExistToken(chatValue.getUser().getUserId())) {
+						if (userService.isExistToken(chatValue.getUserId())) {
 							responseService.existToken(chatValue);
 						} else {
 							responseService.tokenRequest(chatValue);
@@ -47,9 +47,11 @@ public class MainMenuHandler implements DialogHandler {
 					case START_1_TODOIST_TOKEN_CHANGE -> responseService.tokenRequest(chatValue);
 					case FRIENDS_SETTINGS -> menuService.friendsSettings(chatValue, true);
 					case NOTIFY_SETTINGS -> menuService.notifySettings(chatValue); //todo notifications
-					case HELP -> menuService.help(chatValue);
+					case HELP -> menuService.help(chatValue, true);
 					case FRIENDS_HELP -> responseService.friendsHelp(chatValue);
 					case DICT_HELP -> responseService.dictHelp(chatValue);
+					case BOT_HELP -> responseService.botHelp(chatValue);
+					case TODOIST_HELP -> responseService.todoistHelp(chatValue);
 					case VIEW -> responseService.checkAndView(chatValue, true);
 					case INFO -> responseService.info(chatValue);
 					default -> chatValue.setState(State.ERROR);
@@ -64,7 +66,13 @@ public class MainMenuHandler implements DialogHandler {
 				responseService.tokenResponse(chatValue, false);
 			} else {
 				menuService.mainMenu(chatValue, false);
-				chatValue.setReplyText("чёт токен какой-то не правильный");
+				chatValue.setReplyText("""
+						сейчас активен режим меню
+						тут распознаются только определённые сообщения
+						
+						если нужно перейти в режим ввода задач
+						/default
+						""");
 			}
 		}
 	}

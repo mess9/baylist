@@ -53,7 +53,7 @@ public class MenuService {
 						.callbackData(Callbacks.FRIENDS_HELP.getCallbackData())
 						.build()),
 				new InlineKeyboardRow(InlineKeyboardButton.builder()
-						.text("➕ добавить друга" + invisibleSpace.repeat(6))
+						.text("➕ добавить друга" + invisibleSpace.repeat(5))
 						.callbackData(Callbacks.START_2_ADD_FRIENDS.getCallbackData())
 						.build()),
 				new InlineKeyboardRow(InlineKeyboardButton.builder()
@@ -91,7 +91,7 @@ public class MenuService {
 						.callbackData(Callbacks.DICT_VIEW.getCallbackData())
 						.build()),
 				new InlineKeyboardRow(InlineKeyboardButton.builder()
-						.text("\uD83C\uDFF7 новая категория" + invisibleSpace.repeat(12))
+						.text("\uD83C\uDFF7 новая категория" + invisibleSpace.repeat(13))
 						.callbackData(Callbacks.DICT_ADD_CATEGORY.getCallbackData())
 						.build()),
 				new InlineKeyboardRow(InlineKeyboardButton.builder()
@@ -111,15 +111,15 @@ public class MenuService {
 						.callbackData(Callbacks.DICT_REMOVE_VARIANT.getCallbackData())
 						.build()),
 				new InlineKeyboardRow(InlineKeyboardButton.builder()
-						.text("\uD83D\uDCD6 справка по словарику" + invisibleSpace.repeat(8))
+						.text("\uD83D\uDCD6 справка по словарику" + invisibleSpace.repeat(9))
 						.callbackData(Callbacks.DICT_HELP.getCallbackData())
 						.build()),
 				new InlineKeyboardRow(InlineKeyboardButton.builder()
-						.text("\uD83C\uDFE0 главное меню" + invisibleSpace.repeat(13))
+						.text("\uD83C\uDFE0 главное меню" + invisibleSpace.repeat(15))
 						.callbackData(Callbacks.MAIN_MENU.getCallbackData())
 						.build()),
 				new InlineKeyboardRow(InlineKeyboardButton.builder()
-						.text("\uD83D\uDCF2 фсё, пока хватит" + invisibleSpace.repeat(12))
+						.text("\uD83D\uDCF2 фсё, пока хватит" + invisibleSpace.repeat(14))
 						.callbackData(Callbacks.CANCEL.getCallbackData())
 						.build())
 		));
@@ -159,7 +159,7 @@ public class MenuService {
 						.callbackData(Callbacks.FRIENDS_SETTINGS.getCallbackData())
 						.build()),
 				new InlineKeyboardRow(InlineKeyboardButton.builder()
-						.text("\uD83D\uDD14 настройка уведомлений" + invisibleSpace.repeat(2))
+						.text("\uD83D\uDD14 настройка уведомлений" + invisibleSpace.repeat(1))
 						.callbackData(Callbacks.NOTIFY_SETTINGS.getCallbackData())
 						.build()),
 				new InlineKeyboardRow(InlineKeyboardButton.builder()
@@ -190,7 +190,7 @@ public class MenuService {
 		chatValue.setState(State.MENU);
 	}
 
-	public void help(ChatValue chatValue) {
+	public void help(ChatValue chatValue, boolean isEdit) {
 		InlineKeyboardMarkup markup = new InlineKeyboardMarkup(List.of(
 				new InlineKeyboardRow(InlineKeyboardButton.builder()
 						.text("\uD83D\uDC65 справка про друзей")
@@ -201,12 +201,27 @@ public class MenuService {
 						.callbackData(Callbacks.DICT_HELP.getCallbackData())
 						.build()),
 				new InlineKeyboardRow(InlineKeyboardButton.builder()
+						.text("❔ справка по работе с ботом")
+						.callbackData(Callbacks.BOT_HELP.getCallbackData())
+						.build()),
+				new InlineKeyboardRow(InlineKeyboardButton.builder()
+						.text("\uD83D\uDCCD почему todoist")
+						.callbackData(Callbacks.TODOIST_HELP.getCallbackData())
+						.build()),
+				new InlineKeyboardRow(InlineKeyboardButton.builder()
 						.text("\uD83D\uDD19 назад")
 						.callbackData(Callbacks.MAIN_MENU.getCallbackData())
 						.build())
 		));
-		chatValue.setEditText("если нужна ещё помощь по механизмам взаимодействия с ботом - прошу сообщить через /report");
-		chatValue.setEditReplyKeyboard(markup);
+		String text = "если нужна ещё помощь по механизмам взаимодействия с ботом - прошу сообщить через /report";
+		if (isEdit) {
+			chatValue.setEditText(text);
+			chatValue.setEditReplyKeyboard(markup);
+		} else {
+			chatValue.setReplyText(text);
+			chatValue.setReplyKeyboard(markup);
+		}
+
 	}
 }
 
