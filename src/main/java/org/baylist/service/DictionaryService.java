@@ -66,7 +66,7 @@ public class DictionaryService {
     }
 
 	@Transactional
-	public Map<String, Set<String>> changeDict(Long userId, Map<String, Set<String>> changes) {
+	public Map<String, Set<String>> changeAllDict(Long userId, Map<String, Set<String>> changes) {
 		DictionaryService self = context.getBean(DictionaryService.class);
 		Map<String, Set<String>> dict = self.getDict(userId);
 		List<Category> categoriesBeforeChanges = self.getCategoriesByUserId(userId);
@@ -211,10 +211,10 @@ public class DictionaryService {
         chatValue.setState(State.DICT_SETTING);
     }
 
-	public boolean addDictCategory(String categoryName, Long userId) {
-		DictionaryService self = context.getBean(DictionaryService.class);
+	@Transactional
+	public boolean addCategory(String categoryName, Long userId) {
 		if (validateCategory(categoryName)) {
-			List<Category> categoriesByUserId = self.getCategoriesByUserId(userId);
+			List<Category> categoriesByUserId = getCategoriesByUserIdNoCache(userId);
 			if (categoriesByUserId.stream().noneMatch(c -> c.getName().equals(categoryName))) {
 				categoryRepository.save(new Category(categoryName, userId));
 				historyService.changeDict(userId, Action.ADD_CATEGORY, categoryName);
@@ -235,6 +235,10 @@ public class DictionaryService {
 		return categoryRepository.findAllByUserId(userId);
 	}
 
+	public List<Category> getCategoriesByUserIdNoCache(Long userId) {
+		return categoryRepository.findAllByUserId(userId);
+	}
+
 	public Category getCategoryByCategoryIdAndUserId(Long categoryId, Long userId) {
 		DictionaryService self = context.getBean(DictionaryService.class);
 		return self.getCategoriesByUserId(userId).stream()
@@ -248,10 +252,10 @@ public class DictionaryService {
 		if (validateVariants(input)) {
 			String[] split = input.split("\n");
 			List<String> variants = Arrays.stream(split).map(String::trim).distinct().toList();
-			int addedVariantsCount = addVariantsToCategory(variants, category);
+			List<String> addedVariants = addVariantsToCategory(variants, category);
 			historyService.changeDict(chatValue.getUserId(), Action.ADD_VARIANT, variants.toString());
 			menuService.dictionaryMainMenu(chatValue, false);
-			postAddedMessage(chatValue, category, addedVariantsCount, variants);
+			postAddedMessage(chatValue, category, addedVariants.size(), variants);
 			chatValue.setState(State.DICT_SETTING);
 			cacheEvict(List.of(category));
 			chatValue.setReplyParseModeHtml();
@@ -270,17 +274,19 @@ public class DictionaryService {
 		// 2. на то что варианты разделены \n
 	}
 
-	public int addVariantsToCategory(List<String> variants, Category categoryDb) {
-		categoryDb = getCategoryWithVariants(categoryDb.getId());
-		Category finalCategoryDb = categoryDb;
+	public List<String> addVariantsToCategory(List<String> variants, Category targetCategory) {
+		targetCategory = getCategoryWithVariants(targetCategory.getId());
+		Category finalTargetCategory = targetCategory;
+		List<Category> allCategories = getAllCategoryWithVariants(targetCategory.getUserId());
 		variants = variants.stream()
-				.filter(v -> !finalCategoryDb.getVariants().stream()
+				.filter(v -> !allCategories.stream()
+						.flatMap(c -> c.getVariants().stream())
 						.map(Variant::getName)
 						.toList()
 						.contains(v))
 				.toList();
-		variantRepository.saveAll(variants.stream().map(v -> new Variant(null, v, finalCategoryDb)).toList());
-		return variants.size();
+		variantRepository.saveAll(variants.stream().map(v -> new Variant(null, v, finalTargetCategory)).toList());
+		return variants;
 	}
 
 	@NotNull
@@ -306,8 +312,17 @@ public class DictionaryService {
 		return categoryRepository.findCategoryWithVariants(categoryId);
 	}
 
+	public List<Category> getAllCategoryWithVariants(Long userid) {
+		return categoryRepository.findAllCategoriesWithVariants(userid);
+	}
+
+
+	public Category getCategoryWithVariantsByName(Long userId, String categoryName) {
+		return categoryRepository.findCategoryWithVariantsByName(userId, categoryName);
+	}
+
 	@Transactional
-	public boolean removeVariants(List<String> variants, Category category) {
+	public List<String> removeVariants(List<String> variants, Category category) {
 		category = getCategoryWithVariants(category.getId());
 		List<Variant> existVariants = category.getVariants();
 		List<Variant> variantsForDelete = new ArrayList<>();
@@ -316,9 +331,9 @@ public class DictionaryService {
 			category.getVariants().removeAll(variantsForDelete);
 			categoryRepository.save(category);
 			cacheEvict(List.of(category));
-			return true;
+			return variantsForDelete.stream().map(Variant::getName).toList();
 		} else {
-			return false;
+			return List.of();
 		}
 	}
 

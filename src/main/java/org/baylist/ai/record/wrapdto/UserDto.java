@@ -1,4 +1,4 @@
-package org.baylist.ai.record;
+package org.baylist.ai.record.wrapdto;
 
 import lombok.Getter;
 import lombok.Setter;

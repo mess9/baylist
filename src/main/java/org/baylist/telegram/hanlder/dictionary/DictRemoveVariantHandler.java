@@ -51,8 +51,8 @@ public class DictRemoveVariantHandler implements DialogHandler {
 			if (dictionaryService.validateVariants(variants)) {
 				List<String> variantList = Arrays.stream(variants.split("\n")).map(String::trim).toList();
 				Category category = selectedCategory.get(chatValue.getUserId());
-				boolean removeSuccess = dictionaryService.removeVariants(variantList, category);
-				if (removeSuccess) {
+				List<String> deletedVariants = dictionaryService.removeVariants(variantList, category);
+				if (!deletedVariants.isEmpty()) {
 					selectedCategory.remove(chatValue.getUserId());
 					historyService.changeDict(chatValue.getUserId(), Action.REMOVE_VARIANT, variantList.toString());
 					menuService.dictionaryMainMenu(chatValue, false);

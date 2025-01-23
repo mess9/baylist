@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.List;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_DEFAULT;
@@ -103,12 +104,18 @@ public class ToJson {
 
         SimpleModule localDateTimeDeserializer = new SimpleModule();
         SimpleModule localDateTimeSerializer = new SimpleModule();
+        SimpleModule offsetDateTimeDeserializer = new SimpleModule();
+        SimpleModule offsetDateTimeSerializer = new SimpleModule();
 
         localDateTimeDeserializer.addDeserializer(LocalDateTime.class, new LocalDateTimeDeserializer());
         localDateTimeSerializer.addSerializer(LocalDateTime.class, new LocalDateTimeSerializer());
+        offsetDateTimeDeserializer.addDeserializer(OffsetDateTime.class, new OffsetDateTimeDeserializer());
+        offsetDateTimeSerializer.addSerializer(OffsetDateTime.class, new OffsetDateTimeSerializer());
 
         mapper.registerModule(localDateTimeDeserializer);
         mapper.registerModule(localDateTimeSerializer);
+        mapper.registerModule(offsetDateTimeDeserializer);
+        mapper.registerModule(offsetDateTimeSerializer);
     }
 
     public static <T> List<T> fromJsonList(String string) {

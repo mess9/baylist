@@ -8,6 +8,7 @@ import org.baylist.dto.telegram.ChatValue;
 import org.baylist.exception.AiException;
 import org.baylist.telegram.hanlder.config.DialogHandler;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
@@ -18,12 +19,13 @@ import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.chat.prompt.PromptTemplate;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import static org.baylist.ai.AiConfig.functions;
 import static org.baylist.ai.AiConfig.systemPrompt;
-import static org.baylist.util.convert.ToJson.toJson;
 
 @Component
 @RequiredArgsConstructor
@@ -34,38 +36,17 @@ public class AiHandler implements DialogHandler {
 	ChatModel chatModel;
 	Map<Long, ChatMemory> chatMemoryMap = new ConcurrentHashMap<>();
 
-
 	@Override
 	public void handle(ChatValue chatValue) {
 		Long userId = chatValue.getUserId();
 		String inputText = chatValue.getInputText();
 		ChatClient chatClient = chatClient(userId, inputText);
 
-		String response;
-		try {
-			response = chatClient
-					.prompt(prompt(chatValue))
-					.user(inputText)
-					.call()
-					.content();
-		} catch (AiException e) {
-			log.error(e.getMessage(), e);
-			response = "что-то на бекенде аи пошло не так :(";
-		}
-		assert response != null;
+		String response = chatCall(chatValue, chatClient, inputText);
 
+		response = notAllowedSyntaxFilter(response);
 		chatValue.setReplyText(response);
-
-		if (response.contains("**")) {
-			chatValue.setReplyParseModeMarkdown();
-		} else {
-			if (response.contains("<ul>")) {
-				response = response.replace("<ul>", "");
-				response = response.replace("</ul>", "");
-				chatValue.setReplyText(response);
-			}
-			chatValue.setReplyParseModeHtml();
-		}
+		chatValue.setReplyParseModeHtml();
 	}
 
 	@NotNull
@@ -80,7 +61,7 @@ public class AiHandler implements DialogHandler {
 		}
 
 		if (inputText.equals("аи")) {
-			chatMemoryMap.put(userId, new InMemoryChatMemory());
+			chatMemoryMap.put(userId, new InMemoryChatMemory()); //очистка памяти
 		}
 
 		return ChatClient.builder(chatModel)
@@ -96,27 +77,81 @@ public class AiHandler implements DialogHandler {
 				.build();
 	}
 
+	@Nullable
+	private String chatCall(ChatValue chatValue, ChatClient chatClient, String inputText) {
+		String response;
+		try {
+			response = chatClient
+					.prompt(prompt(chatValue))
+					.user(inputText)
+					.call()
+					.content();
+		} catch (AiException ai) {
+			log.error(ai.getMessage(), ai);
+			response = "что-то на бекенде при вызове функций аи пошло не так :(\nпопробуй переформулировать запрос";
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			response = "что-то на бекенде аи пошло не так :(\nпопробуй переформулировать запрос";
+		}
+		return response;
+	}
+
+	private static String notAllowedSyntaxFilter(String text) {
+		text = markdownRemove(text);
+		text = removeSpecificHtmlTags(text);
+		return text;
+
+	}
+
 	@NotNull
 	private Prompt prompt(ChatValue chatValue) {
 		String promptModel = """
 				currentUser -> {user}
 				""";
-		String userJson = toJson(chatValue.getUser());
+		String userJson = chatValue.getUser().toString();
 		PromptTemplate promptTemplate = new PromptTemplate(promptModel);
 		promptTemplate.add("user", userJson);
 		return promptTemplate.create();
 	}
 
-	private String[] functions() {
-		return List.of(
-						"getTodoistData",
-						"getAllTodoistData",
-						"getDict",
-						"getMyFriends",
-						"getFriendsMe",
-						"changeDict"
-				)
-				.toArray(new String[0]);
+	private static String markdownRemove(String text) {
+		if (text.contains("**")) {
+			Pattern MARKDOWN_PATTERN = Pattern.compile(
+					"(" +
+							"\\*\\*.*?\\*\\*" + // **жирный текст**
+							"|\\*.*?\\*" + // *курсив*
+							"|__.*?__" + // __жирный текст__
+							"|_.*?_" + // _курсив_
+							"|~~.*?~~" + // ~~зачеркнутый текст~~
+							"|`.*?`" + // `код`
+							"|```[\\s\\S]*?```" + // ```блок кода```
+							"|\\n?#+ .*" + // # Заголовки
+							"|\\[.*?]\\(.*?\\)" + // [текст ссылки](ссылка)
+							"|!\\[.*?]\\(.*?\\)" + // ![изображение](ссылка)
+							"|> .*" + // > цитаты
+							"|- .*|\\* .*|\\d+\\. .*" + // списки
+							")",
+					Pattern.MULTILINE
+			);
+			return MARKDOWN_PATTERN.matcher(text).replaceAll("");
+		} else {
+			return text;
+		}
 	}
 
+	private static String removeSpecificHtmlTags(String text) {
+		String[] tagsToRemove = {"ul", "a", "li", "br", "tr"};
+
+		// Проходим по каждому тегу и удаляем его
+		for (String tag : tagsToRemove) {
+			// Регулярное выражение для удаления только открывающих и закрывающих тегов
+			String regex = "</?\\s*" + tag + "\\s*(/)?>";
+			Pattern pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
+			Matcher matcher = pattern.matcher(text);
+
+			text = matcher.replaceAll("");
+		}
+		return text;
+	}
 }
+

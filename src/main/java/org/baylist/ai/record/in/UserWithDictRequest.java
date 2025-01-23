@@ -1,4 +1,4 @@
-package org.baylist.ai.record;
+package org.baylist.ai.record.in;
 
 import org.baylist.db.entity.User;
 

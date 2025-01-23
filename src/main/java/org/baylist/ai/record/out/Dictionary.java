@@ -1,4 +1,4 @@
-package org.baylist.ai.record;
+package org.baylist.ai.record.out;
 
 import java.util.Map;
 import java.util.Set;

@@ -1,8 +1,8 @@
 package org.baylist.tests.ai;
 
 import org.baylist.ai.AiDataProvider;
-import org.baylist.ai.record.TodoistData;
-import org.baylist.ai.record.UserRequest;
+import org.baylist.ai.record.in.UserRequest;
+import org.baylist.ai.record.out.TodoistData;
 import org.baylist.db.entity.User;
 import org.baylist.dto.todoist.TodoistState;
 import org.baylist.tests.BaseTest;
