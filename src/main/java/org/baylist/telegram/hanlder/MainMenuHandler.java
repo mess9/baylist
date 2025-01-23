@@ -60,7 +60,7 @@ public class MainMenuHandler implements DialogHandler {
 		} else {
 			Update update = chatValue.getUpdate();
 			if (update.hasMessage() && update.getMessage().hasText() && update.getMessage().getText().equals(Commands.MENU.getCommand()) ||
-					update.hasMessage() && update.getMessage().hasText() && update.getMessage().getText().equals(Commands.MENU_MENU.getCommand())) {
+					update.hasMessage() && update.getMessage().hasText() && update.getMessage().getText().equals(Commands.MENU_BOTTOM_KEYBOARD.getCommand())) {
 				menuService.mainMenu(chatValue, false);
 			} else if (update.hasMessage() && update.getMessage().hasText() && update.getMessage().getText().length() == 40) {
 				responseService.tokenResponse(chatValue, false);

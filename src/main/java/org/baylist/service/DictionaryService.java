@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -63,6 +64,75 @@ public class DictionaryService {
 
         return buyList;
     }
+
+	@Transactional
+	public Map<String, Set<String>> changeDict(Long userId, Map<String, Set<String>> changes) {
+		DictionaryService self = context.getBean(DictionaryService.class);
+		Map<String, Set<String>> dict = self.getDict(userId);
+		List<Category> categoriesBeforeChanges = self.getCategoriesByUserId(userId);
+
+
+		// Шаг 1: Найти различия между dict и changes
+		Set<String> categoriesToRemove = new HashSet<>(dict.keySet());
+		categoriesToRemove.removeAll(changes.keySet());
+
+		Set<String> categoriesToAdd = new HashSet<>(changes.keySet());
+		categoriesToAdd.removeAll(dict.keySet());
+
+		Set<String> categoriesToUpdate = new HashSet<>(changes.keySet());
+		categoriesToUpdate.retainAll(dict.keySet());
+
+		// Шаг 2: Удалить отсутствующие категории и их варианты
+		categoryRepository.deleteAll(
+				categoriesToRemove.stream()
+						.map(c -> categoriesBeforeChanges.stream()
+								.filter(cdb -> cdb.getName().equals(c))
+								.findAny()
+								.orElse(null))
+						.filter(Objects::nonNull)
+						.toList());
+
+		// Шаг 3: Добавить новые категории и их варианты
+		categoriesToAdd.forEach(c -> {
+			Category category = new Category(null, c, userId, null);
+			Category save = categoryRepository.save(category);
+			Set<String> variants = changes.get(c);
+			variants.forEach(v -> new Variant(null, v, save));
+		});
+
+		// Шаг 4: Обновить существующие категории (если изменились варианты)
+		categoriesToUpdate.forEach(c -> {
+			Category category = categoriesBeforeChanges.stream()
+					.filter(cdb -> cdb.getName().equals(c)).findAny().orElse(null);
+			if (category != null) {
+				category = getCategoryWithVariants(category.getId());
+				Category finalCategory = category;
+				Set<String> currentVariants = dict.get(c); // Текущие варианты в базе
+				Set<String> newVariants = changes.get(c); // Новые варианты из changes
+
+				// варианты для удаления
+				Set<String> variantsToRemove = new HashSet<>(currentVariants);
+				variantsToRemove.removeAll(newVariants);
+				// варианты для добавления
+				Set<String> variantsToAdd = new HashSet<>(newVariants);
+				variantsToAdd.removeAll(currentVariants);
+
+				List<Variant> variantsInCategory = category.getVariants();
+				List<Variant> listToRemove = variantsInCategory.stream().filter(v -> variantsToRemove.contains(v.getName())).toList();
+				List<Variant> listToAdd = variantsToAdd.stream().map(v -> new Variant(null, v, finalCategory)).toList();
+				variantsInCategory.removeAll(listToRemove);
+				variantsInCategory.addAll(listToAdd);
+
+				category.setVariants(variantsInCategory);
+				categoryRepository.save(category);
+			}
+		});
+
+		List<Category> categoriesAfterChanges = categoryRepository.findAllByUserId(userId);
+		cacheEvict(categoriesAfterChanges);
+
+		return changes;
+	}
 
 	@Transactional
 	@Cacheable(value = DICT, key = "#userId")
@@ -184,6 +254,7 @@ public class DictionaryService {
 			postAddedMessage(chatValue, category, addedVariantsCount, variants);
 			chatValue.setState(State.DICT_SETTING);
 			cacheEvict(List.of(category));
+			chatValue.setReplyParseModeHtml();
 		} else {
 			menuService.dictionaryMainMenu(chatValue, false);
 			chatValue.setReplyText("варианты не были добавлены. т.к. я не разобрал что добавлять\n" +

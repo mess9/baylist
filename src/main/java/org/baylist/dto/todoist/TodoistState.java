@@ -1,16 +1,16 @@
 package org.baylist.dto.todoist;
 
+import lombok.Getter;
 import org.baylist.dto.todoist.api.Project;
 import org.baylist.dto.todoist.api.Section;
 import org.baylist.dto.todoist.api.Task;
-import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Optional;
 
 import static org.baylist.dto.Constants.BUYLIST_PROJECT;
 
-@Component
+@Getter
 public class TodoistState {
 
     private final List<ProjectDto> projects;

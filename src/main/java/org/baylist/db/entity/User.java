@@ -1,5 +1,7 @@
 package org.baylist.db.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -48,9 +50,11 @@ public class User {
 	@Column(name = "last_seen")
 	private OffsetDateTime lastSeen;
 
+	@JsonManagedReference
 	@OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	private Dialog dialog;
 
+	@JsonIgnore
 	@ManyToMany
 	@JoinTable(
 			name = "friends",

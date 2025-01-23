@@ -55,8 +55,13 @@ public class DefaultHandler implements DialogHandler {
 			String inputText = chatValue.getInputText();
 			if (inputText.equals(Commands.DEFAULT.getCommand())) {
 				responseService.cancel(chatValue, false);
-			} else if (inputText.equals(Commands.DEFAULT_MENU.getCommand())) {
+			} else if (inputText.equals(Commands.DEFAULT_BOTTOM_KEYBOARD.getCommand())) {
 				responseService.cancel(chatValue, false);
+			} else if (inputText.equals(Commands.NOT_AI_BOTTOM_KEYBOARD.getCommand())) {
+				chatValue.setReplyText("""
+						режим аи отключён
+						 включен режим приёма задач
+						 можно вводить задачи по старинке""");
 			} else {
 				checkAndInput(chatValue);
 			}

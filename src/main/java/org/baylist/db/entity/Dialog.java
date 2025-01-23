@@ -1,5 +1,6 @@
 package org.baylist.db.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -37,6 +38,7 @@ public class Dialog {
 	@Column(name = "dialog_id")
 	private Long dialogId;
 
+	@JsonBackReference
 	@OneToOne
 	@JoinColumn(name = "user_id", nullable = false, unique = true)
 	private User user;
@@ -46,9 +48,6 @@ public class Dialog {
 
 	@Column(name = "state")
 	@Enumerated(EnumType.STRING)
-	private State state; //todo убрать таблицу диалог, перенести стейт в таблицу юзер
-
-	@Column(name = "selected_category")
-	private String selectedCategory;
+	private State state;
 
 }

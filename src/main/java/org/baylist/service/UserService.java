@@ -118,6 +118,10 @@ public class UserService {
 		return userRepository.findByUserId(userId);
 	}
 
+	public User getUserFromWithFriendsDb(Long userId) { //no cache
+		return userRepository.findUserWithMyFriends(userId);
+	}
+
 	private boolean existFriend(User user, Long friend) {
 		if (user.getFriends().isEmpty()) {
 			return false;

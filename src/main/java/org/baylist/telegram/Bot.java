@@ -16,6 +16,7 @@ import org.telegram.telegrambots.longpolling.interfaces.LongPollingUpdateConsume
 import org.telegram.telegrambots.longpolling.starter.AfterBotRegistration;
 import org.telegram.telegrambots.longpolling.starter.SpringLongPollingBot;
 import org.telegram.telegrambots.longpolling.util.LongPollingSingleThreadUpdateConsumer;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
@@ -87,17 +88,29 @@ public class Bot implements SpringLongPollingBot, LongPollingSingleThreadUpdateC
 
 	//private
 	private void sendMessageToTelegram(ChatValue chatValue) {
+		String chatId = "";
+
 		try {
 			if (chatValue.getEditMessage() != null) {
+				chatId = chatValue.getEditMessage().getChatId();
 				telegramClient.execute(outputLog(chatValue.getEditMessage()));
 			} else {
+				chatId = chatValue.getMessage().getChatId();
 				telegramClient.execute(outputLog(chatValue.getMessage()));
 				if (chatValue.getForwardMessage() != null) {
+					chatId = chatValue.getForwardMessage().getChatId();
 					telegramClient.execute(chatValue.getForwardMessage());
 				}
 			}
 		} catch (TelegramApiException e) {
 			log.error(e.getMessage());
+			try {
+				telegramClient.execute(outputLog(SendMessage.builder()
+						.text("что-то на бекенде бота пошло не в то горло :(")
+						.chatId(chatId).build()));
+			} catch (TelegramApiException ex) {
+				throw new RuntimeException(ex);
+			}
 		}
 	}
 

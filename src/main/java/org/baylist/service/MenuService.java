@@ -24,17 +24,21 @@ public class MenuService {
 	String invisibleSpace = "⠀";
 
 	public void defaultMenu(ChatValue chatValue) {
-		if (chatValue.getMessage() != null) {
-			if (chatValue.getMessage().getReplyMarkup() == null) {
+		if (chatValue.getMessage() != null && chatValue.getMessage().getReplyMarkup() == null && !chatValue.getState().equals(State.START)) {
+			String textInputMode;
+			if (chatValue.getState().equals(State.AI)) {
+				textInputMode = Commands.NOT_AI_BOTTOM_KEYBOARD.getCommand();
+			} else {
+				textInputMode = Commands.DEFAULT_BOTTOM_KEYBOARD.getCommand();
+			}
 				ReplyKeyboardMarkup markup = new ReplyKeyboardMarkup(
 						List.of(new KeyboardRow(List.of(
-								KeyboardButton.builder().text(Commands.DEFAULT_MENU.getCommand()).build(),
-								KeyboardButton.builder().text(Commands.MENU_MENU.getCommand()).build()
-						))), true, false, true, " =^..^= кнопотьки =^..^= ", true
+								KeyboardButton.builder().text(textInputMode).build(),
+								KeyboardButton.builder().text(Commands.MENU_BOTTOM_KEYBOARD.getCommand()).build()
+						))), true, true, true, " =^..^= кнопотьки =^..^= ", false
 				);
 				chatValue.setReplyKeyboard(markup);
 			}
-		}
 	}
 
 	public void friendsSettings(ChatValue chatValue, boolean isEdit) {
