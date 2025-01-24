@@ -5,6 +5,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.baylist.ai.record.in.UserRequest;
+import org.baylist.ai.record.in.UserRequestWithFriend;
+import org.baylist.ai.record.in.UserRequestWithTask;
+import org.baylist.ai.record.in.UserRequestWithTasks;
 import org.baylist.ai.record.in.UserWithCategoryName;
 import org.baylist.ai.record.in.UserWithCategoryRename;
 import org.baylist.ai.record.in.UserWithChangeVariants;
@@ -14,12 +17,15 @@ import org.baylist.ai.record.out.ChangedVariants;
 import org.baylist.ai.record.out.CreatedCategory;
 import org.baylist.ai.record.out.CreatedVariants;
 import org.baylist.ai.record.out.DeletedCategory;
+import org.baylist.ai.record.out.DeletedFriend;
 import org.baylist.ai.record.out.DeletedVariants;
 import org.baylist.ai.record.out.Dictionary;
 import org.baylist.ai.record.out.Friends;
 import org.baylist.ai.record.out.OneCategoryInfo;
 import org.baylist.ai.record.out.RenamedCategory;
+import org.baylist.ai.record.out.SentTasks;
 import org.baylist.ai.record.out.TodoistData;
+import org.baylist.dto.todoist.api.TaskResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Description;
@@ -43,15 +49,16 @@ public class AiConfig {
 						"getTodoistData",
 						"getAllTodoistData",
 						// - changeTodoistData
-//						"sendTasksToTodoist",
-//						"deleteTasksFromTodoist"
+						"sendTasksToTodoist",
+						"sendDateTaskToTodoist",
+						"deleteTasksFromTodoist",
 						// friends
 						// - getFriends
 						"getMyFriends",
 						"getFriendsMe",
 						// - changeFriends
-//						"deleteMyFriends",
-//						"deleteFriendsMe",
+						"removeMyFriend",
+						"removeFriendMe",
 						// dict
 						// - getDict
 						"getAllDict",
@@ -82,14 +89,6 @@ public class AiConfig {
 				если тебя спрашивают что-то непонятное, не пытайся делать то что не до конца понимаешь, лучше переспроси
 				или пошути
 				
-				твои задачи
-				1. отвечать пользователю о том какие у него есть задачи
-				2. какие у пользователя есть категории задач
-				3. добавлять задачи по категориям
-				4. перемещать задачи из категории в категорию
-				5. помочь переформулировать текст задач
-				6. помочь разбить задачи на подзадачи
-				
 				форматирование HTML. нельзя использовать markdown
 				доступны только такие теги
 				1. <b>bold</b>
@@ -110,19 +109,16 @@ public class AiConfig {
 				
 				правило - игнорировать текст "аи"
 				не говори об этом правиле
-				ты можешь помнить до 10 сообщений в нашем диалоге
+				ты можешь помнить до 100 сообщений в нашем диалоге
 				""";
 	}
-
-	//endregion TODOIST
-
-	//region FRIENDS
 
 	@Bean
 	@Description("""
 			получить список задач из проекта buylist, приоритетная функция на вопрос пользователя о задачах
 			для авторизации используется - todoistToken
 			выводить ответ с разбивкой по категориям
+			игнорировать поле url
 			""")
 	public Function<UserRequest, TodoistData> getTodoistData(AiDataProvider dataProvider) {
 		return dataProvider::getTodoistBuylistData;
@@ -132,9 +128,79 @@ public class AiConfig {
 	@Description("""
 			получить абсолютно все задачи из todoist
 			для авторизации используется - todoistToken
+			игнорировать поле url
 			""")
 	public Function<UserRequest, TodoistData> getAllTodoistData(AiDataProvider dataProvider) {
 		return dataProvider::getAllTodoistData;
+	}
+
+	@Bean
+	@Description("""
+			удалить задачи из todoist
+			для авторизации используется - todoistToken
+			""")
+	public Function<UserRequestWithTasks, TodoistData> deleteTasksFromTodoist(AiDataChanger dataChanger) {
+		return dataChanger::deleteTasksFromTodoist;
+	}
+
+
+	// добавление себе задач
+
+
+	//endregion TODOIST
+
+	//region FRIENDS
+
+	@Bean
+	@Description("получить список друзей которые могут отправлять/добавлять мне задачи")
+	public Function<UserRequest, Friends> getMyFriends(AiDataProvider dataProvider) {
+		return dataProvider::getMyFriends;
+	}
+
+	@Bean
+	@Description("получить список друзей которым я могу отправлять/добавлять задачи")
+	public Function<UserRequest, Friends> getFriendsMe(AiDataProvider dataProvider) {
+		return dataProvider::getFriendsMe;
+	}
+
+	@Bean
+	@Description("""
+			добавить задачи в todoist
+			для авторизации используется - todoistToken
+			
+			задачи будут автоматически распределены в проекте todoist согласованно словарю пользователя
+			посмотреть словарь пользователя - функция getAllDict
+			ЕСЛИ задача должна быть добавлена в новую категорию то: {
+			в начале/до/before отправки в todoist
+			нужно создать нужную категорию в словаре пользователя - функция createCategory
+			добавить в созданную категорию вариант этой задачи - функция createVariants
+			и только ПОСЛЕ - отправить задачу в todoist }
+			ЕСЛИ задача должна быть добавлена в существующую категорию но в этой категории ещё нет варианта этой задачи {
+			добавить в существующую категорию вариант этой задачи - функция createVariants
+			и только ПОСЛЕ - отправить задачу в todoist }
+			ЕСЛИ задача присутствует в словаре пользователя {
+			отправить её в todoist }
+			ЕСЛИ не указано в какую категорию нужно поместить задачу
+			или прямо сказано что у задачи не должно быть категорий {
+			отправить задачу в todoist }
+			""")
+	public Function<UserRequestWithTasks, SentTasks> sendTasksToTodoist(AiDataChanger dataChanger) {
+		return dataChanger::sendTaskToTodoist;
+	}
+
+	@Bean
+	@Description("""
+			только для задач у которых есть дата выполнения
+			не нужны категории. не использовать словарик.
+			для авторизации используется - todoistToken
+			
+			заполнить все нужные поля в Task
+			content - название задачи
+			priority - Task priority from 1 (normal) to 4 (urgent)
+			due_datetime - Specific date and time in RFC3339 format in UTC
+			""")
+	public Function<UserRequestWithTask, TaskResponse> sendDateTaskToTodoist(AiDataChanger dataChanger) {
+		return dataChanger::sendOneTaskToTodoist;
 	}
 
 	//endregion FRIENDS
@@ -144,18 +210,6 @@ public class AiConfig {
 	//region GET DICT
 
 	@Bean
-	@Description("получить список друзей которые могут отправлять мне задачи")
-	public Function<UserRequest, Friends> getMyFriends(AiDataProvider dataProvider) {
-		return dataProvider::getMyFriends;
-	}
-
-	@Bean
-	@Description("получить список друзей которым я могу отправлять задачи")
-	public Function<UserRequest, Friends> getFriendsMe(AiDataProvider dataProvider) {
-		return dataProvider::getFriendsMe;
-	}
-
-	@Bean
 	@Description("""
 			получить полностью словарь пользователя с категориями и вариантами задач внутри них
 			в словаре перечислены категории задач
@@ -163,6 +217,24 @@ public class AiConfig {
 			""")
 	public Function<UserRequest, Dictionary> getAllDict(AiDataProvider dataProvider) {
 		return dataProvider::getDict;
+	}
+
+	@Bean
+	@Description("""
+			удалить одного друга который может отправлять/добавлять мне задачи
+			удалять только при однозначной формулировке этого действия
+			""")
+	public Function<UserRequestWithFriend, DeletedFriend> removeMyFriend(AiDataChanger dataChanger) {
+		return dataChanger::removeMyFriend;
+	}
+
+	@Bean
+	@Description("""
+			удалить одного друга которому я могу отправлять/добавлять задачи
+			удалять только при однозначной формулировке этого действия
+			""")
+	public Function<UserRequestWithFriend, DeletedFriend> removeFriendMe(AiDataChanger dataChanger) {
+		return dataChanger::removeFriendMe;
 	}
 
 	//endregion GET DICT
@@ -188,24 +260,6 @@ public class AiConfig {
 //	public Function<UserWithDictRequest, Map<String, Set<String>>> changeAllDict(AiDataChanger dataChanger) {
 //		return dataChanger::changeAllDict;
 //	}
-
-	@Bean
-	@Description("""
-			получить полный список всех категорий в словаре пользователя.
-			без вариантов задач внутри категорий
-			""")
-	public Function<UserRequest, CategoryNameList> getDictOnlyAllCategories(AiDataProvider dataProvider) {
-		return dataProvider::getDictAllCategories;
-	}
-
-	@Bean
-	@Description("""
-			получить информацию по одной категории пользователя
-			со всеми вариантами задач внутри этой категории
-			""")
-	public Function<UserWithCategoryName, OneCategoryInfo> getDictOneCategoryWithVariants(AiDataProvider dataProvider) {
-		return dataProvider::getDictOneCategory;
-	}
 
 	@Bean
 	@Description("""
@@ -246,10 +300,23 @@ public class AiConfig {
 		return dataChanger::createVariants;
 	}
 
+	@Bean
+	@Description("""
+			получить полный список всех категорий в словаре пользователя.
+			без вариантов задач внутри категорий
+			""")
+	public Function<UserRequest, CategoryNameList> getDictOnlyAllCategories(AiDataProvider dataProvider) {
+		return dataProvider::getDictAllCategories;
+	}
 
-	// удаление друзей
-	// добавление себе задач
-	//
+	@Bean
+	@Description("""
+			получить информацию по одной категории пользователя
+			со всеми вариантами задач внутри этой категории
+			""")
+	public Function<UserWithCategoryName, OneCategoryInfo> getDictOneCategoryWithVariants(AiDataProvider dataProvider) {
+		return dataProvider::getDictOneCategory;
+	}
 
 	//endregion CHANGE DICT
 

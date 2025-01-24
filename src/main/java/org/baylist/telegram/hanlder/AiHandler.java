@@ -19,6 +19,8 @@ import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.chat.prompt.PromptTemplate;
 import org.springframework.stereotype.Component;
 
+import java.time.OffsetDateTime;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
@@ -39,42 +41,26 @@ public class AiHandler implements DialogHandler {
 	@Override
 	public void handle(ChatValue chatValue) {
 		Long userId = chatValue.getUserId();
-		String inputText = chatValue.getInputText();
-		ChatClient chatClient = chatClient(userId, inputText);
+		if (checkUser(userId)) {
+			String inputText = chatValue.getInputText();
+			ChatClient chatClient = chatClient(userId, inputText);
+			String response = chatCall(chatValue, chatClient, inputText);
 
-		String response = chatCall(chatValue, chatClient, inputText);
+			response = notAllowedSyntaxFilter(response);
+			chatValue.setReplyText(response);
+			chatValue.setReplyParseModeHtml();
+		} else {
+			chatValue.setReplyText("""
+					сорян токены денег стоят
+					не только лишь все могут юзать этот функционал
+					пишите автору бота он может внести тебя в список избранных
+					""");
+		}
 
-		response = notAllowedSyntaxFilter(response);
-		chatValue.setReplyText(response);
-		chatValue.setReplyParseModeHtml();
 	}
 
-	@NotNull
-	private ChatClient chatClient(Long userId, String inputText) {
-		ChatMemory chatMemory;
-
-		if (chatMemoryMap.containsKey(userId)) {
-			chatMemory = chatMemoryMap.get(userId);
-		} else {
-			chatMemory = new InMemoryChatMemory();
-			chatMemoryMap.put(userId, chatMemory);
-		}
-
-		if (inputText.equals("аи")) {
-			chatMemoryMap.put(userId, new InMemoryChatMemory()); //очистка памяти
-		}
-
-		return ChatClient.builder(chatModel)
-				.defaultSystem(systemPrompt())
-				.defaultFunctions(functions())
-				.defaultAdvisors(
-						new SimpleLoggerAdvisor(),
-						new MessageChatMemoryAdvisor(
-								chatMemory,
-								String.valueOf(userId),
-								10)
-				)
-				.build();
+	private boolean checkUser(Long userId) {
+		return Arrays.stream(System.getenv("gpt").split(",")).map(Long::parseLong).toList().contains(userId);
 	}
 
 	@Nullable
@@ -104,14 +90,31 @@ public class AiHandler implements DialogHandler {
 	}
 
 	@NotNull
-	private Prompt prompt(ChatValue chatValue) {
-		String promptModel = """
-				currentUser -> {user}
-				""";
-		String userJson = chatValue.getUser().toString();
-		PromptTemplate promptTemplate = new PromptTemplate(promptModel);
-		promptTemplate.add("user", userJson);
-		return promptTemplate.create();
+	private ChatClient chatClient(Long userId, String inputText) {
+		ChatMemory chatMemory;
+
+		if (chatMemoryMap.containsKey(userId)) {
+			chatMemory = chatMemoryMap.get(userId);
+		} else {
+			chatMemory = new InMemoryChatMemory();
+			chatMemoryMap.put(userId, chatMemory);
+		}
+
+		if (inputText.equals("аи")) {
+			chatMemoryMap.put(userId, new InMemoryChatMemory()); //очистка памяти
+		}
+
+		return ChatClient.builder(chatModel)
+				.defaultSystem(systemPrompt())
+				.defaultFunctions(functions())
+				.defaultAdvisors(
+						new SimpleLoggerAdvisor(),
+						new MessageChatMemoryAdvisor(
+								chatMemory,
+								String.valueOf(userId),
+								100)
+				)
+				.build();
 	}
 
 	private static String markdownRemove(String text) {
@@ -152,6 +155,19 @@ public class AiHandler implements DialogHandler {
 			text = matcher.replaceAll("");
 		}
 		return text;
+	}
+
+	@NotNull
+	private Prompt prompt(ChatValue chatValue) {
+		String promptModel = """
+				currentUser -> {user}
+				currentTime -> {time}
+				""";
+		String userJson = chatValue.getUser().toString();
+		PromptTemplate promptTemplate = new PromptTemplate(promptModel);
+		promptTemplate.add("user", userJson);
+		promptTemplate.add("time", OffsetDateTime.now());
+		return promptTemplate.create();
 	}
 }
 

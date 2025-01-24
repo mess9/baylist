@@ -4,6 +4,10 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.baylist.ai.record.in.UserRequest;
+import org.baylist.ai.record.in.UserRequestWithFriend;
+import org.baylist.ai.record.in.UserRequestWithTask;
+import org.baylist.ai.record.in.UserRequestWithTasks;
 import org.baylist.ai.record.in.UserWithCategoryName;
 import org.baylist.ai.record.in.UserWithCategoryRename;
 import org.baylist.ai.record.in.UserWithChangeVariants;
@@ -13,15 +17,30 @@ import org.baylist.ai.record.out.ChangedVariants;
 import org.baylist.ai.record.out.CreatedCategory;
 import org.baylist.ai.record.out.CreatedVariants;
 import org.baylist.ai.record.out.DeletedCategory;
+import org.baylist.ai.record.out.DeletedFriend;
 import org.baylist.ai.record.out.DeletedVariants;
 import org.baylist.ai.record.out.Dictionary;
 import org.baylist.ai.record.out.RenamedCategory;
+import org.baylist.ai.record.out.SentTasks;
+import org.baylist.ai.record.out.TodoistData;
 import org.baylist.db.entity.Category;
+import org.baylist.db.entity.User;
+import org.baylist.dto.telegram.Action;
+import org.baylist.dto.todoist.ProjectDto;
+import org.baylist.dto.todoist.TodoistState;
+import org.baylist.dto.todoist.api.TaskResponse;
 import org.baylist.exception.AiException;
 import org.baylist.service.DictionaryService;
+import org.baylist.service.HistoryService;
+import org.baylist.service.TodoistService;
+import org.baylist.service.UserService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -30,6 +49,11 @@ import java.util.List;
 public class AiDataChanger {
 
 	DictionaryService dictionaryService;
+	UserService userService;
+	TodoistService todoist;
+	AiDataProvider aiDataProvider;
+	HistoryService historyService;
+
 
 	//region DICT
 
@@ -154,5 +178,100 @@ public class AiDataChanger {
 	}
 
 	//endregion DICT
+
+	//region FRIENDS
+
+	public DeletedFriend removeMyFriend(UserRequestWithFriend userRequest) {
+		log.info("ai function called - removeMyFriend");
+		try {
+			String s = userService.removeMyFriend(userRequest.user().getUserId(), userRequest.friendName());
+			return new DeletedFriend(s);
+		} catch (Exception e) {
+			throw new AiException(e.getMessage());
+		}
+	}
+
+	public DeletedFriend removeFriendMe(UserRequestWithFriend userRequest) {
+		log.info("ai function called - removeFriendMe");
+		try {
+			String s = userService.removeFromFriend(userRequest.user().getUserId(), userRequest.friendName());
+			return new DeletedFriend(s);
+		} catch (Exception e) {
+			throw new AiException(e.getMessage());
+		}
+	}
+
+	//endregion FRIENDS
+
+	//region TODOIST
+
+	public TodoistData deleteTasksFromTodoist(UserRequestWithTasks userRequest) {
+		log.info("ai function called - deleteTasksFromTodoist");
+		try {
+			TodoistData todoistData = aiDataProvider.getTodoistBuylistData(new UserRequest(userRequest.user()));
+			List<String> tasks = userRequest.tasksNames();
+			String token = "Bearer " + userRequest.user().getTodoistToken();
+			List<ProjectDto> projects = todoistData.todoistState().getProjects();
+
+			List<TaskResponse> tasksToRemove = projects.stream().flatMap(p -> p.getTasks().stream())
+					.filter(t -> tasks.contains(t.getContent()))
+					.toList();
+			Map<String, Boolean> map = tasksToRemove.stream().map(t -> todoist.deleteTask(token, t))
+					.collect(Collectors.toMap(k -> k.getValue().getId(), Map.Entry::getKey));
+			historyService.sendTasks(userRequest.user(), userRequest.user(), Action.DELETE_TASK,
+					map.entrySet().stream()
+							.filter(e -> e.getValue().equals(true))
+							.map(Map.Entry::getKey)
+							.toList().toString());
+
+			return new TodoistData(new TodoistState(projects.stream()
+					.peek(p -> new ProjectDto(p.getProject(), p.getTasks().stream()
+							.peek(t -> {
+								if (map.containsKey(t.getId())) {
+									Boolean isDeleted = map.get(t.getId());
+									if (isDeleted) {
+										t.setContent(t.getContent() + " задача успешно удалена");
+									} else {
+										t.setContent(t.getContent() + " удаление задачи провалено");
+									}
+								}
+							}).toList(), p.getSections()))
+					.toList()));
+		} catch (Exception e) {
+			throw new AiException(e.getMessage());
+		}
+	}
+
+	public SentTasks sendTaskToTodoist(UserRequestWithTasks userRequest) {
+		log.info("ai function called - sendTaskToTodoist");
+		try {
+			User user = userRequest.user();
+			log.info("token - {}", user.getTodoistToken());
+			log.info("bearer token - {}", user.getBearerToken());
+			if (todoist.storageIsEmpty(user.getUserId())) {
+				todoist.syncBuyListData(user);
+			}
+			TodoistData todoistData = aiDataProvider.getTodoistBuylistData(new UserRequest(userRequest.user()));
+			List<String> tasks = userRequest.tasksNames();
+			Optional<ProjectDto> project = todoistData.todoistState().getBuyListProject();
+			Map<String, Set<String>> inputTasks = dictionaryService.parseInputWithDict(tasks, user.getUserId());
+
+			return new SentTasks(todoist.submitToTodoist(user, user, project, inputTasks));
+		} catch (Exception e) {
+			throw new AiException(e.getMessage());
+		}
+	}
+
+	public TaskResponse sendOneTaskToTodoist(UserRequestWithTask userRequest) {
+		log.info("ai function called - sendOneTaskToTodoist");
+		try {
+			return todoist.sendOneTasksToTodoist(userRequest.user().getBearerToken(), userRequest.task());
+		} catch (Exception e) {
+			throw new AiException(e.getMessage());
+		}
+	}
+
+
+	//endregion TODOIST
 
 }

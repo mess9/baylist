@@ -613,5 +613,10 @@ public class CommonResponseService {
 		chatValue.setState(state);
 	}
 
+	public void ai(ChatValue chatValue) {
+		chatValue.setState(State.AI);
+		chatValue.setReplyText("режим нейробалбеса активирован");
+	}
+
 
 }

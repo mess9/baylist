@@ -20,7 +20,7 @@ import org.baylist.db.entity.Variant;
 import org.baylist.dto.todoist.TodoistState;
 import org.baylist.dto.todoist.api.Project;
 import org.baylist.dto.todoist.api.Section;
-import org.baylist.dto.todoist.api.Task;
+import org.baylist.dto.todoist.api.TaskResponse;
 import org.baylist.exception.AiException;
 import org.baylist.service.DictionaryService;
 import org.baylist.service.UserService;
@@ -49,6 +49,7 @@ public class AiDataProvider {
 		log.info("ai function called - getTodoistData project buylist");
 		try {
 			String token = "Bearer " + userRequest.user().getTodoistToken();
+			log.info("token - {}", token);
 
 			List<Project> projects = todoistApi.getProjects(token);
 			Optional<Project> buylistProject = projects
@@ -57,7 +58,7 @@ public class AiDataProvider {
 			if (buylistProject.isPresent()) {
 				String projectId = buylistProject.get().getId();
 				List<Section> todoistBuylistSections = todoistApi.getSectionsByProject(token, projectId);
-				List<Task> todoistBuylistTasks = todoistApi.getTasksByProject(token, projectId);
+				List<TaskResponse> todoistBuylistTasks = todoistApi.getTasksByProject(token, projectId);
 				return new TodoistData(new TodoistState(projects, todoistBuylistSections, todoistBuylistTasks));
 			} else {
 				log.error("buylist project not found");
@@ -71,12 +72,12 @@ public class AiDataProvider {
 	public TodoistData getAllTodoistData(UserRequest userRequest) {
 		log.info("ai function called - getAllTodoistData");
 		try {
-			String token = userRequest.user().getBearerToken();
-
+			String token = "Bearer " + userRequest.user().getTodoistToken();
+			log.info("token - {}", token);
 
 			List<Project> projects = todoistApi.getProjects(token);
 			List<Section> sections = new ArrayList<>();
-			List<Task> tasks = new ArrayList<>();
+			List<TaskResponse> tasks = new ArrayList<>();
 
 			projects.forEach(p -> {
 				sections.addAll(todoistApi.getSectionsByProject(token, p.getId()));

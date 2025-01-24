@@ -3,7 +3,8 @@ package org.baylist.tests.api;
 import org.baylist.api.TodoistFeignClient;
 import org.baylist.dto.todoist.api.Project;
 import org.baylist.dto.todoist.api.Section;
-import org.baylist.dto.todoist.api.Task;
+import org.baylist.dto.todoist.api.TaskRequest;
+import org.baylist.dto.todoist.api.TaskResponse;
 import org.baylist.service.TodoistService;
 import org.baylist.tests.BaseTest;
 import org.baylist.util.extension.FilToken;
@@ -60,8 +61,8 @@ public class TodoistFeignDeleteTest extends BaseTest {
 
 	@Test
 	void deleteTask() {
-		Task task = todoistService
-				.createTask(token, Task.builder().projectId(project.getId()).content("content").build());
+		TaskResponse task = todoistService
+				.createTask(token, TaskRequest.builder().projectId(project.getId()).content("content").build());
 
 		todoistApi.deleteTask(token, task.getId());
 

@@ -179,6 +179,10 @@ public class MenuService {
 						.callbackData(Callbacks.HELP.getCallbackData())
 						.build()),
 				new InlineKeyboardRow(InlineKeyboardButton.builder()
+						.text("\uD83E\uDD16⠀⠀⠀нейробалбес" + invisibleSpace.repeat(7))
+						.callbackData(Callbacks.AI.getCallbackData())
+						.build()),
+				new InlineKeyboardRow(InlineKeyboardButton.builder()
 						.text("\uD83D\uDCF2 фсё, пока хватит" + invisibleSpace.repeat(7))
 						.callbackData(Callbacks.CANCEL.getCallbackData())
 						.build())

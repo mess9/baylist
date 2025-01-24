@@ -5,7 +5,7 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.baylist.dto.todoist.api.Project;
 import org.baylist.dto.todoist.api.Section;
-import org.baylist.dto.todoist.api.Task;
+import org.baylist.dto.todoist.api.TaskResponse;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -17,21 +17,10 @@ public class CatchCreatedEntity {
 
     public static final List<Project> projects = new CopyOnWriteArrayList<>();
     public static final List<Section> sections = new CopyOnWriteArrayList<>();
-    public static final List<Task> tasks = new CopyOnWriteArrayList<>();
-
-    @Pointcut("execution(public * org.baylist.controller.todoist.TodoistController.createProject(..))")
-    public void createProject() {
-    }
+	public static final List<TaskResponse> tasks = new CopyOnWriteArrayList<>();
 
     @Pointcut("execution(public * org.baylist.service.TodoistService.createProject(..))")
     public void createProjectFeign() {
-    }
-
-    @AfterReturning(pointcut = "createProject()", returning = "result")
-    public void catchProject(Object result) {
-        if (result instanceof Project catchProject) {
-            projects.add(catchProject);
-        }
     }
 
     @AfterReturning(pointcut = "createProjectFeign()", returning = "result")
@@ -41,19 +30,8 @@ public class CatchCreatedEntity {
         }
     }
 
-    @Pointcut("execution(public * org.baylist.controller.todoist.TodoistController.createSection(..))")
-    public void createSection() {
-    }
-
     @Pointcut("execution(public * org.baylist.service.TodoistService.createSection(..))")
     public void createSectionFeign() {
-    }
-
-    @AfterReturning(pointcut = "createSection()", returning = "result")
-    public void catchSection(Object result) {
-        if (result instanceof Section catchSection) {
-            sections.add(catchSection);
-        }
     }
 
     @AfterReturning(pointcut = "createSectionFeign()", returning = "result")
@@ -63,24 +41,13 @@ public class CatchCreatedEntity {
         }
     }
 
-    @Pointcut("execution(public * org.baylist.controller.todoist.TodoistController.createTask(..))")
-    public void createTask() {
-    }
-
     @Pointcut("execution(public * org.baylist.service.TodoistService.createTask(..))")
     public void createTaskFeign() {
     }
 
-    @AfterReturning(pointcut = "createTask()", returning = "result")
-    public void catchTask(Object result) {
-        if (result instanceof Task catchTask) {
-            tasks.add(catchTask);
-        }
-    }
-
     @AfterReturning(pointcut = "createTaskFeign()", returning = "result")
     public void catchTaskFeign(Object result) {
-        if (result instanceof Task catchTask) {
+	    if (result instanceof TaskResponse catchTask) {
             tasks.add(catchTask);
         }
     }

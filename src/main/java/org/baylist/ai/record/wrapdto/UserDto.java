@@ -1,8 +1,6 @@
 package org.baylist.ai.record.wrapdto;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.Data;
 import org.baylist.db.entity.User;
 import org.baylist.util.Util;
 import org.hibernate.Hibernate;
@@ -10,9 +8,7 @@ import org.hibernate.Hibernate;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Getter
-@Setter
-@ToString
+@Data
 public class UserDto {
 
 	private String firstName;

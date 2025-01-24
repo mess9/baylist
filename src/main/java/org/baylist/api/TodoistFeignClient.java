@@ -3,7 +3,8 @@ package org.baylist.api;
 import org.baylist.dto.todoist.api.Label;
 import org.baylist.dto.todoist.api.Project;
 import org.baylist.dto.todoist.api.Section;
-import org.baylist.dto.todoist.api.Task;
+import org.baylist.dto.todoist.api.TaskRequest;
+import org.baylist.dto.todoist.api.TaskResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -44,20 +45,20 @@ public interface TodoistFeignClient {
 	                   @PathVariable String projectId);
 
 	@GetMapping(TASK_METHOD)
-	List<Task> getTasks(@RequestHeader(AUTHORIZATION)
+	List<TaskResponse> getTasks(@RequestHeader(AUTHORIZATION)
 	                    String token);
 
 	@GetMapping(TASK_METHOD)
-	List<Task> getTasksByProject(@RequestHeader(AUTHORIZATION) String token,
-	                             @RequestParam String project_id);
+	List<TaskResponse> getTasksByProject(@RequestHeader(AUTHORIZATION) String token,
+	                                     @RequestParam String project_id);
 
 	@GetMapping(TASK_METHOD)
-	List<Task> getTasksBySection(@RequestHeader(AUTHORIZATION) String token,
-	                             @RequestParam String section_id);
+	List<TaskResponse> getTasksBySection(@RequestHeader(AUTHORIZATION) String token,
+	                                     @RequestParam String section_id);
 
 	@GetMapping(TASK_METHOD)
-	List<Task> getTasksByLabel(@RequestHeader(AUTHORIZATION) String token,
-	                           @RequestParam String label);
+	List<TaskResponse> getTasksByLabel(@RequestHeader(AUTHORIZATION) String token,
+	                                   @RequestParam String label);
 
 	@GetMapping(SECTION_METHOD)
 	List<Section> getSections(@RequestHeader(AUTHORIZATION) String token);
@@ -82,8 +83,8 @@ public interface TodoistFeignClient {
 	                      @RequestBody Section section);
 
 	@PostMapping(TASK_METHOD)
-	Task createTask(@RequestHeader(AUTHORIZATION) String token,
-	                @RequestBody Task task);
+	TaskResponse createTask(@RequestHeader(AUTHORIZATION) String token,
+	                        @RequestBody TaskRequest task);
 
 	//endregion CREATE
 
@@ -119,7 +120,7 @@ public interface TodoistFeignClient {
 	@PostMapping(TASK_ID_METHOD)
 	void updateTask(@RequestHeader(AUTHORIZATION) String token,
 	                @PathVariable String taskId,
-	                @RequestBody Task task);
+	                @RequestBody TaskResponse task);
 
 
 	//endregion UPDATE

@@ -14,12 +14,15 @@ import org.baylist.dto.todoist.SectionDto;
 import org.baylist.dto.todoist.TodoistState;
 import org.baylist.dto.todoist.api.Project;
 import org.baylist.dto.todoist.api.Section;
-import org.baylist.dto.todoist.api.Task;
+import org.baylist.dto.todoist.api.TaskRequest;
+import org.baylist.dto.todoist.api.TaskResponse;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardRow;
 
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -53,8 +56,13 @@ public class TodoistService {
 		return todoistApi.createSection(token, section);
 	}
 
-	public Task createTask(String token, Task task) {
-		return todoistApi.createTask(token, task);
+	public Map.Entry<Boolean, TaskResponse> deleteTask(String token, TaskResponse task) {
+		try {
+			todoistApi.deleteTask(token, task.getId());
+			return new AbstractMap.SimpleEntry<>(true, task);
+		} catch (Exception e) {
+			return new AbstractMap.SimpleEntry<>(false, task);
+		}
 	}
 
 
@@ -80,6 +88,23 @@ public class TodoistService {
 			}
 	}
 
+	public void sendTasksToTodoist(ChatValue chatValue, User recipient, String input) {
+		if (storageIsEmpty(recipient.getUserId())) {
+			syncBuyListData(recipient);
+		}
+		List<String> tasksInput = dictionaryService.splitInputTasks(input);
+		Map<String, Set<String>> inputTasks = dictionaryService.parseInputWithDict(tasksInput, recipient.getUserId());
+		Optional<ProjectDto> buyListProjectDb = todoistStateMap.get(recipient.getUserId()).getBuyListProject();
+
+		if (buyListProjectDb.isPresent()) {
+			List<String> submittedTasks = submitToTodoist(chatValue.getUser(), recipient, buyListProjectDb, inputTasks);
+			resultMessage(submittedTasks, chatValue);
+		} else {
+			chatValue.setReplyText("проект buylist в todoist не существует,\n" +
+					"прошу проследовать в режим первоначальной настройки /start");
+		}
+	}
+
 	public void syncBuyListData(User recipient) {
 		log.info("request to todoist for get data by buylist project");
 		List<Project> projects = todoistApi.getProjects(recipient.getBearerToken());
@@ -89,7 +114,7 @@ public class TodoistService {
 		if (buylistProject.isPresent()) {
 			String projectId = buylistProject.get().getId();
 			List<Section> todoistBuylistSections = todoistApi.getSectionsByProject(recipient.getBearerToken(), projectId);
-			List<Task> todoistBuylistTasks = todoistApi.getTasksByProject(recipient.getBearerToken(), projectId);
+			List<TaskResponse> todoistBuylistTasks = todoistApi.getTasksByProject(recipient.getBearerToken(), projectId);
 			todoistStateMap.put(recipient.getUserId(),
 					new TodoistState(projects, todoistBuylistSections, todoistBuylistTasks));
 		} else {
@@ -108,19 +133,13 @@ public class TodoistService {
 		}
 	}
 
-	public void sendTasksToTodoist(ChatValue chatValue, User recipient, String input) {
-		if (storageIsEmpty(recipient.getUserId())) {
-			syncBuyListData(recipient);
-		}
-		String token = recipient.getBearerToken();
-
-		Map<String, Set<String>> inputTasks = dictionaryService.parseInputWithDict(input, recipient.getUserId());
-		Optional<ProjectDto> buyListProjectDb = todoistStateMap.get(recipient.getUserId()).getBuyListProject();
-
+	@NotNull
+	public List<String> submitToTodoist(User source, User recipient, Optional<ProjectDto> buyListProjectDb, Map<String, Set<String>> inputTasks) {
 		if (buyListProjectDb.isPresent()) {
+			String token = recipient.getBearerToken();
 			ProjectDto buylistProject = buyListProjectDb.get();
 			String projectId = buylistProject.getProject().getId();
-			List<Task> tasks = buylistProject.getTasks();
+			List<TaskResponse> tasks = buylistProject.getTasks();
 			List<SectionDto> sections = buylistProject.getSections();
 			List<String> submittedTasks = new ArrayList<>();
 
@@ -128,12 +147,49 @@ public class TodoistService {
 			submittedTasks.addAll(sendTasksWithNotExistCategory(inputTasks, sections, projectId, token));
 			submittedTasks.addAll(sendTasksWithExistCategory(inputTasks, sections, projectId, token));
 
-			historyService.sendTasks(chatValue.getUser(), recipient, Action.SEND_TASK, submittedTasks.toString());
-			resultMessage(submittedTasks, chatValue);
+			historyService.sendTasks(source, recipient, Action.SEND_TASK, submittedTasks.toString());
+			return submittedTasks;
 		} else {
-			chatValue.setReplyText("проект buylist в todoist не существует,\n" +
-					"прошу проследовать в режим первоначальной настройки /start");
+			return List.of();
 		}
+	}
+
+	//private
+	private Set<String> sendTasksWithoutCategory(Map<String, Set<String>> inputTasks,
+	                                             List<TaskResponse> tasks,
+	                                             String projectId,
+	                                             String token) {
+		Set<String> unknownSectionInputTask = inputTasks.get(UNKNOWN_CATEGORY);
+		if (unknownSectionInputTask != null && !unknownSectionInputTask.isEmpty()) {
+			tasks.stream().map(TaskResponse::getContent).toList().forEach(unknownSectionInputTask::remove);
+			sendTasks(unknownSectionInputTask, projectId, token);
+			return unknownSectionInputTask;
+		} else {
+			return Set.of();
+		}
+	}
+
+	private Set<String> sendTasksWithExistCategory(Map<String, Set<String>> inputTasks,
+	                                               List<SectionDto> sections,
+	                                               String projectId,
+	                                               String token) {
+		Set<String> submittedTasks = new HashSet<>();
+		sections.forEach(s -> {
+			String sectionName = s.getSection().getName();
+			Section section = s.getSection();
+			Set<String> inputTaskSet = inputTasks.get(sectionName);
+
+			if (inputTaskSet != null && !inputTaskSet.isEmpty()) {
+				if (!s.getTasks().isEmpty()) {
+					inputTaskSet.removeAll(s.getTasks().stream()
+							.map(TaskResponse::getContent)
+							.collect(Collectors.toSet()));
+				}
+				sendTasks(inputTaskSet, section, projectId, token);
+				submittedTasks.addAll(inputTaskSet);
+			}
+		});
+		return submittedTasks;
 	}
 
 	@Transactional
@@ -150,20 +206,11 @@ public class TodoistService {
 		return todoistStateMap.get(userId) == null || todoistStateMap.get(userId).isEmpty();
 	}
 
-
-	//private
-	private Set<String> sendTasksWithoutCategory(Map<String, Set<String>> inputTasks,
-	                                             List<Task> tasks,
-	                                             String projectId,
-	                                             String token) {
-		Set<String> unknownSectionInputTask = inputTasks.get(UNKNOWN_CATEGORY);
-		if (unknownSectionInputTask != null && !unknownSectionInputTask.isEmpty()) {
-			tasks.stream().map(Task::getContent).toList().forEach(unknownSectionInputTask::remove);
-			sendTasks(unknownSectionInputTask, projectId, token);
-			return unknownSectionInputTask;
-		} else {
-			return Set.of();
-		}
+	private void sendTasks(Set<String> taskList, String buyListProjectId, String token) {
+		taskList.forEach(t -> createTask(token, TaskRequest.builder()
+				.content(t)
+				.projectId(buyListProjectId)
+				.build()));
 	}
 
 	private Set<String> sendTasksWithNotExistCategory(Map<String, Set<String>> inputTasks,
@@ -180,27 +227,12 @@ public class TodoistService {
 		return inputTaskSet;
 	}
 
-	private Set<String> sendTasksWithExistCategory(Map<String, Set<String>> inputTasks,
-	                                               List<SectionDto> sections,
-	                                               String projectId,
-	                                               String token) {
-		Set<String> submittedTasks = new HashSet<>();
-		sections.forEach(s -> {
-			String sectionName = s.getSection().getName();
-			Section section = s.getSection();
-			Set<String> inputTaskSet = inputTasks.get(sectionName);
-
-			if (inputTaskSet != null && !inputTaskSet.isEmpty()) {
-				if (!s.getTasks().isEmpty()) {
-					inputTaskSet.removeAll(s.getTasks().stream()
-							.map(Task::getContent)
-							.collect(Collectors.toSet()));
-				}
-				sendTasks(inputTaskSet, section, projectId, token);
-				submittedTasks.addAll(inputTaskSet);
-			}
-		});
-		return submittedTasks;
+	private void sendTasks(Set<String> taskList, Section section, String buyListProjectId, String token) {
+		taskList.forEach(t -> createTask(token, TaskRequest.builder()
+				.content(t)
+				.sectionId(section.getId())
+				.projectId(buyListProjectId)
+				.build()));
 	}
 
 	private void resultMessage(List<String> submittedTasks, ChatValue chatValue) {
@@ -236,19 +268,12 @@ public class TodoistService {
 				.build());
 	}
 
-	private void sendTasks(Set<String> taskList, Section section, String buyListProjectId, String token) {
-		taskList.forEach(t -> createTask(token, Task.builder()
-				.content(t)
-				.sectionId(section.getId())
-				.projectId(buyListProjectId)
-				.build()));
+	public TaskResponse createTask(String token, TaskRequest task) {
+		return todoistApi.createTask(token, task);
 	}
 
-	private void sendTasks(Set<String> taskList, String buyListProjectId, String token) {
-		taskList.forEach(t -> createTask(token, Task.builder()
-				.content(t)
-				.projectId(buyListProjectId)
-				.build()));
+	public TaskResponse sendOneTasksToTodoist(String token, TaskRequest task) {
+		return todoistApi.createTask(token, task);
 	}
 
 
