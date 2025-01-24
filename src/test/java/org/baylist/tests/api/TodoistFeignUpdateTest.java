@@ -3,7 +3,8 @@ package org.baylist.tests.api;
 import org.baylist.api.TodoistFeignClient;
 import org.baylist.dto.todoist.api.Project;
 import org.baylist.dto.todoist.api.Section;
-import org.baylist.dto.todoist.api.Task;
+import org.baylist.dto.todoist.api.TaskRequest;
+import org.baylist.dto.todoist.api.TaskResponse;
 import org.baylist.service.TodoistService;
 import org.baylist.tests.BaseTest;
 import org.baylist.util.extension.FilToken;
@@ -76,20 +77,20 @@ public class TodoistFeignUpdateTest extends BaseTest {
 
 	@Test
 	public void updateTask() {
-		Task newTask = Task.builder()
+		TaskRequest newTask = TaskRequest.builder()
 				.content("Новая таска")
 				.projectId(String.valueOf(project.getId()))
 				.build();
 
-		Task createdTask = todoistService.createTask(token, newTask);
+		TaskResponse createdTask = todoistService.createTask(token, newTask);
 		assertThat(createdTask).isNotNull();
 
 		createdTask.setContent("ГАААААААЛЯ у нас замена");
 		todoistApi.updateTask(token, createdTask.getId(), createdTask);
 
-		List<Task> tasksByProject = todoistApi.getTasksByProject(token, project.getId());
+		List<TaskResponse> tasksByProject = todoistApi.getTasksByProject(token, project.getId());
 
-		Task updatedTask = tasksByProject.stream()
+		TaskResponse updatedTask = tasksByProject.stream()
 				.filter(t -> t.getId().equals(createdTask.getId()))
 				.findAny()
 				.orElseThrow(() -> new AssertionError("Нема Таски"));

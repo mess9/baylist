@@ -89,6 +89,7 @@ public class UserService {
 		}
 	}
 
+	@Transactional
 	@Cacheable(value = USER, unless = "#result == null")
 	public User findByUserId(Long userId) {
 		return userRepository.findByUserId(userId);

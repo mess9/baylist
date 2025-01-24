@@ -3,7 +3,8 @@ package org.baylist.tests.api;
 import org.baylist.api.TodoistFeignClient;
 import org.baylist.dto.todoist.api.Project;
 import org.baylist.dto.todoist.api.Section;
-import org.baylist.dto.todoist.api.Task;
+import org.baylist.dto.todoist.api.TaskRequest;
+import org.baylist.dto.todoist.api.TaskResponse;
 import org.baylist.service.TodoistService;
 import org.baylist.tests.BaseTest;
 import org.baylist.util.extension.FilToken;
@@ -66,16 +67,16 @@ public class TodoistFeignCreateTest extends BaseTest {
 	@Test
 	@DisplayName("проверка на хуй")
 	public void createTaskAndDeleteTask() {
-		Task xyi = Task.builder()
+		TaskRequest xyi = TaskRequest.builder()
 				.projectId(project.getId())
 				.content("хуй")
 				.build();
 
-		Task task = todoistService.createTask(token, xyi);
+		TaskResponse task = todoistService.createTask(token, xyi);
 
 		assertThat(task).isNotNull();
 
-		List<Task> tasksByProject = todoistApi.getTasksByProject(token, project.getId());
+		List<TaskResponse> tasksByProject = todoistApi.getTasksByProject(token, project.getId());
 		assertThat(tasksByProject).contains(task);
 	}
 

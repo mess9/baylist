@@ -1,9 +1,10 @@
 package org.baylist.dto.todoist;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.baylist.dto.todoist.api.Project;
 import org.baylist.dto.todoist.api.Section;
-import org.baylist.dto.todoist.api.Task;
+import org.baylist.dto.todoist.api.TaskResponse;
 
 import java.util.List;
 import java.util.Optional;
@@ -11,19 +12,20 @@ import java.util.Optional;
 import static org.baylist.dto.Constants.BUYLIST_PROJECT;
 
 @Getter
+@AllArgsConstructor
 public class TodoistState {
 
     private final List<ProjectDto> projects;
 
     public TodoistState(List<Project> projects,
                         List<Section> sections,
-                        List<Task> tasks) {
+                        List<TaskResponse> tasks) {
         this.projects = fillStorage(projects, sections, tasks);
     }
 
     private List<ProjectDto> fillStorage(List<Project> projects,
                                          List<Section> sections,
-                                         List<Task> tasks) {
+                                         List<TaskResponse> tasks) {
         return projects.stream().map(p -> {
                     ProjectDto projectDto = new ProjectDto();
                     projectDto.setProject(p);
@@ -32,7 +34,7 @@ public class TodoistState {
                             .stream()
                             .filter(s -> s.getProjectId().equals(p.getId()))
                             .toList();
-                    List<Task> tasksByProject = tasks
+                    List<TaskResponse> tasksByProject = tasks
                             .stream()
                             .filter(t -> t.getProjectId().equals(p.getId()))
                             .toList();
@@ -44,7 +46,7 @@ public class TodoistState {
                                 SectionDto sectionDto = new SectionDto();
                                 sectionDto.setSection(s);
 
-                                List<Task> tasksBySection = tasks
+                                List<TaskResponse> tasksBySection = tasks
                                         .stream()
                                         .filter(t -> t.getSectionId() != null && t.getSectionId().equals(s.getId()))
                                         .toList();

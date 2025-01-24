@@ -1,24 +1,28 @@
 package org.baylist.dto.todoist;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.baylist.dto.todoist.api.Project;
-import org.baylist.dto.todoist.api.Task;
+import org.baylist.dto.todoist.api.TaskResponse;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class ProjectDto {
 
 	private Project project;
-	private List<Task> tasks;
+	private List<TaskResponse> tasks;
 	private List<SectionDto> sections;
 
 
 	@Override
 	public String toString() {
-		List<Task> tasksWithoutSections = getTasksWithoutSection();
+		List<TaskResponse> tasksWithoutSections = getTasksWithoutSection();
 		StringBuilder sb = new StringBuilder();
 		sb.append("<b>").append(project.getName()).append("</b>").append("\n");
 		AtomicInteger counter = new AtomicInteger();
@@ -45,7 +49,7 @@ public class ProjectDto {
 	}
 
 	@NotNull
-	public List<Task> getTasksWithoutSection() {
+	public List<TaskResponse> getTasksWithoutSection() {
 		return tasks
 				.stream()
 				.filter(t -> sections.stream().noneMatch(s -> s.getTasks().contains(t)))

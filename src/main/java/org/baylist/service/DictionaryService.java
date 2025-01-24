@@ -48,18 +48,17 @@ public class DictionaryService {
 	CacheManager cacheManager;
 
 
-	public Map<String, Set<String>> parseInputWithDict(String input, Long userId) {
+	public Map<String, Set<String>> parseInputWithDict(List<String> input, Long userId) {
 		DictionaryService self = context.getBean(DictionaryService.class);
 		Map<String, Set<String>> dict = self.getDict(userId);
 		Map<String, Set<String>> buyList = new HashMap<>();
-		List<String> words = splitInputTasks(input);
 		if (dict != null) {
-			words.forEach(word -> {
+			input.forEach(word -> {
 				String category = findCategoryInDictionary(word, dict);
 				buyList.computeIfAbsent(category, v -> new HashSet<>()).add(word);
 			});
 		} else {
-			buyList.put(UNKNOWN_CATEGORY, new HashSet<>(words));
+			buyList.put(UNKNOWN_CATEGORY, new HashSet<>(input));
 		}
 
         return buyList;
@@ -150,7 +149,7 @@ public class DictionaryService {
 		}
 	}
 
-	private List<String> splitInputTasks(String input) {
+	public List<String> splitInputTasks(String input) {
 		if (input != null) {
 			return Arrays.stream(input.split("\n")).toList();
 		}
@@ -162,6 +161,8 @@ public class DictionaryService {
 	public void removeCategory(List<Category> categories) {
 		if (categories != null) {
 			categoryRepository.deleteAll(categories);
+			historyService.changeDict(categories.getFirst().getUserId(), Action.REMOVE_CATEGORY,
+					categories.stream().map(Category::getName).toList().toString());
 			cacheEvict(categories);
 		}
 	}
@@ -186,6 +187,7 @@ public class DictionaryService {
 	public void renameCategory(Category category, String newCategoryName) {
 		category.setName(newCategoryName);
 		categoryRepository.save(category);
+		historyService.changeDict(category.getUserId(), Action.RENAME_CATEGORY, category.getName() + " -> " + newCategoryName);
 		cacheEvict(List.of(category));
 	}
 
@@ -253,7 +255,6 @@ public class DictionaryService {
 			String[] split = input.split("\n");
 			List<String> variants = Arrays.stream(split).map(String::trim).distinct().toList();
 			List<String> addedVariants = addVariantsToCategory(variants, category);
-			historyService.changeDict(chatValue.getUserId(), Action.ADD_VARIANT, variants.toString());
 			menuService.dictionaryMainMenu(chatValue, false);
 			postAddedMessage(chatValue, category, addedVariants.size(), variants);
 			chatValue.setState(State.DICT_SETTING);
@@ -286,6 +287,7 @@ public class DictionaryService {
 						.contains(v))
 				.toList();
 		variantRepository.saveAll(variants.stream().map(v -> new Variant(null, v, finalTargetCategory)).toList());
+		historyService.changeDict(targetCategory.getUserId(), Action.ADD_VARIANT, variants.toString());
 		return variants;
 	}
 
@@ -331,7 +333,9 @@ public class DictionaryService {
 			category.getVariants().removeAll(variantsForDelete);
 			categoryRepository.save(category);
 			cacheEvict(List.of(category));
-			return variantsForDelete.stream().map(Variant::getName).toList();
+			List<String> deleted = variantsForDelete.stream().map(Variant::getName).toList();
+			historyService.changeDict(category.getUserId(), Action.REMOVE_VARIANT, deleted.toString());
+			return deleted;
 		} else {
 			return List.of();
 		}

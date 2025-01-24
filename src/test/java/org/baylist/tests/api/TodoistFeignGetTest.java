@@ -4,7 +4,7 @@ import org.baylist.api.TodoistFeignClient;
 import org.baylist.dto.todoist.api.Label;
 import org.baylist.dto.todoist.api.Project;
 import org.baylist.dto.todoist.api.Section;
-import org.baylist.dto.todoist.api.Task;
+import org.baylist.dto.todoist.api.TaskResponse;
 import org.baylist.tests.BaseTest;
 import org.baylist.util.extension.FilToken;
 import org.junit.jupiter.api.Test;
@@ -44,7 +44,7 @@ class TodoistFeignGetTest extends BaseTest {
 
 	@Test
 	void getAllOpenTasks() {
-		List<Task> tasks = todoistClient.getTasks(token);
+		List<TaskResponse> tasks = todoistClient.getTasks(token);
 
 		assertThat(tasks)
 				.isNotEmpty()
@@ -53,8 +53,8 @@ class TodoistFeignGetTest extends BaseTest {
 
 	@Test
 	void getTaskByProjectId() {
-		List<Task> tasks = todoistClient.getTasks(token);
-		List<Task> tasksByProject = todoistClient.getTasksByProject(token, tasks.getFirst().getProjectId());
+		List<TaskResponse> tasks = todoistClient.getTasks(token);
+		List<TaskResponse> tasksByProject = todoistClient.getTasksByProject(token, tasks.getFirst().getProjectId());
 
 		assertThat(tasksByProject)
 				.isNotEmpty()
@@ -63,8 +63,8 @@ class TodoistFeignGetTest extends BaseTest {
 
 	@Test
 	void getTaskBySectionId() {
-		List<Task> tasks = todoistClient.getTasks(token);
-		List<Task> tasksBySection = todoistClient.getTasksBySection(token, tasks.getFirst().getSectionId());
+		List<TaskResponse> tasks = todoistClient.getTasks(token);
+		List<TaskResponse> tasksBySection = todoistClient.getTasksBySection(token, tasks.getFirst().getSectionId());
 
 		assertThat(tasksBySection)
 				.isNotEmpty()
@@ -73,8 +73,8 @@ class TodoistFeignGetTest extends BaseTest {
 
 	@Test
 	void getTaskByLabel() {
-		List<Task> tasks = todoistClient.getTasks(token);
-		List<Task> tasksByLabel = todoistClient.getTasksByLabel(token,
+		List<TaskResponse> tasks = todoistClient.getTasks(token);
+		List<TaskResponse> tasksByLabel = todoistClient.getTasksByLabel(token,
 				tasks.stream().filter(e -> !e.getLabels().isEmpty()).findAny().orElseThrow().getLabels().getFirst()
 		);
 

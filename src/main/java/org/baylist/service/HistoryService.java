@@ -60,8 +60,8 @@ public class HistoryService {
 	}
 
 	@Transactional
-	public void changeDict(Long userId, Action action, String categoryName) {
-		String content = "User - " + userId + " " + action + " - " + categoryName;
+	public void changeDict(Long userId, Action action, String entity) {
+		String content = "User - " + userId + " " + action + " - " + entity;
 		User user = new User();
 		user.setUserId(userId);
 		History event = History.builder()

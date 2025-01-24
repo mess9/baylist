@@ -3,6 +3,7 @@ package org.baylist.dto.telegram;
 public enum Action {
 
 	SEND_TASK,
+	DELETE_TASK,
 
 	ADD_FRIEND,
 	REMOVE_MY_FRIEND,

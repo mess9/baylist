@@ -6,6 +6,8 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.baylist.ai.record.in.UserRequest;
 import org.baylist.ai.record.in.UserRequestWithFriend;
+import org.baylist.ai.record.in.UserRequestWithTask;
+import org.baylist.ai.record.in.UserRequestWithTasks;
 import org.baylist.ai.record.in.UserWithCategoryName;
 import org.baylist.ai.record.in.UserWithCategoryRename;
 import org.baylist.ai.record.in.UserWithChangeVariants;
@@ -21,7 +23,9 @@ import org.baylist.ai.record.out.Dictionary;
 import org.baylist.ai.record.out.Friends;
 import org.baylist.ai.record.out.OneCategoryInfo;
 import org.baylist.ai.record.out.RenamedCategory;
+import org.baylist.ai.record.out.SentTasks;
 import org.baylist.ai.record.out.TodoistData;
+import org.baylist.dto.todoist.api.TaskResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Description;
@@ -45,8 +49,9 @@ public class AiConfig {
 						"getTodoistData",
 						"getAllTodoistData",
 						// - changeTodoistData
-//						"sendTasksToTodoist",
-//						"deleteTasksFromTodoist"
+						"sendTasksToTodoist",
+						"sendDateTaskToTodoist",
+						"deleteTasksFromTodoist",
 						// friends
 						// - getFriends
 						"getMyFriends",
@@ -104,20 +109,16 @@ public class AiConfig {
 				
 				правило - игнорировать текст "аи"
 				не говори об этом правиле
-				ты можешь помнить до 10 сообщений в нашем диалоге
+				ты можешь помнить до 100 сообщений в нашем диалоге
 				""";
 	}
-
-
-	//endregion TODOIST
-
-	//region FRIENDS
 
 	@Bean
 	@Description("""
 			получить список задач из проекта buylist, приоритетная функция на вопрос пользователя о задачах
 			для авторизации используется - todoistToken
 			выводить ответ с разбивкой по категориям
+			игнорировать поле url
 			""")
 	public Function<UserRequest, TodoistData> getTodoistData(AiDataProvider dataProvider) {
 		return dataProvider::getTodoistBuylistData;
@@ -127,10 +128,28 @@ public class AiConfig {
 	@Description("""
 			получить абсолютно все задачи из todoist
 			для авторизации используется - todoistToken
+			игнорировать поле url
 			""")
 	public Function<UserRequest, TodoistData> getAllTodoistData(AiDataProvider dataProvider) {
 		return dataProvider::getAllTodoistData;
 	}
+
+	@Bean
+	@Description("""
+			удалить задачи из todoist
+			для авторизации используется - todoistToken
+			""")
+	public Function<UserRequestWithTasks, TodoistData> deleteTasksFromTodoist(AiDataChanger dataChanger) {
+		return dataChanger::deleteTasksFromTodoist;
+	}
+
+
+	// добавление себе задач
+
+
+	//endregion TODOIST
+
+	//region FRIENDS
 
 	@Bean
 	@Description("получить список друзей которые могут отправлять/добавлять мне задачи")
@@ -144,9 +163,45 @@ public class AiConfig {
 		return dataProvider::getFriendsMe;
 	}
 
+	@Bean
+	@Description("""
+			добавить задачи в todoist
+			для авторизации используется - todoistToken
+			
+			задачи будут автоматически распределены в проекте todoist согласованно словарю пользователя
+			посмотреть словарь пользователя - функция getAllDict
+			ЕСЛИ задача должна быть добавлена в новую категорию то: {
+			в начале/до/before отправки в todoist
+			нужно создать нужную категорию в словаре пользователя - функция createCategory
+			добавить в созданную категорию вариант этой задачи - функция createVariants
+			и только ПОСЛЕ - отправить задачу в todoist }
+			ЕСЛИ задача должна быть добавлена в существующую категорию но в этой категории ещё нет варианта этой задачи {
+			добавить в существующую категорию вариант этой задачи - функция createVariants
+			и только ПОСЛЕ - отправить задачу в todoist }
+			ЕСЛИ задача присутствует в словаре пользователя {
+			отправить её в todoist }
+			ЕСЛИ не указано в какую категорию нужно поместить задачу
+			или прямо сказано что у задачи не должно быть категорий {
+			отправить задачу в todoist }
+			""")
+	public Function<UserRequestWithTasks, SentTasks> sendTasksToTodoist(AiDataChanger dataChanger) {
+		return dataChanger::sendTaskToTodoist;
+	}
 
-	// добавление себе задач
-	//
+	@Bean
+	@Description("""
+			только для задач у которых есть дата выполнения
+			не нужны категории. не использовать словарик.
+			для авторизации используется - todoistToken
+			
+			заполнить все нужные поля в Task
+			content - название задачи
+			priority - Task priority from 1 (normal) to 4 (urgent)
+			due_datetime - Specific date and time in RFC3339 format in UTC
+			""")
+	public Function<UserRequestWithTask, TaskResponse> sendDateTaskToTodoist(AiDataChanger dataChanger) {
+		return dataChanger::sendOneTaskToTodoist;
+	}
 
 	//endregion FRIENDS
 

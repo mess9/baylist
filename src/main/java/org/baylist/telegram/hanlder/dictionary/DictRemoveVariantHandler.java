@@ -3,13 +3,11 @@ package org.baylist.telegram.hanlder.dictionary;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.baylist.db.entity.Category;
-import org.baylist.dto.telegram.Action;
 import org.baylist.dto.telegram.Callbacks;
 import org.baylist.dto.telegram.ChatValue;
 import org.baylist.dto.telegram.State;
 import org.baylist.service.CommonResponseService;
 import org.baylist.service.DictionaryService;
-import org.baylist.service.HistoryService;
 import org.baylist.service.MenuService;
 import org.baylist.telegram.hanlder.config.DialogHandler;
 import org.springframework.stereotype.Component;
@@ -29,7 +27,6 @@ public class DictRemoveVariantHandler implements DialogHandler {
 	CommonResponseService responseService;
 	DictViewHandler dictViewHandler;
 	MenuService menuService;
-	HistoryService historyService;
 	Map<Long, Category> selectedCategory = new ConcurrentHashMap<>();
 
 	// state DICT_REMOVE_VARIANT
@@ -54,7 +51,6 @@ public class DictRemoveVariantHandler implements DialogHandler {
 				List<String> deletedVariants = dictionaryService.removeVariants(variantList, category);
 				if (!deletedVariants.isEmpty()) {
 					selectedCategory.remove(chatValue.getUserId());
-					historyService.changeDict(chatValue.getUserId(), Action.REMOVE_VARIANT, variantList.toString());
 					menuService.dictionaryMainMenu(chatValue, false);
 					chatValue.setState(State.DICT_SETTING);
 					responseService.textChoiceRemoveVariant(chatValue, true);
