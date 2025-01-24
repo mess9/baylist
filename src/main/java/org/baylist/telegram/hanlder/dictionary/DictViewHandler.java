@@ -2,6 +2,8 @@ package org.baylist.telegram.hanlder.dictionary;
 
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.baylist.db.entity.Category;
+import org.baylist.db.entity.Variant;
 import org.baylist.dto.telegram.Callbacks;
 import org.baylist.dto.telegram.ChatValue;
 import org.baylist.dto.telegram.PaginationState;
@@ -42,12 +44,13 @@ public class DictViewHandler implements DialogHandler {
 
 			if (callbackData.equals(Callbacks.CANCEL.getCallbackData())) {
 				responseService.cancelMessage(chatValue);
-				paginationStateMap.remove(chatValue.getUser().getUserId());
+				paginationStateMap.remove(chatValue.getUserId());
 			} else if (callbackData.equals(Callbacks.DICT_SETTINGS.getCallbackData())) {
 				menuService.dictionaryMainMenu(chatValue, true);
-				paginationStateMap.remove(chatValue.getUser().getUserId());
+				paginationStateMap.remove(chatValue.getUserId());
 			} else if (callbackData.startsWith(Callbacks.CATEGORY_CHOICE.getCallbackData())) {
-				handleCategoryChoice(chatValue, callbackData, false);
+				Category category = getCategoryFromCallback(chatValue.getUserId(), callbackData);
+				handleCategoryChoice(chatValue, category, false);
 			} else if (callbackData.equals(Callbacks.DICT_VIEW_PAGINATION_FORWARD.getCallbackData())) {
 				updatePagination(chatValue, true);
 			} else if (callbackData.equals(Callbacks.DICT_VIEW_PAGINATION_BACK.getCallbackData())) {
@@ -58,18 +61,23 @@ public class DictViewHandler implements DialogHandler {
 		}
 	}
 
-	public void handleCategoryChoice(ChatValue chatValue, String callbackData, boolean isRemove) {
-		String categoryName = callbackData.substring(Callbacks.CATEGORY_CHOICE.getCallbackData().length());
-		List<String> variants = dictionaryService.getVariants(categoryName);
+	public Category getCategoryFromCallback(Long userId, String callbackData) {
+		Long categoryId = Long.parseLong(callbackData.substring(Callbacks.CATEGORY_CHOICE.getCallbackData().length()));
+		return dictionaryService.getCategoryByCategoryIdAndUserId(categoryId, userId);
+	}
+
+	public void handleCategoryChoice(ChatValue chatValue, Category category, boolean isRemove) {
+		category = dictionaryService.getCategoryWithVariants(category.getId());
+		List<String> variants = category.getVariants().stream().map(Variant::getName).toList();
 		Map<Integer, List<String>> paginate = paginate(variants);
+		paginationStateMap.put(chatValue.getUserId(),
+				new PaginationState(1, paginate, category.getId(), category.getName()));
 
-		paginationStateMap.put(chatValue.getUser().getUserId(), new PaginationState(1, paginate, categoryName));
-
-		sendPaginatedResponse(chatValue, categoryName, paginate, 1, isRemove);
+		sendPaginatedResponse(chatValue, category.getName(), paginate, 1, isRemove);
 	}
 
 	private void updatePagination(ChatValue chatValue, boolean forward) {
-		PaginationState state = paginationStateMap.get(chatValue.getUser().getUserId());
+		PaginationState state = paginationStateMap.get(chatValue.getUserId());
 		if (state != null) {
 			int currentPage = state.getCurrentPage();
 			int newPage = forward ? currentPage + 1 : currentPage - 1;

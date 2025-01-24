@@ -33,16 +33,16 @@ public class DictRenameCategoryHandler implements DialogHandler {
 		if (chatValue.isCallback()) {
 			String callbackData = chatValue.getCallbackData();
 			if (callbackData.startsWith(Callbacks.CATEGORY_CHOICE.getCallbackData())) {
-				String category = callbackData.substring(Callbacks.CATEGORY_CHOICE.getCallbackData().length());
-				Long userId = chatValue.getUser().getUserId();
-				var categoryDb = dictionaryService.getCategoryByNameFromDb(category);
+				Long categoryId = Long.parseLong(callbackData.substring(Callbacks.CATEGORY_CHOICE.getCallbackData().length()));
+				Long userId = chatValue.getUserId();
+				var categoryDb = dictionaryService.getCategoryByCategoryIdAndUserId(categoryId, userId);
 				selectedCategory.put(userId, categoryDb);
-				chatValue.setEditText("прошу ввести новое название для категории - [ <b>" + category + "</b> ]");
+				chatValue.setEditText("прошу ввести новое название для категории - [ <b>" + categoryDb.getName() + "</b> ]");
 				chatValue.setEditReplyParseModeHtml();
 				chatValue.setState(State.DICT_RENAME_CATEGORY);
 			}
 		} else {
-			Long userId = chatValue.getUser().getUserId();
+			Long userId = chatValue.getUserId();
 			var category = selectedCategory.get(userId);
 			if (category != null) {
 				String newCategoryName = chatValue.getInputText();

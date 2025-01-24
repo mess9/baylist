@@ -25,9 +25,11 @@ public class CommandChecker {
 				case Commands.VIEW -> chatValue.setState(State.VIEW);
 				case Commands.REPORT -> chatValue.setState(State.FEEDBACK_REQUEST);
 				case Commands.DICTIONARY -> chatValue.setState(State.DICT_SETTING);
-				case Commands.DEFAULT, DEFAULT_MENU -> chatValue.setState(State.DEFAULT);
+				case Commands.DEFAULT, DEFAULT_BOTTOM_KEYBOARD, NOT_AI_BOTTOM_KEYBOARD ->
+						chatValue.setState(State.DEFAULT);
 				case Commands.HELP -> chatValue.setState(State.HELP); //todo сделать хелп
-				case Commands.MENU, MENU_MENU -> chatValue.setState(State.MENU);
+				case Commands.MENU, MENU_BOTTOM_KEYBOARD -> chatValue.setState(State.MENU);
+				case Commands.AI -> chatValue.setState(State.AI);
 				case NOT_COMMAND -> {
 				}
 				default -> chatValue.setState(State.ERROR);

@@ -2,12 +2,20 @@
 logging:
   level:
     org.baylist.api.TodoistFeignClient: debug
+    org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor: debug
     root: info
 
 ### connect ###
 todoist:
   baseUrl: https://api.todoist.com/rest/v2
 spring:
+  ai:
+    openai:
+      api-key: ${OPENAI_TOKEN}
+      chat:
+        options:
+          model: gpt-4o-mini
+          temperature: 0.7
   liquibase:
     change-log: classpath:/db/changelog/db.changelog-master.xml
     enabled: true

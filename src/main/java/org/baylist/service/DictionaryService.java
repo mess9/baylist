@@ -12,7 +12,8 @@ import org.baylist.dto.telegram.Callbacks;
 import org.baylist.dto.telegram.ChatValue;
 import org.baylist.dto.telegram.State;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
@@ -26,9 +27,12 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static org.baylist.dto.Constants.CATEGORIES;
+import static org.baylist.dto.Constants.DICT;
 import static org.baylist.dto.Constants.UNKNOWN_CATEGORY;
 
 @Component
@@ -41,13 +45,14 @@ public class DictionaryService {
 	VariantRepository variantRepository;
 	MenuService menuService;
 	HistoryService historyService;
+	CacheManager cacheManager;
 
 
 	public Map<String, Set<String>> parseInputWithDict(String input, Long userId) {
 		DictionaryService self = context.getBean(DictionaryService.class);
 		Map<String, Set<String>> dict = self.getDict(userId);
 		Map<String, Set<String>> buyList = new HashMap<>();
-		List<String> words = splitInput(input);
+		List<String> words = splitInputTasks(input);
 		if (dict != null) {
 			words.forEach(word -> {
 				String category = findCategoryInDictionary(word, dict);
@@ -60,19 +65,77 @@ public class DictionaryService {
         return buyList;
     }
 
-	public boolean addDictCategory(String categoryName, Long userId) {
-        // todo позже добавить валидацию
-		Category categoryByName = getCategoryByNameFromDb(categoryName);
-		if (categoryByName == null) {
-			categoryRepository.save(new Category(categoryName, userId));
-			historyService.changeDict(userId, Action.ADD_CATEGORY, categoryName);
-			return true;
-		} else {
-			return false;
-		}
-    }
+	@Transactional
+	public Map<String, Set<String>> changeAllDict(Long userId, Map<String, Set<String>> changes) {
+		DictionaryService self = context.getBean(DictionaryService.class);
+		Map<String, Set<String>> dict = self.getDict(userId);
+		List<Category> categoriesBeforeChanges = self.getCategoriesByUserId(userId);
 
-	@Cacheable(value = "dict", key = "#userId")
+
+		// Шаг 1: Найти различия между dict и changes
+		Set<String> categoriesToRemove = new HashSet<>(dict.keySet());
+		categoriesToRemove.removeAll(changes.keySet());
+
+		Set<String> categoriesToAdd = new HashSet<>(changes.keySet());
+		categoriesToAdd.removeAll(dict.keySet());
+
+		Set<String> categoriesToUpdate = new HashSet<>(changes.keySet());
+		categoriesToUpdate.retainAll(dict.keySet());
+
+		// Шаг 2: Удалить отсутствующие категории и их варианты
+		categoryRepository.deleteAll(
+				categoriesToRemove.stream()
+						.map(c -> categoriesBeforeChanges.stream()
+								.filter(cdb -> cdb.getName().equals(c))
+								.findAny()
+								.orElse(null))
+						.filter(Objects::nonNull)
+						.toList());
+
+		// Шаг 3: Добавить новые категории и их варианты
+		categoriesToAdd.forEach(c -> {
+			Category category = new Category(null, c, userId, null);
+			Category save = categoryRepository.save(category);
+			Set<String> variants = changes.get(c);
+			variants.forEach(v -> new Variant(null, v, save));
+		});
+
+		// Шаг 4: Обновить существующие категории (если изменились варианты)
+		categoriesToUpdate.forEach(c -> {
+			Category category = categoriesBeforeChanges.stream()
+					.filter(cdb -> cdb.getName().equals(c)).findAny().orElse(null);
+			if (category != null) {
+				category = getCategoryWithVariants(category.getId());
+				Category finalCategory = category;
+				Set<String> currentVariants = dict.get(c); // Текущие варианты в базе
+				Set<String> newVariants = changes.get(c); // Новые варианты из changes
+
+				// варианты для удаления
+				Set<String> variantsToRemove = new HashSet<>(currentVariants);
+				variantsToRemove.removeAll(newVariants);
+				// варианты для добавления
+				Set<String> variantsToAdd = new HashSet<>(newVariants);
+				variantsToAdd.removeAll(currentVariants);
+
+				List<Variant> variantsInCategory = category.getVariants();
+				List<Variant> listToRemove = variantsInCategory.stream().filter(v -> variantsToRemove.contains(v.getName())).toList();
+				List<Variant> listToAdd = variantsToAdd.stream().map(v -> new Variant(null, v, finalCategory)).toList();
+				variantsInCategory.removeAll(listToRemove);
+				variantsInCategory.addAll(listToAdd);
+
+				category.setVariants(variantsInCategory);
+				categoryRepository.save(category);
+			}
+		});
+
+		List<Category> categoriesAfterChanges = categoryRepository.findAllByUserId(userId);
+		cacheEvict(categoriesAfterChanges);
+
+		return changes;
+	}
+
+	@Transactional
+	@Cacheable(value = DICT, key = "#userId")
 	public Map<String, Set<String>> getDict(Long userId) {
 		List<Category> categories = categoryRepository.findAllByUserId(userId);
 		if (categories.isEmpty()) {
@@ -85,46 +148,45 @@ public class DictionaryService {
 							.map(Variant::getName)
 							.collect(Collectors.toSet())));
 		}
-    }
-
-    public List<String> getCategories() {
-        return categoryRepository.findAll().stream().map(Category::getName).toList();
-    }
-
-	public Category getCategoryByNameFromDb(String name) { //no cache
-		return categoryRepository.findCategoryByName(name);
 	}
 
-	public void addVariantToCategory(ChatValue chatValue, String category) {
-        String input = chatValue.getInputText();
-		if (validate(input)) {
-			String[] split = input.split("\n");
-			List<String> variants = Arrays.stream(split).map(String::trim).distinct().toList();
-			Category categoryDb = getCategoryByNameFromDb(category);
-			if (categoryDb == null) {
-				menuService.dictionaryMainMenu(chatValue, false);
-				chatValue.setReplyText("категория не найдена");
-			} else {
-				addVariantsToCategory(variants, categoryDb);
-				historyService.changeDict(chatValue.getUser().getUserId(), Action.ADD_VARIANT, variants.toString());
-				menuService.dictionaryMainMenu(chatValue, false);
-				chatValue.setReplyText(variants.size() + ": вариантов добавлено в категорию - " + category);
-			}
-			chatValue.setState(State.DICT_SETTING);
-		} else {
-			menuService.dictionaryMainMenu(chatValue, false);
-			chatValue.setReplyText("варианты не были добавлены. т.к. я не разобрал что добавлять\n" +
-					"рекомендуется следовать рекомендациям по вводу вариантов");
+	private List<String> splitInputTasks(String input) {
+		if (input != null) {
+			return Arrays.stream(input.split("\n")).toList();
 		}
-
-    }
-
-	public void addVariantsToCategory(List<String> variants, Category categoryDb) {
-		variantRepository.saveAll(variants.stream().map(v -> new Variant(null, v, categoryDb)).toList());
+		return new ArrayList<>();
+		// мб позже добавить вариант разделения по запятым или пробелам, хз пока
 	}
 
-	public List<String> getVariants(String category) {
-		return variantRepository.findAllByCategoryName(category).stream().map(Variant::getName).toList();
+	@Transactional
+	public void removeCategory(List<Category> categories) {
+		if (categories != null) {
+			categoryRepository.deleteAll(categories);
+			cacheEvict(categories);
+		}
+	}
+
+	private void cacheEvict(List<Category> categories) {
+		Cache cacheCategories = cacheManager.getCache(CATEGORIES);
+		if (cacheCategories != null) {
+			for (Category category : categories) {
+				cacheCategories.evict(category.getUserId());
+			}
+		}
+		//мб стоит вообще не кешировать категории, а только словарик целиком
+		// и варианты в категориях подгружать как eager
+		Cache cacheDict = cacheManager.getCache(DICT);
+		if (cacheDict != null) {
+			for (Category category : categories) {
+				cacheDict.evict(category.getUserId());
+			}
+		}
+	}
+
+	public void renameCategory(Category category, String newCategoryName) {
+		category.setName(newCategoryName);
+		categoryRepository.save(category);
+		cacheEvict(List.of(category));
 	}
 
 	public void settingsShortMenu(ChatValue chatValue, String message, boolean isEdit) {
@@ -150,50 +212,81 @@ public class DictionaryService {
     }
 
 	@Transactional
-	public void removeCategory(String category) {
-		Category categoryDb = getCategoryByNameFromDb(category);
-		if (categoryDb != null) {
-			removeCategoryById(categoryDb);
-			categoryRepository.delete(categoryDb);
+	public boolean addCategory(String categoryName, Long userId) {
+		if (validateCategory(categoryName)) {
+			List<Category> categoriesByUserId = getCategoriesByUserIdNoCache(userId);
+			if (categoriesByUserId.stream().noneMatch(c -> c.getName().equals(categoryName))) {
+				categoryRepository.save(new Category(categoryName, userId));
+				historyService.changeDict(userId, Action.ADD_CATEGORY, categoryName);
+				cacheEvict(categoriesByUserId);
+				return true;
+			}
 		}
+		return false;
 	}
 
-	@CacheEvict(value = "category", key = "#categoryDb.id")
-	public void removeCategoryById(Category categoryDb) {
-		variantRepository.deleteCategoryById(categoryDb.getId());
+	private boolean validateCategory(String category) {
+		return category != null && !category.isBlank() && category.length() >= 2;
 	}
 
-	@CacheEvict(value = "category", key = "#category.id")
-	public void renameCategory(Category category, String newCategoryName) {
-		category.setName(newCategoryName);
-		categoryRepository.save(category);
+	@Transactional
+	@Cacheable(value = CATEGORIES, unless = "#result == null")
+	public List<Category> getCategoriesByUserId(Long userId) {
+		return categoryRepository.findAllByUserId(userId);
 	}
 
-	public boolean validate(String variants) {
+	public List<Category> getCategoriesByUserIdNoCache(Long userId) {
+		return categoryRepository.findAllByUserId(userId);
+	}
+
+	public Category getCategoryByCategoryIdAndUserId(Long categoryId, Long userId) {
+		DictionaryService self = context.getBean(DictionaryService.class);
+		return self.getCategoriesByUserId(userId).stream()
+				.filter(c -> c.getId().equals(categoryId))
+				.findAny()
+				.orElseThrow();
+	}
+
+	public void addVariantToCategory(ChatValue chatValue, Category category) {
+		String input = chatValue.getInputText();
+		if (validateVariants(input)) {
+			String[] split = input.split("\n");
+			List<String> variants = Arrays.stream(split).map(String::trim).distinct().toList();
+			List<String> addedVariants = addVariantsToCategory(variants, category);
+			historyService.changeDict(chatValue.getUserId(), Action.ADD_VARIANT, variants.toString());
+			menuService.dictionaryMainMenu(chatValue, false);
+			postAddedMessage(chatValue, category, addedVariants.size(), variants);
+			chatValue.setState(State.DICT_SETTING);
+			cacheEvict(List.of(category));
+			chatValue.setReplyParseModeHtml();
+		} else {
+			menuService.dictionaryMainMenu(chatValue, false);
+			chatValue.setReplyText("варианты не были добавлены. т.к. я не разобрал что добавлять\n" +
+					"рекомендуется следовать рекомендациям по вводу вариантов");
+		}
+
+	}
+
+	public boolean validateVariants(String variants) {
 		return variants != null && !variants.isBlank() && variants.length() >= 2;
 		//валидация
 		// 1. на принадлежность вариантов категории
 		// 2. на то что варианты разделены \n
 	}
 
-	@Transactional
-	public void removeVariants(List<String> variants) {
-		for (String s : variants) {
-			variantRepository.deleteByName(s.trim());
-		}
-	}
-
-	@Transactional
-	public List<Category> getCategoriesByUserId(Long userId) {
-		return categoryRepository.findAllByUserId(userId);
-	}
-
-	private List<String> splitInput(String input) {
-		if (input != null) {
-			return Arrays.stream(input.split("\n")).toList();
-		}
-		return new ArrayList<>();
-		// мб позже добавить вариант разделения по запятым или пробелам, хз пока
+	public List<String> addVariantsToCategory(List<String> variants, Category targetCategory) {
+		targetCategory = getCategoryWithVariants(targetCategory.getId());
+		Category finalTargetCategory = targetCategory;
+		List<Category> allCategories = getAllCategoryWithVariants(targetCategory.getUserId());
+		variants = variants.stream()
+				.filter(v -> !allCategories.stream()
+						.flatMap(c -> c.getVariants().stream())
+						.map(Variant::getName)
+						.toList()
+						.contains(v))
+				.toList();
+		variantRepository.saveAll(variants.stream().map(v -> new Variant(null, v, finalTargetCategory)).toList());
+		return variants;
 	}
 
 	@NotNull
@@ -203,6 +296,45 @@ public class DictionaryService {
 				.map(Map.Entry::getKey)
 				.findAny()
 				.orElse(UNKNOWN_CATEGORY);
+	}
+
+	private void postAddedMessage(ChatValue chatValue, Category category, int addedVariantsCount, List<String> variants) {
+		if (addedVariantsCount == variants.size()) {
+			chatValue.setReplyText("все " + addedVariantsCount + " вариантов было добавлено в категорию - <b>" + category.getName() + "</b>");
+		} else if (addedVariantsCount > 0) {
+			chatValue.setReplyText(addedVariantsCount + " вариантов было добавлено в категорию - <b>" + category.getName() + "</b>");
+		} else if (addedVariantsCount == 0) {
+			chatValue.setReplyText("уже существующие варианты нельзя передобавить заново");
+		}
+	}
+
+	public Category getCategoryWithVariants(Long categoryId) {
+		return categoryRepository.findCategoryWithVariants(categoryId);
+	}
+
+	public List<Category> getAllCategoryWithVariants(Long userid) {
+		return categoryRepository.findAllCategoriesWithVariants(userid);
+	}
+
+
+	public Category getCategoryWithVariantsByName(Long userId, String categoryName) {
+		return categoryRepository.findCategoryWithVariantsByName(userId, categoryName);
+	}
+
+	@Transactional
+	public List<String> removeVariants(List<String> variants, Category category) {
+		category = getCategoryWithVariants(category.getId());
+		List<Variant> existVariants = category.getVariants();
+		List<Variant> variantsForDelete = new ArrayList<>();
+		existVariants.stream().filter(v -> variants.contains(v.getName())).forEach(variantsForDelete::add);
+		if (!variantsForDelete.isEmpty()) {
+			category.getVariants().removeAll(variantsForDelete);
+			categoryRepository.save(category);
+			cacheEvict(List.of(category));
+			return variantsForDelete.stream().map(Variant::getName).toList();
+		} else {
+			return List.of();
+		}
 	}
 
 

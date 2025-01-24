@@ -9,9 +9,4 @@ public interface VariantRepository extends JpaRepository<Variant, Long> {
 
 	List<Variant> findAllByCategoryId(Long id);
 
-	List<Variant> findAllByCategoryName(String categoryName);
-
-	void deleteCategoryById(Long id);
-
-	void deleteByName(String variant);
 }

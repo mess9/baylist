@@ -1,6 +1,7 @@
 package org.baylist.service;
 
-import jakarta.persistence.PersistenceException;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -18,6 +19,7 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationContext;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Contact;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
@@ -32,6 +34,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static org.baylist.dto.Constants.FIL_USER_ID;
 import static org.baylist.dto.Constants.STRING_FIL_USER_ID;
+import static org.baylist.dto.Constants.USER;
 import static org.baylist.util.Util.getName;
 
 @Component
@@ -43,6 +46,9 @@ public class UserService {
 	UserRepository userRepository;
 	ApplicationContext context;
 	HistoryService historyService;
+
+	@PersistenceContext
+	EntityManager entityManager;
 
 	@Getter
 	Set<Long> modifiedUserIds = ConcurrentHashMap.newKeySet();
@@ -57,9 +63,9 @@ public class UserService {
 	@Transactional
 	public void saveUserInDb(User user) {
 		try {
-			userRepository.save(user);
-		} catch (PersistenceException e) {
-			log.error("не получается сохранить пользователя{}", e.getMessage());
+			entityManager.merge(user);
+		} catch (DataAccessException e) {
+			log.error("Ошибка при сохранении пользователя: {}", e.getMessage());
 		}
 	}
 
@@ -83,15 +89,15 @@ public class UserService {
 		}
 	}
 
-	@Cacheable(value = "user", unless = "#result == null")
+	@Cacheable(value = USER, unless = "#result == null")
 	public User findByUserId(Long userId) {
 		return userRepository.findByUserId(userId);
 	}
 
 	@Transactional
-	@CacheEvict(value = "user", key = "#chatValue.getUser().userId")
+	@CacheEvict(value = USER, key = "#chatValue.getUser().userId")
 	public boolean addFriend(ChatValue chatValue, Contact contact) {
-		User user = getUserFromDb(chatValue.getUser().getUserId());
+		User user = getUserFromDb(chatValue.getUserId());
 		User friend = getUserFromDb(contact.getUserId());
 
 		if (friend != null) {
@@ -110,6 +116,10 @@ public class UserService {
 
 	public User getUserFromDb(Long userId) { //no cache
 		return userRepository.findByUserId(userId);
+	}
+
+	public User getUserFromWithFriendsDb(Long userId) { //no cache
+		return userRepository.findUserWithMyFriends(userId);
 	}
 
 	private boolean existFriend(User user, Long friend) {
@@ -163,7 +173,7 @@ public class UserService {
 	@Transactional
 	@CacheEvict(value = "user", key = "#chatValue.getUser().userId")
 	public void removeMyFriendsList(ChatValue chatValue) {
-		User userFromDb = getUserFromDb(chatValue.getUser().getUserId());
+		User userFromDb = getUserFromDb(chatValue.getUserId());
 		List<User> friends = userFromDb.getFriends();
 		InlineKeyboardMarkup markup;
 		if (friends.isEmpty()) {
@@ -194,7 +204,7 @@ public class UserService {
 	@Transactional
 	@CacheEvict(value = "user", key = "#chatValue.getUser().userId")
 	public void removeFromFriendsList(ChatValue chatValue) {
-		User userFromDb = getUserFromDb(chatValue.getUser().getUserId());
+		User userFromDb = getUserFromDb(chatValue.getUserId());
 		List<User> friendMe = getFriendMe(userFromDb.getUserId());
 
 		InlineKeyboardMarkup markup;
@@ -227,7 +237,7 @@ public class UserService {
 	public void removeMyFriend(ChatValue chatValue) {
 		Long friendUserId = Long.parseLong(chatValue.getCallbackData().substring(Callbacks.FRIEND_REMOVE_MY_CHOICE.getCallbackData().length() + 1));
 		User friend = userRepository.findByUserId(friendUserId);
-		User user = getUserFromDb(chatValue.getUser().getUserId());
+		User user = getUserFromDb(chatValue.getUserId());
 		user.getFriends().remove(friend);
 		userRepository.save(user);
 		historyService.changeFriend(chatValue.getUser(), friend, Action.REMOVE_MY_FRIEND);
@@ -246,7 +256,7 @@ public class UserService {
 	public void removeFromFriend(ChatValue chatValue) {
 		Long friendUserId = Long.parseLong(chatValue.getCallbackData().substring(Callbacks.FRIEND_REMOVE_FROM_CHOICE.getCallbackData().length() + 1));
 		User friend = getUserFromDb(friendUserId);
-		User user = getUserFromDb(chatValue.getUser().getUserId());
+		User user = getUserFromDb(chatValue.getUserId());
 		friend.getFriends().remove(user);
 		userRepository.save(friend);
 		historyService.changeFriend(chatValue.getUser(), friend, Action.REMOVE_FROM_FRIEND);

@@ -17,8 +17,10 @@ public enum Commands {
 	DEFAULT("/default", "режим ввода задач"),
 	HELP("/help", "описание функционала бота, примеры использования"),
 	MENU("/menu", "главное меню бота"),
-	MENU_MENU("\uD83D\uDCD1 меню", "главное меню бота"),
-	DEFAULT_MENU("✏ ввод задач", "главное меню бота"),
+	MENU_BOTTOM_KEYBOARD("\uD83D\uDCD1 меню", "главное меню бота"),
+	DEFAULT_BOTTOM_KEYBOARD("✏ ввод задач", "в режим ввода задач"),
+	NOT_AI_BOTTOM_KEYBOARD("в режим без ai", "в режим ввода задач без ai"),
+	AI("аи", "аи"),
 	NOT_COMMAND("is_not_command", "for error handler"),
 	;
 

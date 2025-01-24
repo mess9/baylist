@@ -13,6 +13,7 @@
     <include file="migrations/7.friends-table.yaml" relativeToChangelogFile="true"/>
     <include file="migrations/8.history-table.yaml" relativeToChangelogFile="true"/>
     <include file="migrations/9.history-add-id.yaml" relativeToChangelogFile="true"/>
+    <include file="migrations/10.dialog-remove-selected-category.yaml" relativeToChangelogFile="true"/>
 
 
 </databaseChangeLog>

@@ -41,49 +41,66 @@ public class CommonResponseService {
 		chatValue.setState(State.DEFAULT);
 	}
 
-	public void textChoiceRemoveCategory(ChatValue chatValue, boolean isEdit) {
-		if (isEdit) {
-			chatValue.setEditText("""
-					какие категории удалить?
-					
-					<i>примечание, вместе с категорией удаляются и все связанные с ней варианты задач</i>
-					""");
-			chatValue.setEditReplyParseModeHtml();
-		} else {
-			chatValue.setReplyText("""
-					какие категории удалить?
-					
-					<i>примечание, вместе с категорией удаляются и все связанные с ней варианты задач</i>
-					""");
-			chatValue.setReplyParseModeHtml();
-		}
+	public void textChoiceRemoveCategory(ChatValue chatValue) {
+		chatValue.setEditText("""
+				какие категории удалить?
+				
+				<i>примечание, вместе с категорией удаляются и все связанные с ней варианты задач</i>
+				""");
+		chatValue.setEditReplyParseModeHtml();
 	}
 
 	public void textChoiceRemoveVariant(ChatValue chatValue, boolean success) {
 		if (success) {
 			chatValue.setReplyText("введённые варианты были успешно удалены");
 		} else {
-			chatValue.setReplyText("введённые варианты не были удалены. попробуйте ещё раз" +
-					" но как-то так что бы сработало");
+			chatValue.setReplyText("""
+					введённые варианты не были удалены.
+					попробуйте ввести список ещё раз
+					 но как-то так - что-бы на этот раз сработало
+					
+					возможно были введены варианты не из выбранной категории
+					или ещё что похуже
+					""");
 		}
 	}
 
 	public void checkAndView(ChatValue chatValue, boolean isMenu) {
 		List<User> recipients = todoist.checkRecipients(chatValue);
 
-		if (recipients.isEmpty()) {
-			menuService.mainMenu(chatValue, false);
-			chatValue.setReplyText("""
+		if (isMenu) {
+			if (recipients.isEmpty()) {
+				menuService.mainMenu(chatValue, true);
+				chatValue.setEditText("""
 					нет возможности посмотреть то чего не существует.
-					<i>но может быть однажды...</i>
+						
+						<i>но может быть оно и к лучшему...</i>
 					""");
-			chatValue.setReplyParseModeHtml();
-		} else if (recipients.size() == 1) {
-			view(chatValue, recipients.getFirst(), isMenu);
+				chatValue.setEditReplyParseModeHtml();
+			} else if (recipients.size() == 1) {
+				view(chatValue, recipients.getFirst(), true);
+			} else {
+				chatValue.setEditText("выберите чьи задачки посмотреть");
+				chatValue.setEditReplyKeyboard(recipientsKeyboard(recipients, false));
+			}
 		} else {
-			chatValue.setReplyText("выберите чьи задачки посмотреть");
-			chatValue.setReplyKeyboard(recipientsKeyboard(recipients, false));
+			if (recipients.isEmpty()) {
+				menuService.mainMenu(chatValue, true);
+				chatValue.setReplyText("""
+						нет возможности посмотреть то чего не существует.
+						
+						<i>но может быть оно и к лучшему...</i>
+						""");
+				chatValue.setReplyParseModeHtml();
+			} else if (recipients.size() == 1) {
+				view(chatValue, recipients.getFirst(), false);
+			} else {
+				chatValue.setReplyText("выберите чьи задачки посмотреть");
+				chatValue.setReplyKeyboard(recipientsKeyboard(recipients, false));
+			}
+			chatValue.setState(State.MENU);
 		}
+
 	}
 
 	public void view(ChatValue chatValue, User recipient, boolean isMenu) {
@@ -133,8 +150,8 @@ public class CommonResponseService {
 		));
 
 		StringBuilder sb = new StringBuilder();
-		boolean existToken = userService.isExistToken(chatValue.getUser().getUserId());
-		User user = userService.getUserFromDb(chatValue.getUser().getUserId());
+		boolean existToken = userService.isExistToken(chatValue.getUserId());
+		User user = userService.getUserFromDb(chatValue.getUserId());
 		List<Category> categoriesByUserId = dictionaryService.getCategoriesByUserId(user.getUserId());
 		long variants = 0;
 		if (!categoriesByUserId.isEmpty()) {
@@ -318,7 +335,7 @@ public class CommonResponseService {
 
 	@Transactional
 	public void listMyFriends(ChatValue chatValue) {
-		User user = userService.getUserFromDb(chatValue.getUser().getUserId());
+		User user = userService.getUserFromDb(chatValue.getUserId());
 		List<User> friends = user.getFriends();
 		StringBuilder sb = new StringBuilder();
 		checkFriends(friends, sb);
@@ -334,7 +351,7 @@ public class CommonResponseService {
 
 	@Transactional
 	public void listFriendsMe(ChatValue chatValue) {
-		List<User> friendsMe = userService.getFriendMe(chatValue.getUser().getUserId());
+		List<User> friendsMe = userService.getFriendMe(chatValue.getUserId());
 		StringBuilder sb = new StringBuilder();
 		if (friendsMe.isEmpty()) {
 			sb.append("у вас пока нет друзей которым вы бы могли отправить задачи...");
@@ -422,6 +439,87 @@ public class CommonResponseService {
 				InlineKeyboardButton.builder()
 						.text("ok")
 						.callbackData(Callbacks.DICT_SETTINGS.getCallbackData())
+						.build()))));
+	}
+
+	public void botHelp(ChatValue chatValue) {
+		chatValue.setEditText("""
+				как работает этот бот
+				
+				основной функционал бота - принимать список задач, и отправлять его себе/другу в todoist
+				
+				так как, пока к боту не добавлена нейронка, то бот не может автоматически распознать в любом твоём сообщении инструкцию к действию
+				бот работает по принципу <i>смены режимов</i>
+				например сейчас ты находишься в <i>режиме справки</i>
+				и любой ввод текста приведёт к тому, что откроется меню справки
+				
+				а если бы бот находился в <i>режиме приёма задач</i>, то полученное сообщение он бы попытался преобразовать в список задач и отправить его в todoist
+				
+				переключаться по режимам можно несколькими способами
+				в любом меню - снизу есть кнопка закрытия этого меню, что переводит в <i>режим ввода задач</i>
+				ещё можно вводить команды
+				например
+				/menu - откроет главное меню и переведёт в <i>режим меню</i>
+				/default - переведёт бот в <i>режим приёма задач</i>
+				/start - в <i>режим первоначальной настройки</i>
+				/report - в <i>режим отправки обратной связи</i>
+				
+				и в каждом из этих режимов бот ожидает
+				<u>что пользователь умеет читать</u>
+				 и видит что перед ним меню с кнопками
+				<u><b>или</b></u>
+				 текст который призывает его ввести что-то конкретное
+				
+				правильное взаимодействие с ботом - это взаимодействовать только с этим, самым последним сообщением что прислал бот
+				
+				<i><b>не.нужно.</b></i>
+				тыкать на кнопки из предыдущих сообщений
+				пытаться ответить на предыдущие сообщения
+				
+				в противном случае - ничего непоправимого не случится, но адекватное поведение бота не гарантируется
+				
+				если же всё делается правильно, а бот ведёт себя неадекватно
+				очень прошу сообщить об этом через форму обратной связи
+				отправьте боту команду - /report
+				если даже это не помогает - пиши напрямую автору бота @mess9
+				""");
+		chatValue.setEditReplyParseModeHtml();
+		chatValue.setEditReplyKeyboard(new InlineKeyboardMarkup(List.of(new InlineKeyboardRow(
+				InlineKeyboardButton.builder()
+						.text("ok")
+						.callbackData(Callbacks.HELP.getCallbackData())
+						.build()))));
+	}
+
+	public void todoistHelp(ChatValue chatValue) {
+		chatValue.setEditText("""				
+				основной функционал бота - принимать список задач, и отправлять его себе/другу в todoist
+				
+				>> <i><b>todoist</b></i> нужен - для того, что бы удобно было выполнять задачи.
+				задачи в приложении выглядят как строчки, которые можно отметить выполненными нажав на них.
+				это удобно - видеть только не выполненные задачи.
+				в будущем todoist будет заменён на собственную разработку, где не нужно будет регистрироваться отдельно
+				а сейчас он используется как платформа для:
+				- <code>хранения</code>
+				- <code>отображения</code>
+				- <code>закрытия</code>
+				задач
+				
+				todoist был выбран потому что:
+				- бесплатный
+				- кроссплатформенный(пк, андроид, яблоко)
+				- удобный интерфейс
+				- простая интеграция по api
+				- так исторически сложилось
+				
+				предложить другие варианты и обоснования, можно через форму обратной связи
+				/report
+				""");
+		chatValue.setEditReplyParseModeHtml();
+		chatValue.setEditReplyKeyboard(new InlineKeyboardMarkup(List.of(new InlineKeyboardRow(
+				InlineKeyboardButton.builder()
+						.text("ok")
+						.callbackData(Callbacks.HELP.getCallbackData())
 						.build()))));
 	}
 

@@ -68,8 +68,8 @@ public class TodoistService {
 	}
 
 	public String clearBuyList(ChatValue chatValue) {
-		if (userService.isExistToken(chatValue.getUser().getUserId())) {
-			Optional<ProjectDto> buyListProject = todoistStateMap.get(chatValue.getUser().getUserId()).getBuyListProject();
+		syncBuyListData(chatValue.getUser());
+		Optional<ProjectDto> buyListProject = todoistStateMap.get(chatValue.getUserId()).getBuyListProject();
 			if (buyListProject.isPresent()) {
 				ProjectDto project = buyListProject.get();
 				project.getTasks().forEach(t -> todoistApi.deleteTask(chatValue.getToken(), t.getId()));
@@ -78,10 +78,6 @@ public class TodoistService {
 			} else {
 				return "проекта со списком покупок не существует, можно настроить тут /start";
 			}
-		} else {
-			return "очищать список покупок может только его владелец";
-		}
-
 	}
 
 	public void syncBuyListData(User recipient) {

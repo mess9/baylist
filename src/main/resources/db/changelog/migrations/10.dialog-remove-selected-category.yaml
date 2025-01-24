@@ -1,0 +1,10 @@
+databaseChangeLog:
+  - changeSet:
+      id: 12
+      author: fil
+      changes:
+        - dropColumn:
+            tableName: dialogs
+            columns:
+              - column:
+                  name: selected_category

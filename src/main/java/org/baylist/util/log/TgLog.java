@@ -11,7 +11,7 @@ import static org.baylist.util.log.LogUtil.reduceEmptyLines;
 @Slf4j
 public class TgLog {
 
-	private static final int QUANTITY_CHAR_TO_CUT_MESSAGE = 150;
+	private static final int QUANTITY_CHAR_TO_CUT_MESSAGE = 150000;
 
 	public static SendMessage outputLog(SendMessage message) {
 		String chatId = message.getChatId();

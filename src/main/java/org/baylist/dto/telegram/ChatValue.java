@@ -9,6 +9,9 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 
+import static org.telegram.telegrambots.meta.api.methods.ParseMode.HTML;
+import static org.telegram.telegrambots.meta.api.methods.ParseMode.MARKDOWN;
+
 @Data
 public class ChatValue {
 
@@ -54,6 +57,10 @@ public class ChatValue {
 	public String getToken() {
 		return "Bearer " + user.getTodoistToken();
 	}
+
+	public Long getUserId() {
+		return user.getUserId();
+	}
 	//endregion GETTER
 
 
@@ -77,11 +84,20 @@ public class ChatValue {
 	}
 
     public void setReplyParseModeHtml() {
-        this.message.setParseMode("html");
+	    this.message.setParseMode(HTML);
     }
 
+	public void setReplyParseModeMarkdown() {
+		this.message.setParseMode(MARKDOWN);
+	}
+
+	@SuppressWarnings("unused")
+	public void setReplyParseModeOff() {
+		this.message.setParseMode(null);
+	}
+
 	public void setEditReplyParseModeHtml() {
-		this.editMessage.setParseMode("html");
+		this.editMessage.setParseMode(HTML);
 	}
 
 	public void setReplyKeyboard(ReplyKeyboard markup) {

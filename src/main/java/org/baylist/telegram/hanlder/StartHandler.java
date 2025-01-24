@@ -35,7 +35,7 @@ public class StartHandler implements DialogHandler {
 			if (callbackData.equals(Callbacks.START.getCallbackData())) {
 				todoistAnswer(chatValue);
 			} else if (callbackData.equals(Callbacks.START_1_TODOIST_TOKEN_REQUEST.getCallbackData())) {
-				if (userService.isExistToken(chatValue.getUser().getUserId())) {
+				if (userService.isExistToken(chatValue.getUserId())) {
 					responseService.existToken(chatValue);
 				} else {
 					responseService.tokenRequest(chatValue);
@@ -43,7 +43,7 @@ public class StartHandler implements DialogHandler {
 			} else if (callbackData.equals(Callbacks.START_1_TODOIST_TOKEN_CHANGE.getCallbackData())) {
 				responseService.tokenRequest(chatValue);
 			} else if (callbackData.equals(Callbacks.START_2_FRIENDS_REQUEST.getCallbackData())) {
-				if (userService.isExistToken(chatValue.getUser().getUserId())) {
+				if (userService.isExistToken(chatValue.getUserId())) {
 					friendsAnswer(chatValue);
 				} else {
 					responseService.doneWithouFriends(chatValue, State.START);
@@ -96,6 +96,17 @@ public class StartHandler implements DialogHandler {
 				вы всегда можете попасть
 				в главное меню командой:
 				/menu
+				
+				<b>настоятельно</b> рекомендуется прочитать справку к боту
+				/help
+				<i>особенно раздел - <u>по работе с ботом</u></i>
+				там ничего сложного
+				честно-честно
+				
+				прост если ни разу не приходилось иметь дел с телеграм ботом сложнее пары команд, то какие-то моменты могут показаться неочевидными
+				
+				автор бота постарался подстелить соломки везде где только можно
+				но все ситуации предусмотреть невозможно
 				""");
 		chatValue.setReplyParseModeHtml();
 		chatValue.setState(State.DEFAULT);

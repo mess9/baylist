@@ -8,5 +8,10 @@ public interface Constants {
 	String STRING_FIL_USER_ID = "69716214";
 	int LIMIT_CHAR_FOR_ONE_PAGE = 4000;
 
+	//cache
+	String CATEGORIES = "categories";
+	String DICT = "dict";
+	String USER = "user";
+
 
 }

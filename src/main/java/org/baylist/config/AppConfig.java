@@ -3,6 +3,8 @@ package org.baylist.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import org.baylist.util.log.ControllerLog;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
@@ -10,6 +12,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import javax.sql.DataSource;
 
@@ -19,7 +23,7 @@ import static org.baylist.util.convert.ToJson.getObjectMapper;
 @Configuration
 @EnableCaching
 @EnableScheduling
-public class AppConfig {
+public class AppConfig implements WebMvcConfigurer {
 
     @Value("${spring.datasource.url}")
     private String datasourceUrl;
@@ -29,6 +33,9 @@ public class AppConfig {
     private String datasourcePassword;
     @Value("${spring.datasource.driver-class-name}")
     private String datasourceDriverClassName;
+
+    @Autowired
+    private ControllerLog controllerLog;
 
     @Bean
     public DataSource dataSource() {
@@ -61,6 +68,12 @@ public class AppConfig {
     public ObjectMapper objectMapper() {
         return getObjectMapper();
     }
+
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(controllerLog);
+    }
+
 
 }
 
