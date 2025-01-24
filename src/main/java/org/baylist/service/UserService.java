@@ -275,6 +275,43 @@ public class UserService {
 		chatValue.setEditReplyParseModeHtml();
 	}
 
+	@Transactional
+	public String removeMyFriend(Long userId, String friendName) {
+		User user = userRepository.findUserWithMyFriends(userId);
+		User friend = user.getFriends().stream()
+				.filter(f -> friendName.contains(f.getFirstName()) ||
+						friendName.contains(f.getLastName()) ||
+						getName(f).contains(friendName))
+				.findAny().orElse(null);
+		if (friend != null) {
+			user.getFriends().remove(friend);
+			userRepository.save(user);
+			historyService.changeFriend(user, friend, Action.REMOVE_MY_FRIEND);
+			return friendName;
+		} else {
+			return "такой друг не был найден";
+		}
+	}
+
+	@Transactional
+	public String removeFromFriend(Long userId, String friendName) {
+		User user = userRepository.findByUserId(userId);
+		List<User> friendMe = getFriendMe(userId);
+		User friend = friendMe.stream()
+				.filter(f -> friendName.contains(f.getFirstName()) ||
+						friendName.contains(f.getLastName()) ||
+						getName(f).contains(friendName))
+				.findAny().orElse(null);
+		if (friend != null) {
+			friend.getFriends().remove(user);
+			userRepository.save(friend);
+			historyService.changeFriend(user, friend, Action.REMOVE_FROM_FRIEND);
+			return friendName;
+		} else {
+			return "такой друг не был найден";
+		}
+	}
+
 	//private
 	private void bindUser(ChatValue chatValue, User user) {
 		chatValue.setUser(user);

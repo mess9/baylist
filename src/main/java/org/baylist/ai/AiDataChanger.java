@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.baylist.ai.record.in.UserRequestWithFriend;
 import org.baylist.ai.record.in.UserWithCategoryName;
 import org.baylist.ai.record.in.UserWithCategoryRename;
 import org.baylist.ai.record.in.UserWithChangeVariants;
@@ -13,12 +14,15 @@ import org.baylist.ai.record.out.ChangedVariants;
 import org.baylist.ai.record.out.CreatedCategory;
 import org.baylist.ai.record.out.CreatedVariants;
 import org.baylist.ai.record.out.DeletedCategory;
+import org.baylist.ai.record.out.DeletedFriend;
 import org.baylist.ai.record.out.DeletedVariants;
 import org.baylist.ai.record.out.Dictionary;
 import org.baylist.ai.record.out.RenamedCategory;
 import org.baylist.db.entity.Category;
 import org.baylist.exception.AiException;
 import org.baylist.service.DictionaryService;
+import org.baylist.service.TodoistService;
+import org.baylist.service.UserService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -30,6 +34,8 @@ import java.util.List;
 public class AiDataChanger {
 
 	DictionaryService dictionaryService;
+	UserService userService;
+	TodoistService todoist;
 
 	//region DICT
 
@@ -154,5 +160,29 @@ public class AiDataChanger {
 	}
 
 	//endregion DICT
+
+	//region FRIENDS
+
+	public DeletedFriend removeMyFriend(UserRequestWithFriend userRequest) {
+		log.info("ai function called - removeMyFriend");
+		try {
+			String s = userService.removeMyFriend(userRequest.user().getUserId(), userRequest.friendName());
+			return new DeletedFriend(s);
+		} catch (Exception e) {
+			throw new AiException(e.getMessage());
+		}
+	}
+
+	public DeletedFriend removeFriendMe(UserRequestWithFriend userRequest) {
+		log.info("ai function called - removeFriendMe");
+		try {
+			String s = userService.removeFromFriend(userRequest.user().getUserId(), userRequest.friendName());
+			return new DeletedFriend(s);
+		} catch (Exception e) {
+			throw new AiException(e.getMessage());
+		}
+	}
+
+	//endregion FRIENDS
 
 }
