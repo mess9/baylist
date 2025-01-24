@@ -113,10 +113,7 @@
 
 .category-ul {
 	overflow: hidden;
-}
-
-.category__item-li:last-child {
-	border: none;
+	transition: max-height 0.3s ease;
 }
 
 .category__item-li--delimeter-top {
@@ -125,5 +122,9 @@
 
 .category__item-li--delimeter-bottom {
 	border-bottom: 1px solid var(--white-tenth);
+}
+
+.category__item-li--last {
+	border-bottom: none;
 }
 

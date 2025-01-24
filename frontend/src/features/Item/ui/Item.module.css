@@ -18,6 +18,31 @@
 	text-overflow: ellipsis;
 }
 
+.buy-item__dnd-button {
+	cursor: pointer;
+
+	display: flex;
+	align-items: stretch;
+
+	width: 2.6rem;
+	height: 2.6rem;
+	padding: 0.2rem;
+	border-radius: 0.4rem;
+
+	color: var(--white);
+}
+
+@media (hover: hover) and (pointer: fine) {
+	.buy-item__dnd-button {
+		opacity: 0;
+		transition: 0.15s ease opacity;
+	}
+
+	.buy-item__dnd-button:hover {
+		opacity: 1;
+	}
+}
+
 .item__check-input {
 	display: flex;
 	align-items: center;

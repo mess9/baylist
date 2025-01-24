@@ -1,5 +1,5 @@
-import type { Component } from "solid-js";
-import { createSignal, For, mergeProps } from "solid-js";
+import type { Component, Setter } from "solid-js";
+import { createEffect, createSignal, mergeProps } from "solid-js";
 
 import {
 	IconEllipsisHorizontalSolid,
@@ -9,7 +9,12 @@ import {
 import type { IItem } from "/features/Item/ui/Item";
 import Item from "/features/Item/ui/Item";
 
+import type { SortableEvent } from "solid-sortablejs";
+import Sortable from "solid-sortablejs";
+
 import classes from "./Category.module.css";
+import classesItem from "/features/Item/ui/Item.module.css";
+
 
 export interface ICategory {
 	id: string;
@@ -19,39 +24,39 @@ export interface ICategory {
 	delimiter?: "top" | "bottom";
 }
 
-const Category: Component<ICategory> = (props) => {
+interface ICategoryProps extends ICategory {
+	setItems: (categoryId: string) => Setter<IItem[]>;
+	handleMove: (event: SortableEvent, depth: number) => void;
+}
+
+const Category: Component<ICategoryProps> = (props) => {
 	const [isExpand, setIsExpand] = createSignal(true);
+
 	let ulRef: HTMLUListElement | undefined;
 
-	const merge = mergeProps({delimiter: "bottom"}, props)
+
+	const merge = mergeProps({ delimiter: "bottom" }, props);
 
 	//TODO: МЕМОИЗИРОВАТЬ В ЗАВИСИМОСТИ ОТ КОНТЕНТА?
-	const toggleVisibility = () => {
+	const changeMaxHeight = () => {
 		if (!ulRef) return;
-
 		const ul = ulRef;
 		const currentHeight = ul.scrollHeight;
 		ul.style.maxHeight = isExpand() ? `${currentHeight}px` : "0";
+	};
 
-		requestAnimationFrame(() => {
-			ul.style.transition = "max-height 0.3s ease";
-			ul.style.maxHeight = isExpand() ? `${currentHeight}px` : "0";
-		});
-
+	const toggleVisibility = () => {
+		if (!ulRef) return;
 		setIsExpand(!isExpand());
+		changeMaxHeight();
 	};
 
-	// Убираем transition после завершения аниPмации (для корректной работы с динамическим контентом)
-	// TODO: Не уверен что нужно, когда будет динамика - !!!проверить!!
-	const removeTransition = () => {
-		if (ulRef) {
-			ulRef.style.transition = "";
-		}
-	};
-
+	createEffect(() => {
+		changeMaxHeight();
+	});
 
 	return (
-		<section class={classes["category-section"]}>
+		<section class={classes["category-section"]} >
 			<div class={classes["category__header"]}>
 				<label class={classes["category__drop-down-control-label"]}>
 					<input
@@ -80,26 +85,38 @@ const Category: Component<ICategory> = (props) => {
 				classList={{
 					[classes["category-ul"]]: true,
 				}}
-				onTransitionEnd={removeTransition}
 				ref={ulRef}
 			>
-				<For each={merge.items}>
+				<Sortable
+					idField={"id"}
+					items={merge.items}
+					setItems={merge.setItems(merge.id)}
+					group="bl1"
+					handle={`.${classesItem["buy-item__dnd-button"]}`}
+					onChange={(() => changeMaxHeight())}
+					onEnd={(e) => merge.handleMove(e, 1)}
+				>
 					{(item) => (
 						<li
 							classList={{
-								[classes["buy-list__item-li"]]: true,
-								[classes[
-									"category__item-li--delimeter-top"
-								]]: merge.delimiter === "top",
+								[classes["category__item-li--last"]]:
+									item.order ===
+									merge.items.reduce((max, item) => {
+										return item.order > max
+											? item.order
+											: max;
+									}, 0),
+								[classes["category__item-li--delimeter-top"]]:
+									merge.delimiter === "top",
 								[classes[
 									"category__item-li--delimeter-bottom"
 								]]: merge.delimiter === "bottom",
 							}}
 						>
-							<Item {...item}/>
+							<Item {...item} />
 						</li>
 					)}
-				</For>
+				</Sortable>
 			</ul>
 		</section>
 	);
