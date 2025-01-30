@@ -18,5 +18,4 @@ public class ViewHandler implements DialogHandler {
 		responseService.checkAndView(chatValue, false);
 	}
 
-
 }

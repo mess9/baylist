@@ -26,34 +26,36 @@ public class StartHandler implements DialogHandler {
 	UserService userService;
 	CommonResponseService responseService;
 
-
 	// state START
 	@Override
 	public void handle(ChatValue chatValue) {
 		if (chatValue.isCallback()) {
 			String callbackData = chatValue.getCallbackData();
-			if (callbackData.equals(Callbacks.START.getCallbackData())) {
-				todoistAnswer(chatValue);
-			} else if (callbackData.equals(Callbacks.START_1_TODOIST_TOKEN_REQUEST.getCallbackData())) {
-				if (userService.isExistToken(chatValue.getUserId())) {
-					responseService.existToken(chatValue);
-				} else {
+			Callbacks callbacks = Callbacks.fromValue(callbackData);
+			switch (callbacks) {
+				case START:
+					todoistAnswer(chatValue);
+				case START_1_TODOIST_TOKEN_REQUEST: {
+					if (userService.isExistToken(chatValue.getUserId())) {
+						responseService.existToken(chatValue);
+					} else {
+						responseService.tokenRequest(chatValue);
+					}
+				}
+				case START_1_TODOIST_TOKEN_CHANGE:
 					responseService.tokenRequest(chatValue);
+				case START_2_FRIENDS_REQUEST: {
+					if (userService.isExistToken(chatValue.getUserId())) {
+						friendsAnswer(chatValue);
+					} else {
+						responseService.doneWithouFriends(chatValue, State.START);
+					}
 				}
-			} else if (callbackData.equals(Callbacks.START_1_TODOIST_TOKEN_CHANGE.getCallbackData())) {
-				responseService.tokenRequest(chatValue);
-			} else if (callbackData.equals(Callbacks.START_2_FRIENDS_REQUEST.getCallbackData())) {
-				if (userService.isExistToken(chatValue.getUserId())) {
-					friendsAnswer(chatValue);
-				} else {
-					responseService.doneWithouFriends(chatValue, State.START);
-				}
-			} else if (callbackData.equals(Callbacks.START_2_ADD_FRIENDS.getCallbackData())) {
-				responseService.friendsRequest(chatValue, State.START);
-			} else if (callbackData.equals(Callbacks.START_DONE.getCallbackData())) {
-				done(chatValue);
+				case START_2_ADD_FRIENDS:
+					responseService.friendsRequest(chatValue, State.START);
+				case START_DONE:
+					done(chatValue);
 			}
-
 		} else {
 			Update update = chatValue.getUpdate();
 			if (update.hasMessage() && update.getMessage().hasText() && update.getMessage().getText().equals(Commands.START.getCommand())) {

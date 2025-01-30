@@ -25,7 +25,6 @@ public class DictAddVariantToCategoryHandler implements DialogHandler {
 	MenuService menuService;
 	Map<Long, Category> selectedCategoryStore = new ConcurrentHashMap<>();
 
-	//todo валидация на уникальность вариантов среди всех категорий пользователя
 
 	// state DICT_ADD_TASK_TO_CATEGORY
 	@Override
@@ -61,6 +60,5 @@ public class DictAddVariantToCategoryHandler implements DialogHandler {
 			}
 		}
 	}
-
 
 }

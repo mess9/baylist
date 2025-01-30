@@ -2,22 +2,14 @@ package org.baylist.telegram.hanlder.dictionary;
 
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.baylist.db.entity.Category;
 import org.baylist.dto.telegram.Callbacks;
 import org.baylist.dto.telegram.ChatValue;
 import org.baylist.dto.telegram.State;
 import org.baylist.service.CommonResponseService;
-import org.baylist.service.DictionaryService;
 import org.baylist.service.MenuService;
 import org.baylist.service.TgButtonService;
 import org.baylist.telegram.hanlder.config.DialogHandler;
 import org.springframework.stereotype.Component;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardRow;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -25,7 +17,6 @@ import java.util.stream.Collectors;
 public class DictMenuHandler implements DialogHandler {
 
 	CommonResponseService responseService;
-	DictionaryService dictionaryService;
 	TgButtonService tgButtonService;
 	MenuService menuService;
 
@@ -55,22 +46,7 @@ public class DictMenuHandler implements DialogHandler {
 
 	private void dictView(ChatValue chatValue) {
 		chatValue.setEditText("внутрь какой категории заглянуть?");
-		List<Category> categories = dictionaryService.getCategoriesByUserId(chatValue.getUserId());
-
-		List<InlineKeyboardRow> rows = categories.stream()
-				.map(c -> new InlineKeyboardRow(
-						InlineKeyboardButton.builder()
-								.text(c.getName())
-								.callbackData(Callbacks.CATEGORY_CHOICE.getCallbackData() + c.getId())
-								.build())).collect(Collectors.toList());
-		rows.add(new InlineKeyboardRow(
-				InlineKeyboardButton.builder()
-						.text("⏪ назад")
-						.callbackData(Callbacks.DICT_SETTINGS.getCallbackData())
-						.build()));
-		InlineKeyboardMarkup markup = new InlineKeyboardMarkup(rows);
-		chatValue.setEditReplyKeyboard(markup);
-		chatValue.setState(State.DICT_VIEW);
+		tgButtonService.setCategoriesChoiceKeyboard(chatValue, State.DICT_VIEW, true);
 	}
 
 	private static void addCategory(ChatValue chatValue) {

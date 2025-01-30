@@ -61,5 +61,4 @@ public class FriendsHandler implements DialogHandler {
 		}
 	}
 
-
 }

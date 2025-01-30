@@ -15,7 +15,7 @@ public class FeedbackAnswerHandler implements DialogHandler {
 
 	UserService userService;
 
-	//state FEEDBACK_ANSWER
+	// state FEEDBACK_ANSWER
 	@Override
 	public void handle(ChatValue chatValue) {
 		User fil = userService.getFil();
@@ -31,4 +31,5 @@ public class FeedbackAnswerHandler implements DialogHandler {
 		chatValue.setForwardMessage(forwardMessage);
 		chatValue.setState(State.DEFAULT);
 	}
+
 }

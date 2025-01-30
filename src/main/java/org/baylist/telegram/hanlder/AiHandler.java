@@ -56,7 +56,6 @@ public class AiHandler implements DialogHandler {
 					пиши автору бота он может внести тебя в список избранных
 					""");
 		}
-
 	}
 
 	private boolean checkUser(Long userId) {

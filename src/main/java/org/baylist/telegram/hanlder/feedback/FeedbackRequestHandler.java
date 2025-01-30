@@ -63,5 +63,6 @@ public class FeedbackRequestHandler implements DialogHandler {
 			chatValue.setState(State.FEEDBACK_REQUEST);
 		}
 	}
+
 }
 

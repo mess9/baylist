@@ -10,7 +10,6 @@ import org.springframework.stereotype.Component;
 @AllArgsConstructor
 public class ErrorHandler implements DialogHandler {
 
-
 	// state ERROR
 	@Override
 	public void handle(ChatValue chatValue) {
@@ -32,4 +31,5 @@ public class ErrorHandler implements DialogHandler {
 			}
 		}
 	}
+
 }

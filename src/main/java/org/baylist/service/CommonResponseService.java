@@ -72,10 +72,10 @@ public class CommonResponseService {
 			if (recipients.isEmpty()) {
 				menuService.mainMenu(chatValue, true);
 				chatValue.setEditText("""
-					нет возможности посмотреть то чего не существует.
+						нет возможности посмотреть то чего не существует.
 						
 						<i>но может быть оно и к лучшему...</i>
-					""");
+						""");
 				chatValue.setEditReplyParseModeHtml();
 			} else if (recipients.size() == 1) {
 				view(chatValue, recipients.getFirst(), true);
@@ -100,7 +100,6 @@ public class CommonResponseService {
 			}
 			chatValue.setState(State.MENU);
 		}
-
 	}
 
 	public void view(ChatValue chatValue, User recipient, boolean isMenu) {

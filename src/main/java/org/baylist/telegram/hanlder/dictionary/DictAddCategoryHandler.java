@@ -53,5 +53,4 @@ public class DictAddCategoryHandler implements DialogHandler {
 		}
 	}
 
-
 }

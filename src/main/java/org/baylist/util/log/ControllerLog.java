@@ -11,7 +11,6 @@ import org.springframework.web.servlet.HandlerInterceptor;
 @Component
 public class ControllerLog implements HandlerInterceptor {
 
-
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, @NotNull Object handler) {
 		log.info("in request: {} {}", request.getMethod(), request.getRequestURI());

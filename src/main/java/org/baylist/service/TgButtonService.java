@@ -23,19 +23,7 @@ public class TgButtonService {
 
 
 	public void setCategoriesChoiceKeyboard(ChatValue chatValue, State state, boolean isEdit) {
-		List<Category> categories = dictionaryService.getCategoriesByUserId(chatValue.getUserId());
-		List<InlineKeyboardRow> rows = categories.stream()
-				.map(c -> new InlineKeyboardRow(
-						InlineKeyboardButton.builder()
-								.text(c.getName())
-								.callbackData(Callbacks.CATEGORY_CHOICE.getCallbackData() + c.getId())
-								.build())).collect(Collectors.toList());
-		rows.add(new InlineKeyboardRow(
-				InlineKeyboardButton.builder()
-						.text("⏪ назад")
-						.callbackData(Callbacks.DICT_SETTINGS.getCallbackData())
-						.build()));
-		InlineKeyboardMarkup markup = new InlineKeyboardMarkup(rows);
+		InlineKeyboardMarkup markup = categoryButtonList(chatValue, dictionaryService);
 		if (isEdit) {
 			chatValue.setEditReplyKeyboard(markup);
 		} else {
@@ -77,6 +65,23 @@ public class TgButtonService {
 		InlineKeyboardMarkup markup = new InlineKeyboardMarkup(categoryButtons);
 		chatValue.setEditReplyKeyboard(markup);
 		chatValue.setState(state);
+	}
+
+	private static InlineKeyboardMarkup categoryButtonList(ChatValue chatValue, DictionaryService dictionaryService) {
+		List<Category> categories = dictionaryService.getCategoriesByUserId(chatValue.getUserId());
+
+		List<InlineKeyboardRow> rows = categories.stream()
+				.map(c -> new InlineKeyboardRow(
+						InlineKeyboardButton.builder()
+								.text(c.getName())
+								.callbackData(Callbacks.CATEGORY_CHOICE.getCallbackData() + c.getId())
+								.build())).collect(Collectors.toList());
+		rows.add(new InlineKeyboardRow(
+				InlineKeyboardButton.builder()
+						.text("⏪ назад")
+						.callbackData(Callbacks.DICT_SETTINGS.getCallbackData())
+						.build()));
+		return new InlineKeyboardMarkup(rows);
 	}
 
 

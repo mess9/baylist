@@ -83,7 +83,6 @@ public class ToJson {
         }
         try {
             ObjectMapper mapper = new ObjectMapper();
-//            mapperSetting(mapper);
 
             CollectionType listType = mapper.getTypeFactory().constructCollectionType(List.class, valueType);
             list = mapper.readValue(string, listType);
@@ -93,6 +92,23 @@ public class ToJson {
         }
         return list;
     }
+
+	public static <T> List<T> fromJsonList(String string) {
+		List<T> list = null;
+		if (string == null || string.isEmpty()) {
+			throw new IllegalArgumentException("JSON array cannot be null or empty");
+		}
+		try {
+			ObjectMapper mapper = getObjectMapper();
+
+			list = mapper.readValue(string, new TypeReference<>() {
+			});
+		} catch (JsonProcessingException e) {
+			String failMessage = "Failed to convert from JSON\n" + string;
+			log.info(failMessage, e);
+		}
+		return list;
+	}
 
 
     private static void mapperSetting(ObjectMapper mapper) {
@@ -118,20 +134,4 @@ public class ToJson {
         mapper.registerModule(offsetDateTimeSerializer);
     }
 
-    public static <T> List<T> fromJsonList(String string) {
-        List<T> list = null;
-        if (string == null || string.isEmpty()) {
-            throw new IllegalArgumentException("JSON array cannot be null or empty");
-        }
-        try {
-            ObjectMapper mapper = getObjectMapper();
-
-            list = mapper.readValue(string, new TypeReference<>() {
-            });
-        } catch (JsonProcessingException e) {
-            String failMessage = "Failed to convert from JSON\n" + string;
-            log.info(failMessage, e);
-        }
-        return list;
-    }
 }

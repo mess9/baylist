@@ -19,9 +19,9 @@ public class HelpHandler implements DialogHandler {
 	MenuService menuService;
 	CommonResponseService responseService;
 
+	// state HELP
 	@Override
 	public void handle(ChatValue chatValue) {
-
 		if (chatValue.isCallback()) {
 			Callbacks callback = Callbacks.fromValue(chatValue.getCallbackData());
 			switch (callback) {

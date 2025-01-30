@@ -16,6 +16,17 @@ spring:
         options:
           model: gpt-4o-mini
           temperature: 0.7
+  #  ai:
+  #    openai:
+  #      base-url: https://api.deepseek.com
+  #      api-key: ${DS_TOKEN}
+  #      chat:
+  #        enabled: true
+  #        options:
+  #          model: deepseek-chat
+  #          temperature: 0.7
+  #      embedding:
+  #        enabled: false
   liquibase:
     change-log: classpath:/db/changelog/db.changelog-master.xml
     enabled: true

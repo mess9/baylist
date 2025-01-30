@@ -82,6 +82,7 @@ public class DictRemoveCategoryHandler implements DialogHandler {
 			}
 		}
 	}
+
 }
 
 
