@@ -1,7 +1,6 @@
 package org.baylist.service;
 
 import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.baylist.db.entity.Category;
 import org.baylist.db.entity.Variant;
@@ -12,10 +11,12 @@ import org.baylist.dto.telegram.Callbacks;
 import org.baylist.dto.telegram.ChatValue;
 import org.baylist.dto.telegram.State;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
@@ -36,7 +37,6 @@ import static org.baylist.dto.Constants.DICT;
 import static org.baylist.dto.Constants.UNKNOWN_CATEGORY;
 
 @Component
-@RequiredArgsConstructor
 @FieldDefaults(makeFinal = true, level = lombok.AccessLevel.PRIVATE)
 public class DictionaryService {
 
@@ -46,6 +46,24 @@ public class DictionaryService {
 	MenuService menuService;
 	HistoryService historyService;
 	CacheManager cacheManager;
+	TodoistService todoistService;
+
+	@Autowired
+	public DictionaryService(ApplicationContext context,
+	                         CategoryRepository categoryRepository,
+	                         VariantRepository variantRepository,
+	                         MenuService menuService,
+	                         HistoryService historyService,
+	                         CacheManager cacheManager,
+	                         @Lazy TodoistService todoistService) {
+		this.context = context;
+		this.categoryRepository = categoryRepository;
+		this.variantRepository = variantRepository;
+		this.menuService = menuService;
+		this.historyService = historyService;
+		this.cacheManager = cacheManager;
+		this.todoistService = todoistService;
+	}
 
 
 	public Map<String, Set<String>> parseInputWithDict(List<String> input, Long userId) {
@@ -167,23 +185,6 @@ public class DictionaryService {
 		}
 	}
 
-	private void cacheEvict(List<Category> categories) {
-		Cache cacheCategories = cacheManager.getCache(CATEGORIES);
-		if (cacheCategories != null) {
-			for (Category category : categories) {
-				cacheCategories.evict(category.getUserId());
-			}
-		}
-		//мб стоит вообще не кешировать категории, а только словарик целиком
-		// и варианты в категориях подгружать как eager
-		Cache cacheDict = cacheManager.getCache(DICT);
-		if (cacheDict != null) {
-			for (Category category : categories) {
-				cacheDict.evict(category.getUserId());
-			}
-		}
-	}
-
 	public void renameCategory(Category category, String newCategoryName) {
 		category.setName(newCategoryName);
 		categoryRepository.save(category);
@@ -227,10 +228,6 @@ public class DictionaryService {
 		return false;
 	}
 
-	private boolean validateCategory(String category) {
-		return category != null && !category.isBlank() && category.length() >= 2;
-	}
-
 	@Transactional
 	@Cacheable(value = CATEGORIES, unless = "#result == null")
 	public List<Category> getCategoriesByUserId(Long userId) {
@@ -255,11 +252,14 @@ public class DictionaryService {
 			String[] split = input.split("\n");
 			List<String> variants = Arrays.stream(split).map(String::trim).distinct().toList();
 			List<String> addedVariants = addVariantsToCategory(variants, category);
+			todoistService.changeCategoryForExistTasks(chatValue.getToken(), category, chatValue.getUser(), addedVariants);
+
 			menuService.dictionaryMainMenu(chatValue, false);
-			postAddedMessage(chatValue, category, addedVariants.size(), variants);
+			postAddedMessage(chatValue, category, variants.size(), addedVariants.size());
 			chatValue.setState(State.DICT_SETTING);
-			cacheEvict(List.of(category));
 			chatValue.setReplyParseModeHtml();
+
+			cacheEvict(List.of(category));
 		} else {
 			menuService.dictionaryMainMenu(chatValue, false);
 			chatValue.setReplyText("варианты не были добавлены. т.к. я не разобрал что добавлять\n" +
@@ -289,25 +289,6 @@ public class DictionaryService {
 		variantRepository.saveAll(variants.stream().map(v -> new Variant(null, v, finalTargetCategory)).toList());
 		historyService.changeDict(targetCategory.getUserId(), Action.ADD_VARIANT, variants.toString());
 		return variants;
-	}
-
-	@NotNull
-	private static String findCategoryInDictionary(String word, Map<String, Set<String>> dict) {
-		return dict.entrySet().stream()
-				.filter(entry -> entry.getValue().contains(word))
-				.map(Map.Entry::getKey)
-				.findAny()
-				.orElse(UNKNOWN_CATEGORY);
-	}
-
-	private void postAddedMessage(ChatValue chatValue, Category category, int addedVariantsCount, List<String> variants) {
-		if (addedVariantsCount == variants.size()) {
-			chatValue.setReplyText("все " + addedVariantsCount + " вариантов было добавлено в категорию - <b>" + category.getName() + "</b>");
-		} else if (addedVariantsCount > 0) {
-			chatValue.setReplyText(addedVariantsCount + " вариантов было добавлено в категорию - <b>" + category.getName() + "</b>");
-		} else if (addedVariantsCount == 0) {
-			chatValue.setReplyText("уже существующие варианты нельзя передобавить заново");
-		}
 	}
 
 	public Category getCategoryWithVariants(Long categoryId) {
@@ -341,5 +322,44 @@ public class DictionaryService {
 		}
 	}
 
+	@NotNull
+	private static String findCategoryInDictionary(String word, Map<String, Set<String>> dict) {
+		return dict.entrySet().stream()
+				.filter(entry -> entry.getValue().contains(word))
+				.map(Map.Entry::getKey)
+				.findAny()
+				.orElse(UNKNOWN_CATEGORY);
+	}
+
+	private void postAddedMessage(ChatValue chatValue, Category category, int inputVariantsCount, int addedVariantsCount) {
+		if (addedVariantsCount == inputVariantsCount) {
+			chatValue.setReplyText("все " + addedVariantsCount + " вариантов было добавлено в категорию - <b>" + category.getName() + "</b>");
+		} else if (inputVariantsCount > addedVariantsCount) {
+			chatValue.setReplyText(addedVariantsCount + " вариантов было добавлено в категорию - <b>" + category.getName() + "</b>");
+		} else if (addedVariantsCount == 0) {
+			chatValue.setReplyText("уже существующие варианты нельзя передобавить заново");
+		}
+	}
+
+	private boolean validateCategory(String category) {
+		return category != null && !category.isBlank() && category.length() >= 2;
+	}
+
+	private void cacheEvict(List<Category> categories) {
+		Cache cacheCategories = cacheManager.getCache(CATEGORIES);
+		if (cacheCategories != null) {
+			for (Category category : categories) {
+				cacheCategories.evict(category.getUserId());
+			}
+		}
+		//мб стоит вообще не кешировать категории, а только словарик целиком
+		// и варианты в категориях подгружать как eager
+		Cache cacheDict = cacheManager.getCache(DICT);
+		if (cacheDict != null) {
+			for (Category category : categories) {
+				cacheDict.evict(category.getUserId());
+			}
+		}
+	}
 
 }

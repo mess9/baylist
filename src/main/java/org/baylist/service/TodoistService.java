@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.baylist.api.TodoistFeignClient;
+import org.baylist.db.entity.Category;
 import org.baylist.db.entity.User;
 import org.baylist.dto.telegram.Action;
 import org.baylist.dto.telegram.Callbacks;
@@ -133,6 +134,16 @@ public class TodoistService {
 		}
 	}
 
+	@Transactional
+	public List<User> checkRecipients(ChatValue chatValue) {
+		User iUser = chatValue.getUser();
+		boolean isExistToken = userService.isExistToken(iUser.getUserId());
+		List<User> friendMe = userService.getFriendMe(iUser.getUserId());
+
+		if (isExistToken) friendMe.add(iUser);
+		return friendMe;
+	}
+
 	@NotNull
 	public List<String> submitToTodoist(User source, User recipient, Optional<ProjectDto> buyListProjectDb, Map<String, Set<String>> inputTasks) {
 		if (buyListProjectDb.isPresent()) {
@@ -154,7 +165,53 @@ public class TodoistService {
 		}
 	}
 
+	public boolean storageIsEmpty(Long userId) {
+		return todoistStateMap.get(userId) == null || todoistStateMap.get(userId).isEmpty();
+	}
+
+	public TaskResponse createTask(String token, TaskRequest task) {
+		return todoistApi.createTask(token, task);
+	}
+
+	public void changeCategoryForExistTasks(String token, Category category, User user, List<String> addedVariants) {
+		ProjectDto buylistProject = getBuylistProjectDto(user);
+		List<TaskResponse> tasksWithoutSection = buylistProject.getTasksWithoutSection();
+		Section section = buylistProject.getSections().stream()
+				.map(SectionDto::getSection)
+				.filter(s -> s.getName().equals(category.getName()))
+				.findAny().orElseGet(() -> createSection(token, Section.builder()
+						.name(category.getName())
+						.projectId(buylistProject.getProject().getId())
+						.build()));
+
+		moveTasksToSection(token, addedVariants, section, tasksWithoutSection);
+	}
+
+	public ProjectDto getBuylistProjectDto(User recipient) {
+		syncBuyListData(recipient);
+		Optional<ProjectDto> projectByName = todoistStateMap.get(recipient.getUserId())
+				.getProjectByName(BUYLIST_PROJECT);
+		return projectByName.orElseGet(ProjectDto::new);
+	}
+
+
+	public TaskResponse sendOneTasksToTodoist(String token, TaskRequest task) {
+		return todoistApi.createTask(token, task);
+	}
+
 	//private
+	private void moveTasksToSection(String token, List<String> addedVariants, Section c, List<TaskResponse> tasksWithoutSection) {
+		tasksWithoutSection.stream().filter(t -> addedVariants.contains(t.getContent())).forEach(t -> {
+			deleteTask(token, t);
+			sendOneTasksToTodoist(token,
+					TaskRequest.builder()
+							.content(t.getContent())
+							.projectId(t.getProjectId())
+							.sectionId(c.getId())
+							.build());
+		});
+	}
+
 	private Set<String> sendTasksWithoutCategory(Map<String, Set<String>> inputTasks,
 	                                             List<TaskResponse> tasks,
 	                                             String projectId,
@@ -190,20 +247,6 @@ public class TodoistService {
 			}
 		});
 		return submittedTasks;
-	}
-
-	@Transactional
-	public List<User> checkRecipients(ChatValue chatValue) {
-		User iUser = chatValue.getUser();
-		boolean isExistToken = userService.isExistToken(iUser.getUserId());
-		List<User> friendMe = userService.getFriendMe(iUser.getUserId());
-
-		if (isExistToken) friendMe.add(iUser);
-		return friendMe;
-	}
-
-	public boolean storageIsEmpty(Long userId) {
-		return todoistStateMap.get(userId) == null || todoistStateMap.get(userId).isEmpty();
 	}
 
 	private void sendTasks(Set<String> taskList, String buyListProjectId, String token) {
@@ -267,14 +310,5 @@ public class TodoistService {
 				.projectId(buyListProjectId)
 				.build());
 	}
-
-	public TaskResponse createTask(String token, TaskRequest task) {
-		return todoistApi.createTask(token, task);
-	}
-
-	public TaskResponse sendOneTasksToTodoist(String token, TaskRequest task) {
-		return todoistApi.createTask(token, task);
-	}
-
 
 }
