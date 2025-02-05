@@ -1,6 +1,7 @@
-import { Component, createSignal } from 'solid-js';
-import { Header } from './Header';
-import './page.css';
+import type { Component } from "solid-js";
+import { createSignal } from "solid-js";
+import { Header } from "./Header";
+import "./page.css";
 
 type User = {
   name: string;
@@ -13,22 +14,22 @@ export const Page: Component = () => {
     <article>
       <Header
         user={user()}
-        onLogin={() => setUser({ name: 'Jane Doe' })}
+        onLogin={() => setUser({ name: "Jane Doe" })}
         onLogout={() => setUser(undefined)}
-        onCreateAccount={() => setUser({ name: 'Jane Doe' })}
+        onCreateAccount={() => setUser({ name: "Jane Doe" })}
       />
 
       <section class="storybook-page">
         <h2>Pages in Storybook</h2>
         <p>
-          We recommend building UIs with a{' '}
+          We recommend building UIs with a{" "}
           <a
             href="https://componentdriven.org"
             target="_blank"
             rel="noopener noreferrer"
           >
             <strong>component-driven</strong>
-          </a>{' '}
+          </a>{" "}
           process starting with atomic components and ending with pages.
         </p>
         <p>
@@ -47,7 +48,7 @@ export const Page: Component = () => {
           </li>
         </ul>
         <p>
-          Get a guided tutorial on component-driven development at{' '}
+          Get a guided tutorial on component-driven development at{" "}
           <a
             href="https://storybook.js.org/tutorials/"
             target="_blank"
@@ -55,7 +56,7 @@ export const Page: Component = () => {
           >
             Storybook tutorials
           </a>
-          . Read more in the{' '}
+          . Read more in the{" "}
           <a
             href="https://storybook.js.org/docs"
             target="_blank"
@@ -66,7 +67,7 @@ export const Page: Component = () => {
           .
         </p>
         <div class="tip-wrapper">
-          <span class="tip">Tip</span> Adjust the width of the canvas with the{' '}
+          <span class="tip">Tip</span> Adjust the width of the canvas with the{" "}
           <svg
             width="10"
             height="10"

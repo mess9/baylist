@@ -12,6 +12,7 @@
     "noEmit": true,
     "isolatedModules": true,
     "paths": {
+      "/src/*": ["./src/*"],
       "/app": ["./src/app"],
       "/app/*": ["./src/app/*"],
       "/pages/*": ["./src/pages/*"],

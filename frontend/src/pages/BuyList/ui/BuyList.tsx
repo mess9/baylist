@@ -1,4 +1,9 @@
-import type { Component, Setter } from "solid-js";
+import {
+  createEffect,
+  createResource,
+  type Component,
+  type Setter,
+} from "solid-js";
 import type { SortableEvent } from "solid-sortablejs";
 import Sortable from "solid-sortablejs";
 
@@ -8,228 +13,143 @@ import Category from "/widgets/Category/ui/Category";
 import classes from "./BuyList.module.css";
 import { createStore } from "solid-js/store";
 import type { IItem } from "/features/Item/ui/Item";
-// import { createQuery } from "@tanstack/solid-query";
+
+import { Show } from "solid-js";
+import {
+  fetchCategories,
+  updateCategoriesOrder,
+  updateItemsOrder,
+  moveItem,
+} from "../api/buyListService";
 
 const BuyList: Component = () => {
-	// const getCategories = createQuery(()=>({
-			
-	// 	}))
-	const [categories, setCategories] = createStore<ICategory[]>([
-		{
-			id: "c1",
-			name: "Category 1",
-			items: [
-				{
-					id: `c1_${crypto.randomUUID()}`,
-					name: "ogurec",
-					order: 1,
-					parentId: "c1",
-				},
-				{
-					id: `c1_${crypto.randomUUID()}`,
-					name: "pomidor",
-					order: 2,
-					parentId: "c1",
-			
-				},
-				{
-					id: `c1_${crypto.randomUUID()}`,
-					name: "luk",
-					order: 3,
-					parentId: "c1",
-			
-				},
-				{
-					id: `c1_${crypto.randomUUID()}`,
-					name: "ne_luk",
-					order: 4,
-					parentId: "c1",
-			
-				},
-			],
-			order: 1,
-	
-		},
-		{
-			id: "c2",
-			name: "Category 2",
-			items: [
-				{
-					id: `c2_${crypto.randomUUID()}`,
-					name: "kartoshka",
-					order: 1,
-					parentId: "c2",
-			
-				},
-				{
-					id: `c2_${crypto.randomUUID()}`,
-					name: "morkov",
-					order: 2,
-					parentId: "c2",
-			
-				},
-				{
-					id: `c2_${crypto.randomUUID()}`,
-					name: "kapusta",
-					order: 3,
-					parentId: "c2",
-			
-				},
-			],
-			order: 2,
-	
-		},
-		{
-			id: "c3",
-			name: "Category 3",
-			items: [
-				{
-					id: `c3_${crypto.randomUUID()}`,
-					name: "batat",
-					order: 1,
-					parentId: "c3",
-			
-				},
-				{
-					id: `c3_${crypto.randomUUID()}`,
-					name: "chicken",
-					order: 2,
-					parentId: "c3",
-			
-				},
-				{
-					id: `c3_${crypto.randomUUID()}`,
-					name: "pepper",
-					order: 3,
-					parentId: "c3",
-			
-				},
-			],
-			order: 3,
-		},
-	]);
+  const [categories, setCategories] = createStore<ICategory[]>([]);
 
-	const createSetItemsForCategory = (parentId: string): Setter<IItem[]> => {
-		return (updater) => {
-			setCategories(
-				(category) => category.id === parentId, // Найти категорию по ID
-				"items", // Указать путь к items
-				typeof updater === "function" ? updater : () => updater, // Обновить items
-			);
-		};
-	};
+  const [getCategories, { mutate }] = createResource<ICategory[]>(
+    fetchCategories,
+    {
+      initialValue: [],
+    }
+  );
 
-	const handleMove = (e: SortableEvent, depth: number) => {
-		const categoryOrderSetter = () => {
-			setCategories(
-				(categories) => (console.log(categories, "incOS"), categories.map((category, index) => ({
-						...category,
-						order: index + 1,
-					}),
-				)));
-		};
+  createEffect(() => {
+    setCategories(getCategories() || []);
+    mutate(categories);
+  });
 
-		if (depth === 0) {
-			categoryOrderSetter();
-			return;
-		}
+  const createSetItemsForCategory = (parentId: string): Setter<IItem[]> => {
+    return (updater) => {
+      console.log(updater, "updater");
+      setCategories(
+        (category) => category.id === parentId,
+        "items",
+        typeof updater === "function" ? updater : () => updater
+      );
+    };
+  };
 
-		const fromList = e.from;
+  const handleMove = (e: SortableEvent, depth: number) => {
+    const updateCategoryOrder = () => {
+      setCategories((categories) =>
+        categories.map((category, index) => ({
+          ...category,
+          order: index + 1,
+        }))
+      );
+    };
 
-		const closestFromParent = fromList.closest("[data-id]") || null;
+    const updateItemOrder = (parentId: string, withUpdate: boolean) => {
+      let updatedItems: IItem[] = [];
+      setCategories(
+        (category) => category.id === parentId,
+        "items",
+        (items) => {
+          updatedItems = items.map((item, index) => ({
+            ...item,
+            order: index + 1,
+          }));
+          if (withUpdate) {
+            updateItemsOrder(parentId, updatedItems);
+          }
+          return updatedItems;
+        }
+      );
+      return updatedItems;
+    };
 
-		if (!(closestFromParent instanceof HTMLElement)) return;
+    const updateSectionId = (parentId: string) => {
+      setCategories(
+        (category) => category.id === parentId,
+        "items",
+        (items) => items.map((item) => ({ ...item, sectionId: parentId }))
+      );
+    };
 
-		const parentFromId = closestFromParent.dataset["id"] || null;
+    if (depth === 0) {
+      updateCategoryOrder();
+      updateCategoriesOrder(categories);
+      return;
+    }
 
-		if (!parentFromId) return;
+    const fromList = e.from;
+    const closestFromParent = fromList.closest(
+      "[data-id]"
+    ) as HTMLElement | null;
+    if (!closestFromParent) return;
 
-		const itemOrderSetterFromList = (parentFromId: string) => {
-			setCategories(
-				(category) => category.id === parentFromId,
-				"items",
-				(items) => items.map((item, index) => ({
-					...item,
-					order: index + 1,
-				}))						
-			);	
-		};
+    const parentFromId = closestFromParent.dataset["id"];
+    if (!parentFromId) return;
 
-		const toList = e.to;
+    const toList = e.to;
+    if (fromList === toList) {
+      updateItemOrder(parentFromId, true);
+      return;
+    }
 
-		if (fromList === toList ) {
-			itemOrderSetterFromList(parentFromId);
-			return;
-		}
+    const item = e.item;
+    const itemId = item.dataset["id"];
+    if (!itemId) return;
 
-		const closestToParent = toList.closest("[data-id]") || null;
+    const closestToParent = toList.closest("[data-id]") as HTMLElement | null;
+    if (!closestToParent) return;
 
-		if (!(closestToParent instanceof HTMLElement)) return;
+    const parentToId = closestToParent.dataset["id"];
+    if (!parentToId) return;
 
-		const parentToId = closestToParent.dataset["id"] || null;
+    updateSectionId(parentToId);
+    const newItemsFromList = updateItemOrder(parentFromId, false);
+    const newItemsToList = updateItemOrder(parentToId, false);
 
-		if (!parentToId) return;
+    moveItem(itemId, parentToId, newItemsFromList, newItemsToList);
+  };
 
-		const parentIdSetter = (parentToId: string) => {
-			setCategories(
-				(category) => category.id === parentToId,
-				"items",
-				(items) => items.map((item) => ({
-					...item,
-					id: `${parentToId}_${item.id.split("_")[1]}`,
-					parentId: parentToId
-				})),				
-			);
-		}
-
-		const itemOrderSetterToList = (parentToId: string) => {
-			setCategories(
-				(category) => category.id === parentToId,
-				"items",
-				(items) => items.map((item, index) => ({
-					...item,
-					order: index + 1,
-				}))						
-			);	
-		};
-
-		parentIdSetter(parentToId);
-		itemOrderSetterFromList(parentFromId);
-		itemOrderSetterToList(parentToId);
-	};
-	
-	// createEffect(() => {
-	// 	console.log(categories);
-
-	// 	console.log(categories[0].items);
-	// 	console.log(categories[1].items);
-	// });
-
-	return (
-		<div
-			class={classes["buy-list-container"]}
-			onDragOver={(e) => e.preventDefault()}
-		>
-			<ul class={classes["buy-list-ul"]}>
-				<Sortable
-					idField={"id"}
-					items={categories}
-					setItems={setCategories}
-					onEnd={(e) => handleMove(e, 0)}
-				>
-					{(category) => (
-						<li>
-							<Category
-								{...category}
-								setItems={createSetItemsForCategory}
-								handleMove={handleMove}
-							/>
-						</li>
-					)}
-				</Sortable>
-			</ul>
-		</div>
-	);
+  return (
+    <div
+      class={classes["buy-list-container"]}
+      onDragOver={(e) => e.preventDefault()}
+    >
+      <ul class={classes["buy-list-ul"]}>
+        <Show when={categories.length} fallback={<div>GRUZHU</div>}>
+          <Sortable
+            idField={"id"}
+            items={categories}
+            setItems={setCategories}
+            onEnd={(e) => handleMove(e, 0)}
+          >
+            {(category) => (
+              <li>
+                <Category
+                  {...category}
+                  setItems={createSetItemsForCategory(category.id)}
+                  handleMove={handleMove}
+                />
+              </li>
+            )}
+          </Sortable>
+        </Show>
+      </ul>
+    </div>
+  );
 };
 
 export default BuyList;

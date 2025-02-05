@@ -9,15 +9,15 @@ import IconChevronRightMini from "./hero/chevron-right-mini.svg";
 import IconDnDHandler from "./hero/dnd-handler.svg";
 
 export {
-	IconTrashSolid,
-	IconTrashMini,
-	IconPlusSolid,
-	IconEllipsisHorizontalSolid,
-	IconCheckCircleOutline,
-	IconCheckCircleEmptyOutline,
-	IconChevronDownMini,
-	IconChevronRightMini,
-	IconDnDHandler,
+  IconTrashSolid,
+  IconTrashMini,
+  IconPlusSolid,
+  IconEllipsisHorizontalSolid,
+  IconCheckCircleOutline,
+  IconCheckCircleEmptyOutline,
+  IconChevronDownMini,
+  IconChevronRightMini,
+  IconDnDHandler,
 };
 
 // BareIcon.tsx !!EXAMPLE!!

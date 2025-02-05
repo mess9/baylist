@@ -1,130 +1,132 @@
 .category-section {
-	padding-bottom: 0.7rem;
-	box-shadow: 0px 0px 13px 2px rgba(0,0,0,0.75);
+  padding-bottom: 0.7rem;
+  box-shadow: 0px 0px 13px 2px rgba(0, 0, 0, 0.75);
 }
 
 .category__header {
-	display: flex;
-	gap: 1rem;
-	align-items: stretch;
-	justify-content: space-between;
+  display: flex;
+  gap: 1rem;
+  align-items: stretch;
+  justify-content: space-between;
 
-	padding: 0.1rem;
-	border-radius: 0.4rem;
+  padding: 0.1rem;
+  border-radius: 0.4rem;
 
-	font-size: 1.2rem;
+  font-size: 1.2rem;
 
-	background: linear-gradient(180deg, rgba(30,30,30,1) 0%, rgba(30,30,30,0.7) 40%, rgba(255,255,255,0.1) 100%);
+  background: linear-gradient(
+    180deg,
+    rgba(30, 30, 30, 1) 0%,
+    rgba(30, 30, 30, 0.7) 40%,
+    rgba(255, 255, 255, 0.1) 100%
+  );
 }
 
 .category__drop-down-control-label {
-	cursor: pointer;
+  cursor: pointer;
 
-	display: flex;
-	flex-grow: 1;
-	gap: 0.4rem;
-	align-items: center;
+  display: flex;
+  flex-grow: 1;
+  gap: 0.4rem;
+  align-items: center;
 
-	border-radius: 0 0.4rem 0.4rem 0;
+  border-radius: 0 0.4rem 0.4rem 0;
 
- 	transition: 0.15s ease background-color;
+  transition: 0.15s ease background-color;
 }
 
 .category__drop-down-control-label:active {
-	background-color: var(--white-two-tenth);
+  background-color: var(--white-two-tenth);
 }
 
 .category__drop-down-checbox {
-	content: "";
+  content: "";
 
-	display: block;
+  display: block;
 
-	width: 2.4rem;
-	height: 2.4rem;
+  width: 2.4rem;
+  height: 2.4rem;
 
-	appearance: none;
-	background-color: var(--white);
+  appearance: none;
+  background-color: var(--white);
 
+  mask: url(/assets/svg/icons/hero/chevron-down-mini.svg);
 
-	mask: url(/assets/svg/icons/hero/chevron-down-mini.svg);
+  transition: 0.15s ease transform;
 
-	transition: 0.15s ease transform;
-
-	mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
 }
 
 .category__drop-down-checbox:hover {
-	cursor: pointer;
+  cursor: pointer;
 }
 
-@media (hover: hover) and (pointer: fine)  {
-
+@media (hover: hover) and (pointer: fine) {
 }
 
 .category__drop-down-checbox:checked {
-	transform: rotate(-90deg);
+  transform: rotate(-90deg);
 }
-
 
 .category__controls {
-	display: flex;
-	gap: 0.6rem;
-	padding-right: 0.4rem;
+  display: flex;
+  gap: 0.6rem;
+  padding-right: 0.4rem;
 }
 
-.category__add-item-button, .category__more-button {
-	cursor: pointer;
+.category__add-item-button,
+.category__more-button {
+  cursor: pointer;
 
-	width: 3.6rem;
-	height: 3.6rem;
-	padding: 0.2rem;
-	border-radius: 0.4rem;
+  width: 3.6rem;
+  height: 3.6rem;
+  padding: 0.2rem;
+  border-radius: 0.4rem;
 
-	transition: 0.2s ease transform;
-	transition: 0.4s ease background-color;
+  transition: 0.2s ease transform;
+  transition: 0.4s ease background-color;
 }
-
 
 .category__add-item-button {
-	color: var(--bloody-red);
+  color: var(--bloody-red);
 }
 
 .category__more-button {
-	color: var(--white);
+  color: var(--white);
 }
 
-
-@media (hover: hover) and (pointer: fine)  {
-	.category__add-item-button:hover, .category__more-button:hover {
-		transform: scale(1.08);
-	}
+@media (hover: hover) and (pointer: fine) {
+  .category__add-item-button:hover,
+  .category__more-button:hover {
+    transform: scale(1.08);
+  }
 }
 
 @media (hover: none) {
-	.category__add-item-button:active, .category__more-button:active {
-		background-color: var(--white-two-tenth);
-	}
+  .category__add-item-button:active,
+  .category__more-button:active {
+    background-color: var(--white-two-tenth);
+  }
 }
 
-.category__add-item-button:active, .category__more-button:active {
-	transform: scale(1);
+.category__add-item-button:active,
+.category__more-button:active {
+  transform: scale(1);
 }
-
 
 .category-ul {
-	overflow: hidden;
-	transition: max-height 0.3s ease;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
 }
 
 .category__item-li--delimeter-top {
-	border-top: 1px solid var(--white-tenth);
+  border-top: 1px solid var(--white-tenth);
 }
 
 .category__item-li--delimeter-bottom {
-	border-bottom: 1px solid var(--white-tenth);
+  border-bottom: 1px solid var(--white-tenth);
 }
 
 .category__item-li--last {
-	border-bottom: none;
+  border-bottom: none;
 }
-
