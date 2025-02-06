@@ -1,4 +1,4 @@
-package org.baylist.telegram.hanlder;
+package org.baylist.telegram.handler;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -6,7 +6,7 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.baylist.dto.telegram.ChatValue;
 import org.baylist.exception.AiException;
-import org.baylist.telegram.hanlder.config.DialogHandler;
+import org.baylist.telegram.handler.config.DialogHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.ai.chat.client.ChatClient;

@@ -1,4 +1,4 @@
-package org.baylist.telegram.hanlder;
+package org.baylist.telegram.handler;
 
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -10,7 +10,7 @@ import org.baylist.service.CommonResponseService;
 import org.baylist.service.MenuService;
 import org.baylist.service.TodoistService;
 import org.baylist.service.UserService;
-import org.baylist.telegram.hanlder.config.DialogHandler;
+import org.baylist.telegram.handler.config.DialogHandler;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;

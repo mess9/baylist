@@ -1,4 +1,4 @@
-package org.baylist.telegram.hanlder.config;
+package org.baylist.telegram.handler.config;
 
 import lombok.extern.slf4j.Slf4j;
 import org.baylist.dto.telegram.ChatValue;

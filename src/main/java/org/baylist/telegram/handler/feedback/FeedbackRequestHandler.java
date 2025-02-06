@@ -1,10 +1,10 @@
-package org.baylist.telegram.hanlder.feedback;
+package org.baylist.telegram.handler.feedback;
 
 import lombok.AllArgsConstructor;
 import org.baylist.dto.telegram.Callbacks;
 import org.baylist.dto.telegram.ChatValue;
 import org.baylist.dto.telegram.State;
-import org.baylist.telegram.hanlder.config.DialogHandler;
+import org.baylist.telegram.handler.config.DialogHandler;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;

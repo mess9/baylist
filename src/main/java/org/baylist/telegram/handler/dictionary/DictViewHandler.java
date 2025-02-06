@@ -1,4 +1,4 @@
-package org.baylist.telegram.hanlder.dictionary;
+package org.baylist.telegram.handler.dictionary;
 
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -10,7 +10,7 @@ import org.baylist.dto.telegram.PaginationState;
 import org.baylist.service.CommonResponseService;
 import org.baylist.service.DictionaryService;
 import org.baylist.service.MenuService;
-import org.baylist.telegram.hanlder.config.DialogHandler;
+import org.baylist.telegram.handler.config.DialogHandler;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;

@@ -1,9 +1,9 @@
-package org.baylist.telegram.hanlder;
+package org.baylist.telegram.handler;
 
 import lombok.AllArgsConstructor;
 import org.baylist.dto.telegram.ChatValue;
 import org.baylist.dto.telegram.State;
-import org.baylist.telegram.hanlder.config.DialogHandler;
+import org.baylist.telegram.handler.config.DialogHandler;
 import org.springframework.stereotype.Component;
 
 @Component
