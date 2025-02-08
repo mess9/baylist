@@ -1,6 +1,8 @@
 import {
   createEffect,
   createResource,
+  createSignal,
+  on,
   type Component,
   type Setter,
 } from "solid-js";
@@ -10,26 +12,51 @@ import Sortable from "solid-sortablejs";
 import type { ICategory } from "/widgets/Category/ui/Category";
 import Category from "/widgets/Category/ui/Category";
 
-import classes from "./BuyList.module.css";
 import { createStore } from "solid-js/store";
-import type { IItem } from "/features/Item/ui/Item";
+import type { Item as ItemType, Project } from "/shared/api/types/syncEntities";
 
-import { Show } from "solid-js";
+import { Show, onMount } from "solid-js";
 import {
-  fetchCategories,
+  fetchCategoriesWithItems,
   updateCategoriesOrder,
   updateItemsOrder,
   moveItem,
+  addItem,
+  sync,
+  updateItem,
+  deleteItem,
+  fetchProjects,
+  updateCategoryCollapsed,
 } from "../api/buyListService";
 
+import classes from "./BuyList.module.css";
+import classesCategory from "/widgets/Category/ui/Category.module.css";
 const BuyList: Component = () => {
+  const [isLoading, setIsLoading] = createSignal<boolean | string>(false);
+  const [isLoadingCollapsed, setIsLoadingCollapsed] = createSignal<
+    boolean | string
+  >(false);
   const [categories, setCategories] = createStore<ICategory[]>([]);
+  const [project, setProject] = createSignal<Project[] | []>([]);
 
-  const [getCategories, { mutate }] = createResource<ICategory[]>(
-    fetchCategories,
-    {
-      initialValue: [],
-    }
+  onMount(() => {
+    fetchProjects().then((projects) => {
+      setProject(projects.filter((project) => project.name === "Test"));
+    });
+  });
+
+  const [getCategories, { mutate, refetch }] = createResource<ICategory[]>(
+    () => (project().length ? fetchCategoriesWithItems(project()[0].id) : []),
+    { initialValue: [] }
+  );
+
+  createEffect(
+    on(
+      () => project().length,
+      () => {
+        refetch();
+      }
+    )
   );
 
   createEffect(() => {
@@ -37,14 +64,81 @@ const BuyList: Component = () => {
     mutate(categories);
   });
 
-  const createSetItemsForCategory = (parentId: string): Setter<IItem[]> => {
+  const createSetItemsForCategory = (parentId: string): Setter<ItemType[]> => {
     return (updater) => {
-      console.log(updater, "updater");
       setCategories(
         (category) => category.id === parentId,
         "items",
         typeof updater === "function" ? updater : () => updater
       );
+    };
+  };
+
+  const handleAddItem = (sectionId: string, projectId: string) => {
+    return (content: string) => {
+      sync("", [])
+        .then((value) => {
+          addItem({
+            content,
+            section_id: sectionId,
+            project_id: projectId,
+          }).then(() => {
+            sync(value.sync_token, ["items"]).then((valueNew) => {
+              valueNew.items?.forEach((item) => {
+                setCategories(
+                  (category) => category.id === item.section_id,
+                  "items",
+                  (items) =>
+                    [...items, item].sort(
+                      (a, b) => a.child_order - b.child_order
+                    )
+                );
+              });
+            });
+          });
+        })
+
+        .catch((err) => err);
+    };
+  };
+
+  const handleEditItem = (itemId: string) => {
+    return (content: string) => {
+      setIsLoading(itemId);
+      sync("", []).then((value) => {
+        updateItem({
+          id: itemId,
+          content,
+        }).then(() => {
+          sync(value.sync_token, ["items"]).then((valueNew) => {
+            valueNew.items?.forEach((item) => {
+              setCategories(
+                (category) => category.id === item.section_id,
+                "items",
+                (items) =>
+                  items.map((item) =>
+                    item.id === itemId ? { ...item, content } : item
+                  )
+              );
+              setIsLoading(false);
+            });
+          });
+        });
+      });
+    };
+  };
+
+  const handleRemoveItem = (categoryId: string) => (itemId: string) => {
+    return () => {
+      setIsLoading(itemId);
+      deleteItem(itemId).then(() => {
+        setCategories(
+          (category) => category.id === categoryId,
+          "items",
+          (items) => items.filter((item) => item.id !== itemId)
+        );
+        setIsLoading(false);
+      });
     };
   };
 
@@ -56,24 +150,27 @@ const BuyList: Component = () => {
           order: index + 1,
         }))
       );
+      updateCategoriesOrder(categories);
     };
 
-    const updateItemOrder = (parentId: string, withUpdate: boolean) => {
-      let updatedItems: IItem[] = [];
-      setCategories(
-        (category) => category.id === parentId,
-        "items",
-        (items) => {
-          updatedItems = items.map((item, index) => ({
-            ...item,
-            order: index + 1,
-          }));
-          if (withUpdate) {
-            updateItemsOrder(parentId, updatedItems);
-          }
-          return updatedItems;
-        }
-      );
+    const updateItemOrder = (
+      parentId: string,
+      withUpdate: boolean
+    ): ItemType[] => {
+      const category = categories.find((cat) => cat.id === parentId);
+      if (!category) return [];
+
+      const updatedItems = category.items.map((item, index) => ({
+        ...item,
+        child_order: index + 1,
+      }));
+
+      setCategories((cat) => cat.id === parentId, "items", updatedItems);
+
+      if (withUpdate) {
+        updateItemsOrder(parentId, updatedItems);
+      }
+
       return updatedItems;
     };
 
@@ -87,9 +184,14 @@ const BuyList: Component = () => {
 
     if (depth === 0) {
       updateCategoryOrder();
-      updateCategoriesOrder(categories);
       return;
     }
+
+    const item = e.item;
+
+    const itemId = item.dataset["id"];
+
+    if (!itemId) return;
 
     const fromList = e.from;
     const closestFromParent = fromList.closest(
@@ -101,14 +203,11 @@ const BuyList: Component = () => {
     if (!parentFromId) return;
 
     const toList = e.to;
+
     if (fromList === toList) {
       updateItemOrder(parentFromId, true);
       return;
     }
-
-    const item = e.item;
-    const itemId = item.dataset["id"];
-    if (!itemId) return;
 
     const closestToParent = toList.closest("[data-id]") as HTMLElement | null;
     if (!closestToParent) return;
@@ -117,10 +216,32 @@ const BuyList: Component = () => {
     if (!parentToId) return;
 
     updateSectionId(parentToId);
+
     const newItemsFromList = updateItemOrder(parentFromId, false);
     const newItemsToList = updateItemOrder(parentToId, false);
 
     moveItem(itemId, parentToId, newItemsFromList, newItemsToList);
+  };
+
+  const handleCollapseCategory = (categoryId: string) => {
+    return (collapsed: boolean) => {
+      setIsLoadingCollapsed(categoryId);
+      sync("", []).then((value) => {
+        updateCategoryCollapsed(categoryId, collapsed).then(() => {
+          sync(value.sync_token, ["sections"]).then((valueNew) => {
+            valueNew.sections?.forEach((section) => {
+              setCategories(
+                (category) => category.id === section.id,
+
+                "collapsed",
+                section.collapsed
+              );
+            });
+            setIsLoadingCollapsed(false);
+          });
+        });
+      });
+    };
   };
 
   return (
@@ -134,7 +255,9 @@ const BuyList: Component = () => {
             idField={"id"}
             items={categories}
             setItems={setCategories}
+            handle={`.${classesCategory["category__header"]}`}
             onEnd={(e) => handleMove(e, 0)}
+            disabled={isLoadingCollapsed() !== false}
           >
             {(category) => (
               <li>
@@ -142,6 +265,12 @@ const BuyList: Component = () => {
                   {...category}
                   setItems={createSetItemsForCategory(category.id)}
                   handleMove={handleMove}
+                  handleAddItem={handleAddItem(category.id, project()[0].id)}
+                  handleEditItem={handleEditItem}
+                  isLoadingOuter={isLoading()}
+                  handleRemoveItem={handleRemoveItem(category.id)}
+                  handleCollapseCategory={handleCollapseCategory(category.id)}
+                  isLoadingCollapsed={isLoadingCollapsed()}
                 />
               </li>
             )}

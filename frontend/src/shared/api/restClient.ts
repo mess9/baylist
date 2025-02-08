@@ -1,6 +1,5 @@
 import type { AxiosResponse, AxiosError } from "axios";
 import Axios from "axios";
-import applyCaseMiddleware from "axios-case-converter";
 import { TodoistRequestError } from "./types/errors";
 import type { HttpMethod } from "./types/http";
 import { v4 as uuidv4 } from "uuid";
@@ -9,13 +8,10 @@ import { API_SYNC_BASE_URI } from "./consts/endpoints";
 
 function paramsSerializer(params: Record<string, unknown>): string {
   return new URLSearchParams(
-    Object.entries(params).reduce(
-      (acc, [key, value]) => {
-        acc[key] = Array.isArray(value) ? value.join(",") : String(value);
-        return acc;
-      },
-      {} as Record<string, string>,
-    ),
+    Object.entries(params).reduce((acc, [key, value]) => {
+      acc[key] = Array.isArray(value) ? value.join(",") : String(value);
+      return acc;
+    }, {} as Record<string, string>)
   ).toString();
 }
 
@@ -41,7 +37,7 @@ function isAxiosError(error: unknown): error is AxiosError {
 
 function getTodoistRequestError(
   error: Error | AxiosError,
-  originalStack?: Error,
+  originalStack?: Error
 ): TodoistRequestError {
   const requestError = new TodoistRequestError(error.message);
 
@@ -59,7 +55,7 @@ function getTodoistRequestError(
 function getRequestConfiguration(
   baseURL: string,
   apiToken?: string,
-  requestId?: string,
+  requestId?: string
 ) {
   const authHeader = apiToken
     ? { Authorization: getAuthHeader(apiToken) }
@@ -73,10 +69,10 @@ function getRequestConfiguration(
 function getAxiosClient(
   baseURL: string,
   apiToken?: string,
-  requestId?: string,
+  requestId?: string
 ) {
   const configuration = getRequestConfiguration(baseURL, apiToken, requestId);
-  const client = applyCaseMiddleware(Axios.create(configuration));
+  const client = Axios.create(configuration);
 
   axiosRetry(client, {
     retries: 3,

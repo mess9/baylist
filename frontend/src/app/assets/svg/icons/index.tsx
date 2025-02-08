@@ -7,6 +7,9 @@ import IconCheckCircleEmptyOutline from "./hero/check-circle-empty.svg";
 import IconChevronDownMini from "./hero/chevron-down-mini.svg";
 import IconChevronRightMini from "./hero/chevron-right-mini.svg";
 import IconDnDHandler from "./hero/dnd-handler.svg";
+import IconEnterOutline from "./hero/enter-outline.svg";
+import IconPencilSquareOutline from "./hero/pencil-square-outline.svg";
+import IconXMarkOutline from "./hero/x-mark-outline.svg";
 
 export {
   IconTrashSolid,
@@ -18,6 +21,9 @@ export {
   IconChevronDownMini,
   IconChevronRightMini,
   IconDnDHandler,
+  IconEnterOutline,
+  IconPencilSquareOutline,
+  IconXMarkOutline,
 };
 
 // BareIcon.tsx !!EXAMPLE!!

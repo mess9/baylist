@@ -1,88 +1,32 @@
-import { String } from "runtypes";
 import type {
-  Task,
-  QuickAddTaskResponse,
-  Project,
-  Label,
-  User,
-  Section,
-  Comment,
-} from "./types/entities";
-import type {
-  AddCommentArgs,
-  AddLabelArgs,
-  AddProjectArgs,
-  AddSectionArgs,
-  AddTaskArgs,
-  GetProjectCommentsArgs,
-  GetTaskCommentsArgs,
-  GetTasksArgs,
-  UpdateCommentArgs,
-  UpdateLabelArgs,
-  UpdateProjectArgs,
-  UpdateSectionArgs,
-  UpdateTaskArgs,
-  QuickAddTaskArgs,
-  GetSharedLabelsArgs,
-  RenameSharedLabelArgs,
-  RemoveSharedLabelArgs,
-} from "./types/requests";
-import type {
+  GetProjectDataArgs,
+  GetProjectDataResponse,
   ReorderItemsArgs,
   ReorderSectionsArgs,
   MoveItemArgs,
   AddItemArgs,
   UpdateItemArgs,
   DeleteItemArgs,
+  SyncResponseWithCommand,
+  SyncRequest,
   SyncResponse,
+  UpdateSectionArgs,
 } from "./types/sync";
-import { request, isSuccess } from "./restClient";
-import { getTaskFromQuickAddResponse } from "./utils/taskConverters";
+import { request } from "./restClient";
 
 import {
   getRestBaseUri,
   getSyncBaseUri,
-  ENDPOINT_REST_TASKS,
-  ENDPOINT_REST_PROJECTS,
-  ENDPOINT_SYNC_QUICK_ADD,
-  ENDPOINT_REST_TASK_CLOSE,
-  ENDPOINT_REST_TASK_REOPEN,
-  ENDPOINT_REST_LABELS,
-  ENDPOINT_REST_PROJECT_COLLABORATORS,
-  ENDPOINT_REST_SECTIONS,
-  ENDPOINT_REST_COMMENTS,
-  ENDPOINT_REST_LABELS_SHARED,
-  ENDPOINT_REST_LABELS_SHARED_RENAME,
-  ENDPOINT_REST_LABELS_SHARED_REMOVE,
+  ENDPOINT_SYNC_GET_PROJECT_DATA,
   ENDPOINT_SYNC_REORDER_SECTIONS,
+  ENDPOINT_SYNC_ADD_ITEMS,
+  ENDPOINT_SYNC_UPDATE_ITEMS,
   ENDPOINT_SYNC_REORDER_ITEMS,
   ENDPOINT_SYNC_MOVE_ITEMS,
   ENDPOINT_SYNC_DELETE_ITEMS,
-  ENDPOINT_SYNC_UPDATE_ITEMS,
-  ENDPOINT_SYNC_ADD_ITEMS,
+  ENDPOINT_SYNC,
+  ENDPOINT_SYNC_UPDATE_SECTIONS,
 } from "./consts/endpoints";
-import {
-  validateComment,
-  validateCommentArray,
-  validateLabel,
-  validateLabelArray,
-  validateProject,
-  validateProjectArray,
-  validateSection,
-  validateSectionArray,
-  validateTask,
-  validateTaskArray,
-  validateUserArray,
-} from "./utils/validators";
-
-/**
- * Joins path segments using `/` separator.
- * @param segments A list of **valid** path segments.
- * @returns A joined path.
- */
-function generatePath(...segments: string[]): string {
-  return segments.join("/");
-}
 
 export class TodoistApi {
   authToken: string;
@@ -97,115 +41,22 @@ export class TodoistApi {
   private restApiBase: string;
   private syncApiBase: string;
 
-  async getTask(id: string): Promise<Task> {
-    String.check(id);
-    const response = await request<Task>(
+  async getProjectData(
+    args: GetProjectDataArgs
+  ): Promise<GetProjectDataResponse> {
+    const response = await request<GetProjectDataResponse>(
       "GET",
-      this.restApiBase,
-      generatePath(ENDPOINT_REST_TASKS, id),
-      this.authToken
-    );
-
-    return validateTask(response.data);
-  }
-
-  async getTasks(args?: GetTasksArgs): Promise<Task[]> {
-    const response = await request<Task[]>(
-      "GET",
-      this.restApiBase,
-      ENDPOINT_REST_TASKS,
-      this.authToken,
-      args
-    );
-
-    return validateTaskArray(response.data);
-  }
-
-  async addTask(args: AddTaskArgs, requestId?: string): Promise<Task> {
-    const response = await request<Task>(
-      "POST",
-      this.restApiBase,
-      ENDPOINT_REST_TASKS,
-      this.authToken,
-      args,
-      requestId
-    );
-
-    return validateTask(response.data);
-  }
-
-  async quickAddTask(args: QuickAddTaskArgs): Promise<Task> {
-    const response = await request<QuickAddTaskResponse>(
-      "POST",
       this.syncApiBase,
-      ENDPOINT_SYNC_QUICK_ADD,
+      ENDPOINT_SYNC_GET_PROJECT_DATA,
       this.authToken,
       args
     );
 
-    const task = getTaskFromQuickAddResponse(response.data);
-
-    return validateTask(task);
+    return response.data;
   }
 
-  async updateTask(
-    id: string,
-    args: UpdateTaskArgs,
-    requestId?: string
-  ): Promise<Task> {
-    String.check(id);
-    const response = await request(
-      "POST",
-      this.restApiBase,
-      generatePath(ENDPOINT_REST_TASKS, id),
-      this.authToken,
-      args,
-      requestId
-    );
-    return validateTask(response.data);
-  }
-
-  async closeTask(id: string, requestId?: string): Promise<boolean> {
-    String.check(id);
-    const response = await request(
-      "POST",
-      this.restApiBase,
-      generatePath(ENDPOINT_REST_TASKS, id, ENDPOINT_REST_TASK_CLOSE),
-      this.authToken,
-      undefined,
-      requestId
-    );
-    return isSuccess(response);
-  }
-
-  async reopenTask(id: string, requestId?: string): Promise<boolean> {
-    String.check(id);
-    const response = await request(
-      "POST",
-      this.restApiBase,
-      generatePath(ENDPOINT_REST_TASKS, id, ENDPOINT_REST_TASK_REOPEN),
-      this.authToken,
-      undefined,
-      requestId
-    );
-    return isSuccess(response);
-  }
-
-  async deleteTask(id: string, requestId?: string): Promise<boolean> {
-    String.check(id);
-    const response = await request(
-      "DELETE",
-      this.restApiBase,
-      generatePath(ENDPOINT_REST_TASKS, id),
-      this.authToken,
-      undefined,
-      requestId
-    );
-    return isSuccess(response);
-  }
-
-  async addItem(args: AddItemArgs): Promise<SyncResponse> {
-    const response = await request<SyncResponse>(
+  async addItem(args: AddItemArgs): Promise<SyncResponseWithCommand> {
+    const response = await request<SyncResponseWithCommand>(
       "POST",
       this.syncApiBase,
       ENDPOINT_SYNC_ADD_ITEMS,
@@ -216,8 +67,8 @@ export class TodoistApi {
     return response.data;
   }
 
-  async updateItem(args: UpdateItemArgs): Promise<SyncResponse> {
-    const response = await request<SyncResponse>(
+  async updateItem(args: UpdateItemArgs): Promise<SyncResponseWithCommand> {
+    const response = await request<SyncResponseWithCommand>(
       "POST",
       this.syncApiBase,
       ENDPOINT_SYNC_UPDATE_ITEMS,
@@ -228,8 +79,8 @@ export class TodoistApi {
     return response.data;
   }
 
-  async moveItem(args: MoveItemArgs): Promise<SyncResponse> {
-    const response = await request<SyncResponse>(
+  async moveItem(args: MoveItemArgs): Promise<SyncResponseWithCommand> {
+    const response = await request<SyncResponseWithCommand>(
       "POST",
       this.syncApiBase,
       ENDPOINT_SYNC_MOVE_ITEMS,
@@ -240,8 +91,8 @@ export class TodoistApi {
     return response.data;
   }
 
-  async deleteItem(args: DeleteItemArgs): Promise<SyncResponse> {
-    const response = await request<SyncResponse>(
+  async deleteItem(args: DeleteItemArgs): Promise<SyncResponseWithCommand> {
+    const response = await request<SyncResponseWithCommand>(
       "POST",
       this.syncApiBase,
       ENDPOINT_SYNC_DELETE_ITEMS,
@@ -252,8 +103,8 @@ export class TodoistApi {
     return response.data;
   }
 
-  async reorderItems(args: ReorderItemsArgs): Promise<SyncResponse> {
-    const response = await request<SyncResponse>(
+  async reorderItems(args: ReorderItemsArgs): Promise<SyncResponseWithCommand> {
+    const response = await request<SyncResponseWithCommand>(
       "POST",
       this.syncApiBase,
       ENDPOINT_SYNC_REORDER_ITEMS,
@@ -264,144 +115,22 @@ export class TodoistApi {
     return response.data;
   }
 
-  async getProject(id: string): Promise<Project> {
-    String.check(id);
-    const response = await request<Project>(
-      "GET",
-      this.restApiBase,
-      generatePath(ENDPOINT_REST_PROJECTS, id),
-      this.authToken
-    );
-
-    return validateProject(response.data);
-  }
-
-  async getProjects(): Promise<Project[]> {
-    const response = await request<Project[]>(
-      "GET",
-      this.restApiBase,
-      ENDPOINT_REST_PROJECTS,
-      this.authToken
-    );
-
-    return validateProjectArray(response.data);
-  }
-
-  async addProject(args: AddProjectArgs, requestId?: string): Promise<Project> {
-    const response = await request<Project>(
-      "POST",
-      this.restApiBase,
-      ENDPOINT_REST_PROJECTS,
-      this.authToken,
-      args,
-      requestId
-    );
-
-    return validateProject(response.data);
-  }
-
-  async updateProject(
-    id: string,
-    args: UpdateProjectArgs,
-    requestId?: string
-  ): Promise<Project> {
-    String.check(id);
-    const response = await request(
-      "POST",
-      this.restApiBase,
-      generatePath(ENDPOINT_REST_PROJECTS, id),
-      this.authToken,
-      args,
-      requestId
-    );
-    return validateProject(response.data);
-  }
-
-  async deleteProject(id: string, requestId?: string): Promise<boolean> {
-    String.check(id);
-    const response = await request(
-      "DELETE",
-      this.restApiBase,
-      generatePath(ENDPOINT_REST_PROJECTS, id),
-      this.authToken,
-      undefined,
-      requestId
-    );
-    return isSuccess(response);
-  }
-
-  async getProjectCollaborators(projectId: string): Promise<User[]> {
-    String.check(projectId);
-    const response = await request<User[]>(
-      "GET",
-      this.restApiBase,
-      generatePath(
-        ENDPOINT_REST_PROJECTS,
-        projectId,
-        ENDPOINT_REST_PROJECT_COLLABORATORS
-      ),
-      this.authToken
-    );
-
-    return validateUserArray(response.data);
-  }
-
-  async getSections(projectId?: string): Promise<Section[]> {
-    const response = await request<Section[]>(
-      "GET",
-      this.restApiBase,
-      ENDPOINT_REST_SECTIONS,
-      this.authToken,
-      projectId ? { projectId } : undefined
-    );
-
-    return validateSectionArray(response.data);
-  }
-
-  async getSection(id: string): Promise<Section> {
-    String.check(id);
-    const response = await request<Section>(
-      "GET",
-      this.restApiBase,
-      generatePath(ENDPOINT_REST_SECTIONS, id),
-      this.authToken
-    );
-
-    return validateSection(response.data);
-  }
-
-  async addSection(args: AddSectionArgs, requestId?: string): Promise<Section> {
-    const response = await request<Section>(
-      "POST",
-      this.restApiBase,
-      ENDPOINT_REST_SECTIONS,
-      this.authToken,
-      args,
-      requestId
-    );
-
-    return validateSection(response.data);
-  }
-
-  async updateSection(
-    id: string,
-    args: UpdateSectionArgs,
-    requestId?: string
-  ): Promise<Section> {
-    String.check(id);
-    const response = await request(
-      "POST",
-      this.restApiBase,
-      generatePath(ENDPOINT_REST_SECTIONS, id),
-      this.authToken,
-      args,
-      requestId
-    );
-    return validateSection(response.data);
-  }
-
-  async reorderSections(args: ReorderSectionsArgs): Promise<SyncResponse> {
+  async updateSection(args: UpdateSectionArgs): Promise<SyncResponse> {
     const response = await request<SyncResponse>(
+      "POST",
+      this.syncApiBase,
+      ENDPOINT_SYNC_UPDATE_SECTIONS,
+      this.authToken,
+      args
+    );
+
+    return response.data;
+  }
+
+  async reorderSections(
+    args: ReorderSectionsArgs
+  ): Promise<SyncResponseWithCommand> {
+    const response = await request<SyncResponseWithCommand>(
       "POST",
       this.syncApiBase,
       ENDPOINT_SYNC_REORDER_SECTIONS,
@@ -412,198 +141,15 @@ export class TodoistApi {
     return response.data;
   }
 
-  async deleteSection(id: string, requestId?: string): Promise<boolean> {
-    String.check(id);
-    const response = await request(
-      "DELETE",
-      this.restApiBase,
-      generatePath(ENDPOINT_REST_SECTIONS, id),
-      this.authToken,
-      undefined,
-      requestId
-    );
-    return isSuccess(response);
-  }
-
-  /**
-   * Fetches a personal label
-   */
-  async getLabel(id: string): Promise<Label> {
-    String.check(id);
-    const response = await request<Label>(
-      "GET",
-      this.restApiBase,
-      generatePath(ENDPOINT_REST_LABELS, id),
-      this.authToken
-    );
-
-    return validateLabel(response.data);
-  }
-
-  /**
-   * Fetches the personal labels
-   */
-  async getLabels(): Promise<Label[]> {
-    const response = await request<Label[]>(
-      "GET",
-      this.restApiBase,
-      ENDPOINT_REST_LABELS,
-      this.authToken
-    );
-
-    return validateLabelArray(response.data);
-  }
-
-  /**
-   * Adds a personal label
-   */
-  async addLabel(args: AddLabelArgs, requestId?: string): Promise<Label> {
-    const response = await request<Label>(
+  async sync(args: SyncRequest): Promise<SyncResponse> {
+    const response = await request<SyncResponse>(
       "POST",
-      this.restApiBase,
-      ENDPOINT_REST_LABELS,
-      this.authToken,
-      args,
-      requestId
-    );
-
-    return validateLabel(response.data);
-  }
-
-  /**
-   * Updates a personal label
-   */
-  async updateLabel(
-    id: string,
-    args: UpdateLabelArgs,
-    requestId?: string
-  ): Promise<Label> {
-    String.check(id);
-    const response = await request(
-      "POST",
-      this.restApiBase,
-      generatePath(ENDPOINT_REST_LABELS, id),
-      this.authToken,
-      args,
-      requestId
-    );
-    return validateLabel(response.data);
-  }
-
-  /**
-   * Deletes a personal label
-   */
-  async deleteLabel(id: string, requestId?: string): Promise<boolean> {
-    String.check(id);
-    const response = await request(
-      "DELETE",
-      this.restApiBase,
-      generatePath(ENDPOINT_REST_LABELS, id),
-      this.authToken,
-      undefined,
-      requestId
-    );
-    return isSuccess(response);
-  }
-
-  async getSharedLabels(args?: GetSharedLabelsArgs): Promise<string[]> {
-    const response = await request<string[]>(
-      "GET",
-      this.restApiBase,
-      ENDPOINT_REST_LABELS_SHARED,
+      this.syncApiBase,
+      ENDPOINT_SYNC,
       this.authToken,
       args
     );
 
     return response.data;
-  }
-
-  async renameSharedLabel(args: RenameSharedLabelArgs): Promise<void> {
-    await request<void>(
-      "POST",
-      this.restApiBase,
-      ENDPOINT_REST_LABELS_SHARED_RENAME,
-      this.authToken,
-      args
-    );
-  }
-
-  async removeSharedLabel(args: RemoveSharedLabelArgs): Promise<void> {
-    await request<void>(
-      "POST",
-      this.restApiBase,
-      ENDPOINT_REST_LABELS_SHARED_REMOVE,
-      this.authToken,
-      args
-    );
-  }
-
-  async getComments(
-    args: GetTaskCommentsArgs | GetProjectCommentsArgs
-  ): Promise<Comment[]> {
-    const response = await request<Comment[]>(
-      "GET",
-      this.restApiBase,
-      ENDPOINT_REST_COMMENTS,
-      this.authToken,
-      args
-    );
-
-    return validateCommentArray(response.data);
-  }
-
-  async getComment(id: string): Promise<Comment> {
-    String.check(id);
-    const response = await request<Comment>(
-      "GET",
-      this.restApiBase,
-      generatePath(ENDPOINT_REST_COMMENTS, id),
-      this.authToken
-    );
-
-    return validateComment(response.data);
-  }
-
-  async addComment(args: AddCommentArgs, requestId?: string): Promise<Comment> {
-    const response = await request<Comment>(
-      "POST",
-      this.restApiBase,
-      ENDPOINT_REST_COMMENTS,
-      this.authToken,
-      args,
-      requestId
-    );
-
-    return validateComment(response.data);
-  }
-
-  async updateComment(
-    id: string,
-    args: UpdateCommentArgs,
-    requestId?: string
-  ): Promise<Comment> {
-    String.check(id);
-    const response = await request<boolean>(
-      "POST",
-      this.restApiBase,
-      generatePath(ENDPOINT_REST_COMMENTS, id),
-      this.authToken,
-      args,
-      requestId
-    );
-    return validateComment(response.data);
-  }
-
-  async deleteComment(id: string, requestId?: string): Promise<boolean> {
-    String.check(id);
-    const response = await request(
-      "DELETE",
-      this.restApiBase,
-      generatePath(ENDPOINT_REST_COMMENTS, id),
-      this.authToken,
-      undefined,
-      requestId
-    );
-    return isSuccess(response);
   }
 }

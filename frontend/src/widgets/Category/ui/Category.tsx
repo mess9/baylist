@@ -1,36 +1,47 @@
 import type { Component, Setter } from "solid-js";
-import { createEffect, createSignal, mergeProps } from "solid-js";
+import { createEffect, createSignal, mergeProps, on } from "solid-js";
+
+import { clickAway } from "/src/shared/directives/clickAway";
 
 import {
   IconEllipsisHorizontalSolid,
+  IconEnterOutline,
   IconPlusSolid,
 } from "/app/assets/svg/icons";
 
-import type { IItem } from "/features/Item/ui/Item";
+import type { Item as ItemType } from "/shared/api/types/syncEntities";
 import Item from "/features/Item/ui/Item";
 
 import type { SortableEvent } from "solid-sortablejs";
 import Sortable from "solid-sortablejs";
 
+import type { Section } from "/shared/api/types/syncEntities";
+
 import classes from "./Category.module.css";
 import classesItem from "/features/Item/ui/Item.module.css";
-import type { Section } from "/shared/api/types";
 
 export interface ICategory extends Section {
-  id: string;
-  name: string;
-  items: IItem[] | [];
-  order: number;
+  items: ItemType[] | [];
   delimiter?: "top" | "bottom";
 }
 
 interface ICategoryProps extends ICategory {
-  setItems: Setter<IItem[]>;
+  setItems: Setter<ItemType[]>;
   handleMove: (event: SortableEvent, depth: number) => void;
+  handleAddItem: (content: string) => void;
+  handleEditItem: (itemId: string) => (content: string) => void;
+  handleRemoveItem: (itemId: string) => () => void;
+  handleCollapseCategory: (collapsed: boolean) => void;
+  isLoadingCollapsed: boolean | string;
+  isLoadingOuter: boolean | string;
 }
 
 const Category: Component<ICategoryProps> = (props) => {
   const [isExpand, setIsExpand] = createSignal(true);
+  const [isAddItemVisible, setAddItemVisible] = createSignal(false);
+  const [inputValue, setInputValue] = createSignal("");
+  const [isLoading, setIsLoading] = createSignal(false);
+  const [addItemBeenCalled, setAddItemBeenCalled] = createSignal(false);
 
   let ulRef: HTMLUListElement | undefined;
 
@@ -44,36 +55,140 @@ const Category: Component<ICategoryProps> = (props) => {
     ul.style.maxHeight = isExpand() ? `${currentHeight}px` : "0";
   };
 
+  const scrollToLastItem = () => {
+    if (!ulRef) return;
+
+    const sortableList = ulRef.querySelector(
+      ".sortablejs"
+    ) as HTMLElement | null;
+    if (!sortableList) return;
+
+    const lastItem = sortableList.lastElementChild as HTMLElement | null;
+    if (!lastItem) return;
+
+    const lastItemRect = lastItem.getBoundingClientRect();
+    const viewportHeight = window.innerHeight;
+    const currentScrollY = window.scrollY;
+
+    const lastItemDocumentBottom = lastItemRect.bottom + currentScrollY;
+    const desiredDocumentBottom =
+      currentScrollY + viewportHeight - lastItemRect.height * 2;
+    const overflowAmount = lastItemDocumentBottom - desiredDocumentBottom;
+
+    if (lastItemRect.bottom > viewportHeight) {
+      const desiredScrollTop = currentScrollY + overflowAmount;
+      const maxScrollTop =
+        document.documentElement.scrollHeight - viewportHeight;
+      const finalScrollTop =
+        desiredScrollTop > maxScrollTop ? maxScrollTop : desiredScrollTop;
+
+      window.scrollTo({
+        top: finalScrollTop,
+        behavior: "smooth",
+      });
+    }
+  };
+
   const toggleVisibility = () => {
     if (!ulRef) return;
+
+    merge.handleCollapseCategory(!isExpand());
     setIsExpand(!isExpand());
     changeMaxHeight();
   };
 
+  const toggleAddItem = () => {
+    setAddItemVisible(!isAddItemVisible());
+  };
+
+  const onAddItem = () => {
+    setIsLoading(true);
+    merge.handleAddItem(inputValue());
+    setInputValue("");
+    setAddItemVisible(false);
+    setAddItemBeenCalled(true);
+  };
+
   createEffect(() => {
-    changeMaxHeight();
+    setIsExpand(merge.collapsed);
   });
+
+  createEffect(
+    on([isExpand, () => merge.items], () => {
+      changeMaxHeight();
+      setIsLoading(false);
+    })
+  );
+
+  createEffect(
+    on([isLoading], () => {
+      if (!isLoading() && addItemBeenCalled()) {
+        scrollToLastItem();
+      }
+    })
+  );
 
   return (
     <section class={classes["category-section"]}>
       <div class={classes["category__header"]}>
-        <label class={classes["category__drop-down-control-label"]}>
+        <label
+          classList={{
+            [classes["category__drop-down-control-label"]]: true,
+            [classes["category__drop-down-control-label--disabled"]]:
+              merge.isLoadingCollapsed === merge.id,
+          }}
+        >
+          <div
+            classList={{
+              [classes["on-load-mask"]]: true,
+              [classes["on-load-mask--hidden"]]: !isLoading(),
+            }}
+          />
           <input
-            class={classes["category__drop-down-checbox"]}
+            class={classes["category__drop-down-checkbox"]}
             type="checkbox"
+            checked={!merge.collapsed}
+            disabled={merge.isLoadingCollapsed === merge.id}
             onChange={toggleVisibility}
           />
           <h2>{merge.name}</h2>
-          {merge.id}
+
+          {/* {merge.id} */}
         </label>
         <div class={classes["category__controls"]}>
-          <button class={classes["category__add-item-button"]} type="button">
+          <button
+            class={classes["category__add-item-button"]}
+            type="button"
+            onClick={toggleAddItem}
+          >
             <IconPlusSolid />
           </button>
           <button class={classes["category__more-button"]} type="button">
             <IconEllipsisHorizontalSolid />
           </button>
         </div>
+      </div>
+      <div
+        use:clickAway={() => setAddItemVisible(false)}
+        classList={{
+          [classes["category__add-item"]]: true,
+          [classes["category__add-item--expanded"]]: isAddItemVisible(),
+        }}
+      >
+        <input
+          class={classes["category__add-item-input"]}
+          type="text"
+          placeholder="Add item"
+          value={inputValue()}
+          onInput={(e) => setInputValue(e.target.value)}
+        />
+        <button
+          class={classes["category__add-item-button"]}
+          type="button"
+          onClick={onAddItem}
+        >
+          <IconEnterOutline />
+        </button>
       </div>
       <ul
         classList={{
@@ -94,17 +209,23 @@ const Category: Component<ICategoryProps> = (props) => {
             <li
               classList={{
                 [classes["category__item-li--last"]]:
-                  item.order ===
+                  item.child_order ===
                   merge.items.reduce((max, item) => {
-                    return item.order > max ? item.order : max;
+                    return item.child_order > max ? item.child_order : max;
                   }, 0),
-                [classes["category__item-li--delimeter-top"]]:
+
+                [classes["category__item-li--delimiter-top"]]:
                   merge.delimiter === "top",
-                [classes["category__item-li--delimeter-bottom"]]:
+                [classes["category__item-li--delimiter-bottom"]]:
                   merge.delimiter === "bottom",
               }}
             >
-              <Item {...item} />
+              <Item
+                {...item}
+                handleEditItem={merge.handleEditItem(item.id)}
+                handleRemoveItem={merge.handleRemoveItem(item.id)}
+                isLoading={merge.isLoadingOuter}
+              />
             </li>
           )}
         </Sortable>

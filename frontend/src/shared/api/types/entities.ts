@@ -77,6 +77,23 @@ export const Task = RecordRunType({
 
 export type Task = Static<typeof Task>;
 
+export const TaskSync = Task.And(
+  RecordRunType({
+    comment_count: Int,
+    child_order: Int,
+    user_id: String,
+    is_archived: Boolean,
+    is_deleted: Boolean,
+    collapsed: Boolean,
+    parent_id: String.Or(Null),
+    archived_timestamp: Int,
+    color: String,
+    view_style: String,
+  })
+);
+
+export type TaskSync = Static<typeof TaskSync>;
+
 export const Project = RecordRunType({
   id: String,
   name: String,
@@ -97,8 +114,21 @@ export const Project = RecordRunType({
 
 export type Project = Static<typeof Project>;
 
-// This allows us to accept any string during validation, but provide intellisense for the two possible values in request args
-export type ProjectViewStyle = "list" | "board";
+export const ProjectSync = Project.And(
+  RecordRunType({
+    child_order: Int,
+    user_id: String,
+    is_archived: Boolean,
+    is_deleted: Boolean,
+    collapsed: Boolean,
+    parent_id: String.Or(Null),
+    archived_timestamp: Int,
+    color: String,
+    view_style: String,
+  })
+);
+
+export type ProjectSync = Static<typeof ProjectSync>;
 
 export const Section = RecordRunType({
   id: String,
@@ -108,6 +138,19 @@ export const Section = RecordRunType({
 });
 
 export type Section = Static<typeof Section>;
+
+export const SectionSync = Section.And(
+  RecordRunType({
+    sync_id: String.Or(Null),
+    is_deleted: Boolean,
+    is_archived: Boolean,
+    archived_at: String.Or(Null),
+    added_at: String,
+    updated_at: String,
+  })
+);
+
+export type SectionSync = Static<typeof SectionSync>;
 
 export const Label = RecordRunType({
   id: String,
@@ -211,3 +254,6 @@ export type QuickAddTaskResponse = {
     lang: string;
   } | null;
 };
+
+// This allows us to accept any string during validation, but provide intellisense for the two possible values in request args
+export type ProjectViewStyle = "list" | "board";

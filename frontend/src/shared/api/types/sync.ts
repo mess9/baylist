@@ -1,17 +1,18 @@
-export type SectionSync = {
-  added_at: string;
-  archived_at: null | string;
-  id: string;
-  is_archived: boolean;
-  is_collapsed: boolean;
-  is_deleted: boolean;
-  name: string;
-  project_id: string;
-  section_order: number;
-  sync_id: null | string;
-  updated_at: string;
-  user_id: string;
-};
+import type {
+  Item,
+  ProjectNote,
+  Project,
+  Section,
+  ItemNote,
+  CompletedInfo,
+  Filter,
+  Reminder,
+  Label,
+  User,
+  CollaboratorState,
+  LiveNotification,
+  Duration,
+} from "./syncEntities";
 
 export interface SyncCommand<T> {
   type: string;
@@ -20,7 +21,53 @@ export interface SyncCommand<T> {
   temp_id?: string;
 }
 
-export interface SyncRequest {
+export type ResourceType =
+  | "labels"
+  | "projects"
+  | "items"
+  | "notes"
+  | "sections"
+  | "filters"
+  | "reminders"
+  | "reminders_location"
+  | "locations"
+  | "user"
+  | "live_notifications"
+  | "collaborators"
+  | "user_settings"
+  | "notification_settings"
+  | "user_plan_limits"
+  | "completed_info"
+  | "stats";
+
+export type SyncRequest = {
+  sync_token: string;
+  resource_types: ResourceType[];
+};
+
+export type SyncResponse = {
+  sync_token: string;
+  full_sync: boolean;
+  user?: User;
+  projects?: Project[];
+  items?: Item[];
+  notes?: ItemNote[];
+  project_notes?: ProjectNote[];
+  sections?: Section[];
+  labels?: Label[];
+  filters?: Filter[];
+  day_orders?: Record<string, unknown>;
+  reminders?: Reminder[];
+  collaborators?: Record<string, unknown>;
+  collaborators_states?: CollaboratorState[];
+  completed_info?: CompletedInfo[];
+  live_notifications?: LiveNotification[];
+  live_notifications_last_read?: string;
+  user_settings?: Record<string, unknown>;
+  user_plan_limits?: Record<string, unknown>;
+};
+
+export interface SyncRequestWithCommand {
   commands?: SyncCommand<unknown>[];
   resource_types?: string[];
 }
@@ -30,57 +77,53 @@ export interface CommandError {
   error_code: number;
 }
 
-export interface SyncResponse {
+export interface SyncResponseWithCommand {
   sync_status: Record<string, "ok" | CommandError>;
+  sync_token: string;
   temp_id_mapping?: Record<string, string>;
   [key: string]: unknown;
 }
+
+export type GetProjectDataArgs = {
+  project_id: string;
+};
+
+export type GetProjectDataResponse = {
+  project: Project;
+  items: Array<Item>;
+  sections: Array<Section>;
+  project_notes: Array<ProjectNote>;
+};
+
+export type UpdateSectionArgs = {
+  commands: SyncCommand<{
+    id: string;
+    name?: string;
+    collapsed?: boolean;
+  }>[];
+};
+
+export type ReorderSectionsArgs = {
+  commands: SyncCommand<{
+    sections: {
+      id: string;
+      section_order: number;
+    }[];
+  }>[];
+};
 
 export interface ReorderItem {
   id: string;
   child_order: number;
 }
 
-interface ReorderSection {
-  id: string;
-  section_order: number;
-}
-
-export type MoveItemArgs = {
-  commands: (
-    | SyncCommand<{ id: string; section_id: string }>
-    | SyncCommand<{ items: ReorderItem[] }>
-  )[];
-};
-
-export type ReorderItemsArgs = {
-  commands: SyncCommand<{ items: ReorderItem[] }>[];
-};
-
-export type ReorderSectionsArgs = {
-  commands: SyncCommand<{ sections: ReorderSection[] }>[];
-};
-
 export type AddItemArgs = {
-  commands: SyncCommand<{
-    content: string;
-    description?: string;
-    project_id?: string;
-    due?: DueDate;
-    deadline?: Deadline;
-    priority?: number;
-    parent_id?: string | null;
-    child_order?: number;
-    section_id?: string | null;
-    day_order?: number;
-    collapsed?: boolean;
-    labels?: string[];
-    assigned_by_uid?: string;
-    responsible_uid?: string | null;
-    auto_reminder?: boolean;
-    auto_parse_labels?: boolean;
-    duration?: Duration;
-  }>[];
+  commands: SyncCommand<
+    | { content: string; section_id: string; project_id: string }
+    | {
+        item: Item;
+      }
+  >[];
 };
 
 export type UpdateItemArgs = {
@@ -88,15 +131,36 @@ export type UpdateItemArgs = {
     id: string;
     content?: string;
     description?: string;
-    due?: DueDate;
-    deadline?: Deadline;
+    project_id?: string;
+    due?: unknown; // Можно уточнить тип, если известен
+    deadline?: unknown; // Можно уточнить тип, если известен
     priority?: number;
-    collapsed?: boolean;
-    labels?: string[];
-    assigned_by_uid?: string;
+    parent_id?: string | null;
+    child_order?: number;
+    section_id?: string;
+    day_order?: number | null;
+    assigned_by_uid?: string | null;
     responsible_uid?: string | null;
-    day_order?: number;
+    is_deleted?: boolean;
+    sync_id?: string | null;
+    completed_at?: string | null;
     duration?: Duration | null;
+  }>[];
+};
+
+export type MoveItemArgs = {
+  commands: (
+    | SyncCommand<{ id: string; section_id: string }>
+    | SyncCommand<{ items: { id: string; child_order: number }[] }>
+  )[];
+};
+
+export type ReorderItemsArgs = {
+  commands: SyncCommand<{
+    items: {
+      id: string;
+      child_order: number;
+    }[];
   }>[];
 };
 
@@ -105,21 +169,3 @@ export type DeleteItemArgs = {
     id: string;
   }>[];
 };
-
-interface DueDate {
-  date: string; // Дата в формате YYYY-MM-DD или YYYY-MM-DDTHH:MM:SS или YYYY-MM-DDTHH:MM:SSZ
-  timezone: string | null; // Всегда null для плавающих дат, иначе строка для фиксированных
-  string: string; // Человекочитаемое представление даты
-  lang: string; // Язык для разбора даты
-  is_recurring: boolean; // Флаг, указывающий, является ли дата повторяющейся
-}
-
-interface Deadline {
-  date: string; // Дедлайн в формате YYYY-MM-DD
-  lang: string; // Язык для разбора дедлайна
-}
-
-interface Duration {
-  amount: number;
-  unit: "minute" | "day";
-}

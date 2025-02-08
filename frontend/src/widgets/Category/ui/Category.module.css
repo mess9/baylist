@@ -4,6 +4,8 @@
 }
 
 .category__header {
+  position: relative;
+
   display: flex;
   gap: 1rem;
   align-items: stretch;
@@ -20,6 +22,41 @@
     rgba(30, 30, 30, 0.7) 40%,
     rgba(255, 255, 255, 0.1) 100%
   );
+}
+
+.on-load-mask--hidden {
+  display: none;
+  visibility: hidden;
+}
+
+.on-load-mask{
+  position: absolute;
+  top: 0;
+  left: 0;
+
+  width: 100%;
+  height: 100%;
+
+  background-color: rgba(229, 149, 149, 0.5);
+  background-image: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0),
+    rgba(255, 255, 255, 0.5),
+    rgba(255, 255, 255, 0)
+  );
+  background-repeat: no-repeat;
+  background-size: 100% 300%;
+
+  animation: gradient-animation 1s linear infinite alternate;
+}
+
+@keyframes gradient-animation {
+  0% {
+    background-position: 0% -100%;
+  }
+  100% {
+    background-position: 0% 100%;
+  }
 }
 
 .category__drop-down-control-label {
@@ -39,8 +76,13 @@
   background-color: var(--white-two-tenth);
 }
 
-.category__drop-down-checbox {
+.category__drop-down-control-label--disabled {
+  opacity: 0.5;
+}
+
+.category__drop-down-checkbox {
   content: "";
+
 
   display: block;
 
@@ -57,14 +99,14 @@
   mask-repeat: no-repeat;
 }
 
-.category__drop-down-checbox:hover {
+.category__drop-down-checkbox:hover {
   cursor: pointer;
 }
 
 @media (hover: hover) and (pointer: fine) {
 }
 
-.category__drop-down-checbox:checked {
+.category__drop-down-checkbox:checked {
   transform: rotate(-90deg);
 }
 
@@ -119,11 +161,48 @@
   transition: max-height 0.3s ease;
 }
 
-.category__item-li--delimeter-top {
+.category__add-item {
+  overflow: hidden;
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+  justify-content: start;
+
+  min-height: 0;
+  max-height: 0;
+  padding: 0 1rem 0 5rem;
+
+  transition: max-height 0.3s ease, min-height 0.3s ease;
+}
+
+.category__add-item--expanded {
+  min-height: calc(100vh / var(--count-items-on-vh));
+  max-height: calc(100vh / var(--count-items-on-vh));
+  padding: 0.2rem 1rem 0.2rem 5rem;
+}
+
+.category__add-item-input {
+  width: 100%;
+  padding: 0.5rem;
+  border: none;
+  border-radius: 0.4rem;
+
+  font-size: 1.7rem;
+  color: var(--white);
+
+  background-color: transparent;
+  outline: none;
+}
+
+.category__add-item-input:focus {
+  outline: 1px solid var(--white-tenth);
+}
+
+.category__item-li--delimiter-top {
   border-top: 1px solid var(--white-tenth);
 }
 
-.category__item-li--delimeter-bottom {
+.category__item-li--delimiter-bottom {
   border-bottom: 1px solid var(--white-tenth);
 }
 

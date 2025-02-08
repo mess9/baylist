@@ -30,11 +30,15 @@ export const ENDPOINT_REST_TASK_CLOSE = "close";
 export const ENDPOINT_REST_TASK_REOPEN = "reopen";
 export const ENDPOINT_REST_PROJECT_COLLABORATORS = "collaborators";
 
+export const ENDPOINT_SYNC_GET_PROJECT_DATA = "/projects/get_data";
 export const ENDPOINT_SYNC_QUICK_ADD = "quick/add";
+export const ENDPOINT_SYNC = "sync";
 export const ENDPOINT_SYNC_REORDER_SECTIONS = "sync";
+export const ENDPOINT_SYNC_UPDATE_SECTIONS = "sync";
 export const ENDPOINT_SYNC_REORDER_ITEMS = "sync";
 export const ENDPOINT_SYNC_ADD_ITEMS = "sync";
 export const ENDPOINT_SYNC_UPDATE_ITEMS = "sync";
+
 export const ENDPOINT_SYNC_MOVE_ITEMS = "sync";
 export const ENDPOINT_SYNC_DELETE_ITEMS = "sync";
 

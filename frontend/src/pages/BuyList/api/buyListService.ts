@@ -1,43 +1,102 @@
 import { TodoistApi } from "/shared/api";
 import type { ICategory } from "/widgets/Category/ui/Category";
-import type { IItem } from "/features/Item/ui/Item";
+import type { Item as ItemType, Project } from "/shared/api/types/syncEntities";
 import type {
   MoveItemArgs,
   AddItemArgs,
-  UpdateItemArgs,
   DeleteItemArgs,
   ReorderItemsArgs,
   ReorderSectionsArgs,
+  SyncResponseWithCommand,
+  ResourceType,
+  SyncResponse,
+  UpdateItemArgs,
+  UpdateSectionArgs,
 } from "/shared/api/types/sync";
 import { token } from "/src/ign";
 
 const api = new TodoistApi(token);
 
-export async function fetchCategories(): Promise<ICategory[]> {
-  const projects = await api.getProjects();
-  const project = projects.filter((project) => project.name === "Test");
+export async function fetchProjects(): Promise<Project[]> {
+  const response = await api.sync({
+    sync_token: "",
+    resource_types: ["projects"],
+  });
 
-  if (project.length !== 1) {
-    throw new Error('"buylist" not exist or more than one');
+  if (!response.projects) {
+    throw new Error("Failed to fetch projects");
   }
+  return response.projects;
+}
 
-  const categories = await api.getSections(project[0].id);
+export async function fetchCategoriesWithItems(
+  projectId: string
+): Promise<ICategory[]> {
+  const project = await api.getProjectData({ project_id: projectId });
 
-  if (!categories) {
+  if (!project) {
     throw new Error("Failed to fetch categories");
   }
+  console.log(project);
+  const categoriesWithItems = project.sections.map((section) => ({
+    ...section,
+    items: project.items
+      .filter((item) => item.section_id === section.id)
+      .sort((a, b) => a.child_order - b.child_order),
+  }));
 
-  const categoriesWithItems = await Promise.all(
-    categories.map(async (category) => {
-      const items = await api.getTasks({ sectionId: category.id });
-      return {
-        ...category,
-        items: items.sort((a, b) => a.order - b.order) || [],
-      };
-    })
+  const categoriesWithItems2 = project.items.reduce(
+    (
+      acc: {
+        [key: string]: ICategory | { id: "no_category"; items: ItemType[] };
+      },
+      item
+    ) => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+      (item.section_id !== null &&
+        ((acc[item.section_id] &&
+          (acc[item.section_id] = {
+            ...acc[item.section_id],
+            items: [...(acc[item.section_id]?.items || []), item],
+          })) ||
+          (acc[item.section_id] = {
+            ...(project.sections.find((s) => s.id === item.section_id) || {
+              id: "no_category",
+            }),
+            items: [...(acc[item.section_id]?.items || []), item],
+          }))) ||
+        (acc["no_category"] = {
+          id: "no_category",
+          items: [...(acc["no_category"]?.items || []), item],
+        });
+
+      return acc;
+    },
+    {}
   );
 
-  return categoriesWithItems.sort((a, b) => a.order - b.order);
+  console.log(categoriesWithItems2);
+
+  return categoriesWithItems;
+}
+
+export async function updateCategoryCollapsed(
+  categoryId: string,
+  collapsed: boolean
+): Promise<SyncResponse> {
+  const commands: UpdateSectionArgs = {
+    commands: [
+      {
+        type: "section_update",
+        uuid: crypto.randomUUID(),
+        args: { id: categoryId, collapsed },
+      },
+    ],
+  };
+
+  const response = await api.updateSection(commands);
+
+  return response;
 }
 
 export async function updateCategoriesOrder(
@@ -61,18 +120,16 @@ export async function updateCategoriesOrder(
   };
 
   await api.reorderSections(commands);
-  console.log("Все категории обновлены на сервере");
 }
 
 export async function updateItemsOrder(
   categoryId: string,
-  items: IItem[]
+  items: ItemType[]
 ): Promise<void> {
   const itemOrder = items.map((item, index) => ({
     id: item.id,
     child_order: index + 1,
   }));
-
   const commands: ReorderItemsArgs = {
     commands: [
       {
@@ -86,10 +143,20 @@ export async function updateItemsOrder(
   };
 
   await api.reorderItems(commands);
-  console.log(`Items in category ${categoryId} updated on the server`);
 }
 
-export async function addItem(item: IItem, section_id: string): Promise<void> {
+export async function addItem(
+  params: AddItemArgs["commands"][number]["args"]
+): Promise<SyncResponseWithCommand> {
+  const itemData =
+    "item" in params
+      ? params.item
+      : {
+          content: params.content,
+          section_id: params.section_id,
+          project_id: params.project_id,
+        };
+
   const commands: AddItemArgs = {
     commands: [
       {
@@ -97,53 +164,40 @@ export async function addItem(item: IItem, section_id: string): Promise<void> {
         temp_id: crypto.randomUUID(),
         uuid: crypto.randomUUID(),
         args: {
-          content: item.content,
-          project_id: section_id,
-          labels: item.labels,
+          ...itemData,
         },
       },
     ],
   };
 
   const response = await api.addItem(commands);
-  const tempId = commands.commands[0]?.temp_id;
-  const addedItemId = response.temp_id_mapping?.[tempId ?? ""];
 
-  if (addedItemId) {
-    console.log(`Элемент добавлен с ID: ${addedItemId}`);
-  } else {
-    console.log("Ошибка: не удалось добавить элемент");
-  }
+  return response;
 }
 
-export async function updateItem(item: IItem): Promise<void> {
+export async function updateItem(
+  params: UpdateItemArgs["commands"][number]["args"]
+): Promise<void> {
   const commands: UpdateItemArgs = {
     commands: [
       {
         type: "item_update",
         uuid: crypto.randomUUID(),
         args: {
-          id: item.id,
-          content: item.content,
-          description: item.description,
-          // due: item.due,
-          // deadline: item.deadline, TODO: add due and deadline
-          priority: item.priority,
-          labels: item.labels,
+          ...params,
         },
       },
     ],
   };
 
   await api.updateItem(commands);
-  console.log(`Item ${item.id} updated on the server`);
 }
 
 export async function moveItem(
   itemId: string,
   newParentId: string,
-  newItemsFromList: IItem[],
-  newItemsToList: IItem[]
+  newItemsFromList: ItemType[],
+  newItemsToList: ItemType[]
 ): Promise<void> {
   const commands: MoveItemArgs = {
     commands: [
@@ -161,7 +215,7 @@ export async function moveItem(
         args: {
           items: newItemsFromList.map((item) => ({
             id: item.id,
-            child_order: item.order,
+            child_order: item.child_order,
           })),
         },
       },
@@ -171,15 +225,13 @@ export async function moveItem(
         args: {
           items: newItemsToList.map((item) => ({
             id: item.id,
-            child_order: item.order,
+            child_order: item.child_order,
           })),
         },
       },
     ],
   };
-
   await api.moveItem(commands);
-  console.log(`Item ${itemId} moved to category ${newParentId}`);
 }
 
 export async function deleteItem(itemId: string): Promise<void> {
@@ -194,7 +246,16 @@ export async function deleteItem(itemId: string): Promise<void> {
       },
     ],
   };
-
   await api.deleteItem(commands);
-  console.log(`Item ${itemId} deleted from the server`);
+}
+
+export async function sync(
+  sync_token: string,
+  entities: ResourceType[]
+): Promise<SyncResponse> {
+  const entitiesResponse = await api.sync({
+    sync_token,
+    resource_types: entities,
+  });
+  return entitiesResponse;
 }
