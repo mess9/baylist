@@ -45,6 +45,9 @@ jobs:
           name: buylist.jar
           path: target/
 
+      - name: List the files in the target directory
+        run: ls -la target/
+
       - name: Unzip the artifact
         run: |
           unzip target/buylist.jar.zip -d target/
