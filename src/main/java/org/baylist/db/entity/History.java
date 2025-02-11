@@ -40,7 +40,7 @@ public class History {
 	@JoinColumn(name = "recipient", nullable = false)
 	private User recipient;
 
-	@Column(name = "date", nullable = false)
+	@Column(name = "datetime", nullable = false)
 	private OffsetDateTime date;
 
 	@Column(name = "action", nullable = false)

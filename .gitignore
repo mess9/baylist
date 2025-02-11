@@ -36,3 +36,4 @@ build/
 .allure
 */node_modules/
 amplicode.xml
+.deploy/oracle/dbWallet
