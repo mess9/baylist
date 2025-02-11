@@ -48,9 +48,15 @@ jobs:
       - name: List the files in the target directory
         run: ls -la target/
 
+      - name: Create SSH key file
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.REMOTE_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+
       - name: Copy JAR to remote server
         run: |
-          scp -o StrictHostKeyChecking=no -i ${{ secrets.REMOTE_SSH_KEY }} target/baylist-0.0.7.jar ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }}:/home/ubuntu/deploy/
+          scp -o StrictHostKeyChecking=no -i ~/.ssh/deploy_key target/baylist-0.0.7.jar ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }}:/home/ubuntu/deploy/
 
       - name: Deploy to remote server via SSH
         uses: appleboy/ssh-action@v0.1.7
@@ -65,6 +71,6 @@ jobs:
             export ORACLE_DB_PASSWORD=${{ secrets.ORACLE_DB_PASSWORD }}
             export TNS_ADMIN=${{ secrets.TNS_ADMIN }}
             export TOKEN_TG=${{ secrets.TOKEN_TG }}
-            cd /home/ubuntu/deploy
-            java -jar /home/ubuntu/deploy/baylist-0.0.7.jar
+            pkill -f "java -jar /home/ubuntu/deploy/baylist-0.0.7.jar" || echo "No process found"
+            java -jar /home/ubuntu/deploy/baylist-0.0.7.jar &
             
