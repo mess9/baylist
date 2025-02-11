@@ -48,6 +48,10 @@ jobs:
       - name: List the files in the target directory
         run: ls -la target/
 
+      - name: Copy JAR to remote server
+        run: |
+          scp -o StrictHostKeyChecking=no -i ${{ secrets.REMOTE_SSH_KEY }} target/baylist-0.0.7.jar ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }}:/home/ubuntu/deploy/
+
       - name: Deploy to remote server via SSH
         uses: appleboy/ssh-action@v0.1.7
         with:
@@ -61,9 +65,6 @@ jobs:
             export ORACLE_DB_PASSWORD=${{ secrets.ORACLE_DB_PASSWORD }}
             export TNS_ADMIN=${{ secrets.TNS_ADMIN }}
             export TOKEN_TG=${{ secrets.TOKEN_TG }}
-            ls -la .
-            pwd
-            scp target/* ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }}:/home/ubuntu/deploy/
             cd /home/ubuntu/deploy
             java -jar /home/ubuntu/deploy/baylist-0.0.7.jar
             
