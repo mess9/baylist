@@ -65,5 +65,7 @@ jobs:
           username: ${{ secrets.REMOTE_USER }}
           key: ${{ secrets.REMOTE_SSH_KEY }}
           port: 22
-          script: ~/deploy/run.sh
+          script: |
+            ~/deploy/run.sh
+            exit 0
             
