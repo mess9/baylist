@@ -39,6 +39,16 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Download the artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: buylist.jar
+          path: target/
+
+      - name: Unzip the artifact
+        run: |
+          unzip target/buylist.jar.zip -d target/
+
       - name: Deploy to remote server via SSH
         uses: appleboy/ssh-action@v0.1.7
         with:
