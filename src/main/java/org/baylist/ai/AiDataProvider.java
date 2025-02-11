@@ -49,7 +49,6 @@ public class AiDataProvider {
 		log.info("ai function called - getTodoistData project buylist");
 		try {
 			String token = "Bearer " + userRequest.user().getTodoistToken();
-			log.info("token - {}", token);
 
 			List<Project> projects = todoistApi.getProjects(token);
 			Optional<Project> buylistProject = projects
@@ -73,7 +72,6 @@ public class AiDataProvider {
 		log.info("ai function called - getAllTodoistData");
 		try {
 			String token = "Bearer " + userRequest.user().getTodoistToken();
-			log.info("token - {}", token);
 
 			List<Project> projects = todoistApi.getProjects(token);
 			List<Section> sections = new ArrayList<>();
