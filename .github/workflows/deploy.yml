@@ -71,6 +71,11 @@ jobs:
             export ORACLE_DB_PASSWORD=${{ secrets.ORACLE_DB_PASSWORD }}
             export TNS_ADMIN=${{ secrets.TNS_ADMIN }}
             export TOKEN_TG=${{ secrets.TOKEN_TG }}
-            pkill -f "java -jar /home/ubuntu/deploy/baylist-0.0.7.jar" || echo "No process found"
+            pkill -f "java -jar baylist-0.0.7.jar" || echo "No process found"
+            # Игнорируем статус 143
+            if [ $? -eq 143 ]; then
+              echo "Process terminated successfully"
+            fi
+            # Запускаем новую версию
             java -jar /home/ubuntu/deploy/baylist-0.0.7.jar &
             
