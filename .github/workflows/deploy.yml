@@ -77,5 +77,6 @@ jobs:
               echo "Process terminated successfully"
             fi
             # Запускаем новую версию
-            java -jar /home/ubuntu/deploy/baylist-0.0.7.jar &
+            screen -dmS myapp java -jar /home/ubuntu/deploy/baylist-0.0.7.jar
+            sleep 100
             
