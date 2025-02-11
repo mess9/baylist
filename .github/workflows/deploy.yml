@@ -16,7 +16,7 @@ jobs:
         uses: actions/setup-java@v2
         with:
           java-version: '21'
-          distribution: 'oracle'
+          distribution: 'adoptopenjdk'
 
       - name: Build with Maven
         run: mvn package -DskipTests=true -f pom.xml
