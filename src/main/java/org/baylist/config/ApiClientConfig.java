@@ -3,7 +3,6 @@ package org.baylist.config;
 import feign.Logger;
 import feign.RequestInterceptor;
 import feign.codec.ErrorDecoder;
-import org.apache.http.protocol.HTTP;
 import org.baylist.exception.FeignErrorDecoder;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Bean;
@@ -22,7 +21,7 @@ public class ApiClientConfig {
 
 	@Bean
 	public RequestInterceptor requestInterceptor() {
-		return requestTemplate -> requestTemplate.header(HTTP.CONTENT_TYPE, APPLICATION_JSON_VALUE);
+		return requestTemplate -> requestTemplate.header("Content-Type", APPLICATION_JSON_VALUE);
 	}
 
 	@Bean

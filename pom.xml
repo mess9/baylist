@@ -27,6 +27,7 @@
         <allure-maven.version>2.12.0</allure-maven.version>
         <postgres-socket-factory.version>1.21.0</postgres-socket-factory.version>
         <spring-oracle-wallet.version>24.3.0</spring-oracle-wallet.version>
+        <spring-feign.version>4.2.0</spring-feign.version>
         <kotlin.version>2.1.0</kotlin.version>
     </properties>
 
@@ -67,15 +68,6 @@
 
 
         <!--DB-->
-        <dependency>
-            <groupId>org.postgresql</groupId>
-            <artifactId>postgresql</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.google.cloud.sql</groupId>
-            <artifactId>postgres-socket-factory</artifactId>
-            <version>${postgres-socket-factory.version}</version>
-        </dependency>
         <dependency>
             <groupId>com.oracle.database.jdbc</groupId>
             <artifactId>ojdbc11</artifactId>
@@ -120,7 +112,7 @@
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-openfeign</artifactId>
-            <version>4.2.0</version>
+            <version>${spring-feign.version}</version>
         </dependency>
 
 

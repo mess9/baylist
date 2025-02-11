@@ -1,9 +1,9 @@
 package org.baylist.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import oracle.jdbc.pool.OracleDataSource;
 import org.baylist.util.log.ControllerLog;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
@@ -23,6 +23,7 @@ import static org.baylist.util.convert.ToJson.getObjectMapper;
 @Configuration
 @EnableCaching
 @EnableScheduling
+@RequiredArgsConstructor
 public class AppConfig implements WebMvcConfigurer {
 
     @Value("${spring.datasource.url}")
@@ -32,8 +33,8 @@ public class AppConfig implements WebMvcConfigurer {
     @Value("${spring.datasource.password}")
     private String datasourcePassword;
 
-    @Autowired
-    private ControllerLog controllerLog;
+    //    @Autowired
+    private final ControllerLog controllerLog;
 
 
     @Bean
