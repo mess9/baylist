@@ -53,6 +53,6 @@ jobs:
             export TNS_ADMIN=${{ secrets.TNS_ADMIN }}
             export TOKEN_TG=${{ secrets.TOKEN_TG }}
             cd /home/ubuntu/deploy
-            scp target/*.jar ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }}:/home/ubuntu/deploy/
+            scp target/* ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }}:/home/ubuntu/deploy/
             java -jar /home/ubuntu/deploy/baylist-0.0.7.jar
 
