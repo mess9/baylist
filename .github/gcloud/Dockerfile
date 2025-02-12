@@ -1,7 +1,7 @@
 FROM maven:3.9.9-amazoncorretto-21-alpine AS build-env
 WORKDIR /app
-COPY ../pom.xml ./
-COPY ../src ./src
+COPY pom.xml ./
+COPY src ./src
 RUN mvn package -DskipTests
 
 FROM openjdk:21-slim
