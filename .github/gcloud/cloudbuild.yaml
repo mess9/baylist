@@ -1,6 +1,6 @@
 steps:
   - name: 'gcr.io/cloud-builders/docker'
-    args: [ 'build', '-t', 'gcr.io/key-charmer-444222-i1/buylist','--build-arg=JAR_FILE=target/buylist', '.' ]
+    args: [ 'build', '-t', 'gcr.io/key-charmer-444222-i1/buylist','--build-arg=JAR_FILE=target/buylist', '.github/gcloud' ]
   - name: 'gcr.io/cloud-builders/docker'
     args: [ 'push', 'gcr.io/key-charmer-444222-i1/buylist' ]
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
