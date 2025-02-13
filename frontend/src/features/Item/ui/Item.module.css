@@ -34,9 +34,12 @@
 }
 
 .item__close-edit-button {
+  cursor: pointer;
+
   position: absolute;
   top: 0.2rem;
   right: 1.2rem;
+
 
 
   width: 2.6rem;
@@ -45,16 +48,13 @@
   border-radius: 0.4rem;
 
   color: var(--white);
+
+  transition: 0.15s ease transform;
 }
 
 @media (hover: hover) and (pointer: fine) {
-  .item__close-edit-button {
-    opacity: 0;
-    transition: 0.15s ease opacity;
-  }
-
   .item__close-edit-button:hover {
-    opacity: 0.7;
+    transform: scale(1.08);
   }
 }
 
@@ -62,6 +62,10 @@
   .item__close-edit-button:active {
     background-color: var(--white-two-tenth);
   }
+}
+
+.item__close-edit-button:active {
+  transform: scale(1);
 }
 
 

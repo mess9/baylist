@@ -26,12 +26,15 @@ type ItemProps = ItemType & {
 const Item: Component<ItemProps> = (props) => {
   const [itemContent, setItemContent] = createSignal("");
   const [isEditMode, setIsEditMode] = createSignal(false);
+  const [prevContent, setPrevContent] = createSignal("");
   const [editedContent, setEditedContent] = createSignal("");
   const [isFreshItem, setIsFreshItem] = createSignal(false);
   const [inputRef, setInputRef] = createSignal<HTMLInputElement | undefined>();
+  const [isButtonClicked, setIsButtonClicked] = createSignal(false);
 
   onMount(() => {
     setItemContent(props.content);
+    setPrevContent(props.content);
   });
 
   createEffect(() => {
@@ -50,9 +53,26 @@ const Item: Component<ItemProps> = (props) => {
     }
   });
 
-  const handleEditInputBlur = () => {
+  const handleInput = () => {
     props.handleEditItem(editedContent());
     setIsEditMode(false);
+  };
+
+  const handleBlur = () => {
+    if (!isButtonClicked()) {
+      handleInput();
+    }
+    setIsButtonClicked(false);
+  };
+
+  const handleKeyDown = (e: KeyboardEvent) => {
+    if (e.key === "Enter") {
+      handleInput();
+    }
+    if (e.key === "Escape") {
+      setIsEditMode(false);
+    }
+    setIsButtonClicked(false);
   };
 
   return (
@@ -73,12 +93,25 @@ const Item: Component<ItemProps> = (props) => {
               setEditedContent(e.target.value);
               setItemContent(e.target.value);
             }}
-            onBlur={handleEditInputBlur}
+            onBlur={handleBlur}
+            onKeyDown={handleKeyDown}
+            enterkeyhint={"enter"}
           />
-          <button class={classes["item__close-edit-button"]} type="button">
+          <button
+            class={classes["item__close-edit-button"]}
+            type="button"
+            onMouseDown={() => {
+              setIsButtonClicked(true);
+              setItemContent(prevContent());
+            }}
+            onMouseUp={() => {
+              setIsEditMode(false);
+            }}
+          >
             <IconXMarkOutline />
           </button>
         </Match>
+
         <Match when={!isEditMode()}>
           <div class={classes["item__content"]}>
             <button class={classes["buy-item__dnd-button"]} type="button">
