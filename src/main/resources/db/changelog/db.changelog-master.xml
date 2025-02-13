@@ -14,6 +14,10 @@
     <include file="migrations/8.history-table.yaml" relativeToChangelogFile="true"/>
     <include file="migrations/9.history-add-id.yaml" relativeToChangelogFile="true"/>
     <include file="migrations/10.dialog-remove-selected-category.yaml" relativeToChangelogFile="true"/>
+    <include file="migrations/11.add-task-table.yaml" relativeToChangelogFile="true"/>
+    <include file="migrations/12.tasks-rename-order.yaml" relativeToChangelogFile="true"/>
+    <include file="migrations/13.tasks-autoincrement.yaml" relativeToChangelogFile="true"/>
+    <include file="migrations/14.tasks-remove-uniq-constraint.yaml" relativeToChangelogFile="true"/>
 
 
 </databaseChangeLog>

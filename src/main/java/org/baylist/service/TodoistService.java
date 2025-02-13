@@ -48,6 +48,7 @@ public class TodoistService {
 	Map<Long, TodoistState> todoistStateMap = new ConcurrentHashMap<>();
 	UserService userService;
 	HistoryService historyService;
+	TaskService taskService;
 
 	public Project createProject(String token, Project project) {
 		return todoistApi.createProject(token, project);
@@ -116,6 +117,7 @@ public class TodoistService {
 			String projectId = buylistProject.get().getId();
 			List<Section> todoistBuylistSections = todoistApi.getSectionsByProject(recipient.getBearerToken(), projectId);
 			List<TaskResponse> todoistBuylistTasks = todoistApi.getTasksByProject(recipient.getBearerToken(), projectId);
+			taskService.syncTasks(recipient, todoistBuylistSections, todoistBuylistTasks);
 			todoistStateMap.put(recipient.getUserId(),
 					new TodoistState(projects, todoistBuylistSections, todoistBuylistTasks));
 		} else {

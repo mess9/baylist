@@ -1,0 +1,9 @@
+databaseChangeLog:
+  - changeSet:
+      id: 14
+      author: fil
+      changes:
+        - renameColumn:
+            tableName: tasks
+            oldColumnName: order
+            newColumnName: task_order

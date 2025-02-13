@@ -28,7 +28,6 @@
         <postgres-socket-factory.version>1.21.0</postgres-socket-factory.version>
         <spring-oracle-wallet.version>24.3.0</spring-oracle-wallet.version>
         <spring-feign.version>4.2.0</spring-feign.version>
-        <kotlin.version>2.1.0</kotlin.version>
     </properties>
 
     <dependencyManagement>
@@ -226,42 +225,6 @@
                     <reportVersion>${allure.version}</reportVersion>
                     <resultsDirectory>${basedir}/target/allure-results</resultsDirectory>
                     <reportDirectory>${basedir}/target/allure-report</reportDirectory>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.jetbrains.kotlin</groupId>
-                <artifactId>kotlin-maven-plugin</artifactId>
-                <version>${kotlin.version}</version>
-                <executions>
-                    <execution>
-                        <id>compile</id>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>compile</goal>
-                        </goals>
-                        <configuration>
-                            <sourceDirs>
-                                <source>src/main/java</source>
-                                <source>target/generated-sources/annotations</source>
-                            </sourceDirs>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>test-compile</id>
-                        <phase>test-compile</phase>
-                        <goals>
-                            <goal>test-compile</goal>
-                        </goals>
-                        <configuration>
-                            <sourceDirs>
-                                <source>src/test/java</source>
-                                <source>target/generated-test-sources/test-annotations</source>
-                            </sourceDirs>
-                        </configuration>
-                    </execution>
-                </executions>
-                <configuration>
-                    <jvmTarget>1.8</jvmTarget>
                 </configuration>
             </plugin>
             <plugin>
