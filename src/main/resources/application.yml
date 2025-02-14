@@ -62,3 +62,6 @@ management:
       probes:
         enabled: true
 
+server:
+  port: 80
+
