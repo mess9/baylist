@@ -1,0 +1,39 @@
+databaseChangeLog:
+  - changeSet:
+      id: 9
+      author: fil
+      changes:
+        - createTable:
+            tableName: friends
+            columns:
+              - column:
+                  name: user_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: friend_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+
+        - addForeignKeyConstraint:
+            baseTableName: friends
+            baseColumnNames: user_id
+            referencedTableName: users
+            referencedColumnNames: user_id
+            constraintName: fk_friends_user
+
+        - addForeignKeyConstraint:
+            baseTableName: friends
+            baseColumnNames: friend_id
+            referencedTableName: users
+            referencedColumnNames: user_id
+            constraintName: fk_friends_friend
+            deferrable: true
+            initiallyDeferred: true
+
+        - addUniqueConstraint:
+            tableName: friends
+            columnNames: user_id, friend_id
+            constraintName: unique_user_friend

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <include file="migrations/1.dialog-add-state.yaml" relativeToChangelogFile="true"/>
+    <include file="migrations/2.dialog-add-selected-category.yaml" relativeToChangelogFile="true"/>
+    <include file="migrations/3.user-add-registered.yaml" relativeToChangelogFile="true"/>
+    <include file="migrations/4.user-add-token.yaml" relativeToChangelogFile="true"/>
+    <include file="migrations/6.category-add-user.yaml" relativeToChangelogFile="true"/>
+    <include file="migrations/7.friends-table.yaml" relativeToChangelogFile="true"/>
+    <include file="migrations/8.history-table.yaml" relativeToChangelogFile="true"/>
+    <include file="migrations/9.history-add-id.yaml" relativeToChangelogFile="true"/>
+    <include file="migrations/10.dialog-remove-selected-category.yaml" relativeToChangelogFile="true"/>
+    <include file="migrations/11.add-task-table.yaml" relativeToChangelogFile="true"/>
+    <include file="migrations/12.tasks-rename-order.yaml" relativeToChangelogFile="true"/>
+    <include file="migrations/13.tasks-autoincrement.yaml" relativeToChangelogFile="true"/>
+    <include file="migrations/14.tasks-remove-uniq-constraint.yaml" relativeToChangelogFile="true"/>
+
+
+</databaseChangeLog>

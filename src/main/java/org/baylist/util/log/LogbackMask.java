@@ -11,12 +11,15 @@ import java.util.stream.IntStream;
 
 /**
  * паттерны накидываются в logback.xml
+ *
+ * изначальная задумка - прятать за звёздочками вывод в логи bearer токена
  */
 public class LogbackMask extends PatternLayout {
 
     private final List<String> maskPatterns = new ArrayList<>();
     private Pattern multilinePattern;
 
+    @SuppressWarnings("unused")
     public void addMaskPattern(String maskPattern) {
         maskPatterns.add(maskPattern);
         multilinePattern = Pattern.compile(String.join("|", maskPatterns), Pattern.MULTILINE);

@@ -7,7 +7,6 @@ import java.util.List;
 
 public interface VariantRepository extends JpaRepository<Variant, Long> {
 
-    Variant findByNameAndCategoryId(String name, Long categoryId);
+	List<Variant> findAllByCategoryId(Long id);
 
-    List<Variant> findByCategoryId(Long id);
 }

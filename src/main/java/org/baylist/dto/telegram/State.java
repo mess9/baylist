@@ -1,0 +1,32 @@
+package org.baylist.dto.telegram;
+
+import lombok.Getter;
+
+@Getter
+public enum State {
+
+	START,
+	DEFAULT,
+	CLEAR,
+	VIEW,
+	SYNC,
+	HELP,
+	FRIENDS,
+	AI,
+
+	DICT_SETTING,
+	DICT_VIEW,
+	DICT_ADD_CATEGORY,
+	DICT_ADD_TASK_TO_CATEGORY,
+	DICT_REMOVE_CATEGORY,
+	DICT_REMOVE_VARIANT,
+	DICT_RENAME_CATEGORY,
+
+	FEEDBACK_REQUEST,
+	FEEDBACK_ANSWER,
+
+	MENU,
+	ERROR,
+
+
+}

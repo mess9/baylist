@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 16
+      author: fil
+      changes:
+        - dropUniqueConstraint:
+            constraintName: SYS_C0024796
+            tableName: tasks

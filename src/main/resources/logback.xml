@@ -12,30 +12,6 @@
         </encoder>
     </appender>
 
-    <!--    &lt;!&ndash; в файл&ndash;&gt;-->
-    <!--    <property name="LOG_FILE" value="/logs/buylist.log"/>-->
-    <!--    <appender name="FILE-ROLLING" class="ch.qos.logback.core.rolling.RollingFileAppender">-->
-    <!--        <file>${LOG_FILE}</file>-->
-    <!--        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">-->
-    <!--            <fileNamePattern>target/log/test.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>-->
-    <!--            &lt;!&ndash; each archived file, size max 10MB &ndash;&gt;-->
-    <!--            <maxFileSize>10MB</maxFileSize>-->
-    <!--            &lt;!&ndash; total size of all archive files, if total size > 20GB, it will delete old archived file &ndash;&gt;-->
-    <!--            <totalSizeCap>100MB</totalSizeCap>-->
-    <!--            &lt;!&ndash; days to keep &ndash;&gt;-->
-    <!--            <maxHistory>300</maxHistory>-->
-    <!--        </rollingPolicy>-->
-    <!--        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">-->
-    <!--            <charset>UTF-8</charset>-->
-    <!--            <outputPatternAsHeader>true</outputPatternAsHeader>-->
-    <!--            <pattern>%d %p %c{1} [%t] %m%n</pattern>-->
-    <!--        </encoder>-->
-    <!--    </appender>-->
-
-    <logger name="ch.qos.logback" level="WARN"/>
-    <!--    <root level="info">-->
-    <!--        <appender-ref ref="FILE-ROLLING"/>-->
-    <!--    </root>-->
     <root level="info">
         <appender-ref ref="CONSOLE"/>
     </root>

@@ -1,31 +1,59 @@
 ### log ###
 logging:
   level:
+    org.baylist.api.TodoistFeignClient: debug
+    org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor: debug
     root: info
-#    root: debug
+#    com.zaxxer.hikari: DEBUG
+#    oracle.jdbc: DEBUG
 
 ### connect ###
 todoist:
   baseUrl: https://api.todoist.com/rest/v2
-  token: ${TOKEN_TODOIST}
-dictionary: #будет заменено на бд
-  path: /app/resources/dict/dictionary.yml
 spring:
+  ai:
+    openai:
+      api-key: ${OPENAI_TOKEN}
+      chat:
+        options:
+          model: gpt-4o-mini
+          temperature: 0.7
+  #  ai:
+  #    openai:
+  #      base-url: https://api.deepseek.com
+  #      api-key: ${DS_TOKEN}
+  #      chat:
+  #        enabled: true
+  #        options:
+  #          model: deepseek-chat
+  #          temperature: 0.7
+  #      embedding:
+  #        enabled: false
+  liquibase:
+    change-log: classpath:/db/changelog/db.changelog-master.xml
+    enabled: true
   autoconfigure:
     exclude:
       - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
   datasource:
-    url: jdbc:postgresql://34.65.32.51:5432/buylistdb
-    username: postdb
-    password: ${DB_PASSWORD}
-    driver-class-name: org.postgresql.Driver
+    url: jdbc:oracle:thin:@db1_high
+    username: BUYLIST
+    password: ${ORACLE_DB_PASSWORD}
+    driver-class-name: oracle.jdbc.OracleDriver
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
     show-sql: true
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
+        dialect: org.hibernate.dialect.OracleDialect
+    open-in-view: true
+  cloud:
+    openfeign:
+      client:
+        config:
+          todoistClient:
+            loggerLevel: full
 
 ### deploy ###
 management:
@@ -33,3 +61,4 @@ management:
     health:
       probes:
         enabled: true
+

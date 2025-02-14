@@ -1,0 +1,11 @@
+databaseChangeLog:
+  - changeSet:
+      id: 4
+      author: fil
+      changes:
+        - addColumn:
+            tableName: dialogs
+            columns:
+              - column:
+                  name: selected_category
+                  type: varchar

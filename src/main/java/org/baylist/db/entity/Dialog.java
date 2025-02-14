@@ -1,7 +1,10 @@
 package org.baylist.db.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -13,6 +16,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.baylist.dto.telegram.State;
 
 @Entity
 @Getter
@@ -23,11 +27,18 @@ import lombok.ToString;
 @Table(name = "dialogs")
 public class Dialog {
 
+	public Dialog(User user, Long chatId, State state) {
+		this.user = user;
+		this.chatId = chatId;
+		this.state = state;
+	}
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "dialog_id")
 	private Long dialogId;
 
+	@JsonBackReference
 	@OneToOne
 	@JoinColumn(name = "user_id", nullable = false, unique = true)
 	private User user;
@@ -35,14 +46,8 @@ public class Dialog {
 	@Column(name = "chat_id")
 	private Long chatId;
 
-	@Column(name = "is_report")
-	private boolean isReport = false;
-
-
-	public Dialog(User user, Long chatId) {
-		this.user = user;
-		this.chatId = chatId;
-	}
-
+	@Column(name = "state")
+	@Enumerated(EnumType.STRING)
+	private State state;
 
 }

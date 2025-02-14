@@ -35,5 +35,9 @@ build/
 ###OTHER###
 .allure
 */node_modules/
+amplicode.xml
+.deploy/oracle/dbWallet
+
+### Frontend ###
 *.sublime-project
 *.sublime-workspace

@@ -33,6 +33,14 @@ public class Category {
     @Column(nullable = false)
     private String name;
 
-    @OneToMany(cascade = ALL, mappedBy = "category")
+    @Column(nullable = false, name = "user_id")
+    private Long userId;
+
+	@OneToMany(cascade = ALL, orphanRemoval = true, mappedBy = "category")
     private List<Variant> variants;
+
+    public Category(String categoryName, Long userId) {
+        this.name = categoryName;
+        this.userId = userId;
+    }
 }
