@@ -61,6 +61,6 @@ management:
         enabled: true
 
 server:
-  port: 80
+  port: 8080
   address: 0.0.0.0
 
