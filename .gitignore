@@ -34,10 +34,13 @@ build/
 
 ###OTHER###
 .allure
-*/node_modules/
 amplicode.xml
 .deploy/oracle/dbWallet
 
 ### Frontend ###
+*/node_modules/
+*/dist/
+*storybook.log
+.cursorignore
 *.sublime-project
 *.sublime-workspace
