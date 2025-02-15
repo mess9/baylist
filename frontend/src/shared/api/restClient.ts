@@ -19,9 +19,9 @@ const defaultHeaders = {
   "Content-Type": "application/json",
 };
 
-function getAuthHeader(apiKey: string) {
-  return `Bearer ${apiKey}`;
-}
+// function getAuthHeader(apiKey: string) {
+//   return `Bearer ${apiKey}`;
+// }
 
 function isNetworkError(error: AxiosError) {
   return Boolean(!error.response && error.code !== "ECONNABORTED");
@@ -57,11 +57,9 @@ function getRequestConfiguration(
   apiToken?: string,
   requestId?: string
 ) {
-  const authHeader = apiToken
-    ? { Authorization: getAuthHeader(apiToken) }
-    : undefined;
+  const authHeader = undefined;
   const requestIdHeader = requestId ? { "X-Request-Id": requestId } : undefined;
-  const headers = { ...defaultHeaders, ...authHeader, ...requestIdHeader };
+  const headers = { ...defaultHeaders, ...requestIdHeader };
 
   return { baseURL, headers };
 }
@@ -71,7 +69,7 @@ function getAxiosClient(
   apiToken?: string,
   requestId?: string
 ) {
-  const configuration = getRequestConfiguration(baseURL, apiToken, requestId);
+  const configuration = getRequestConfiguration(baseURL, undefined, requestId);
   const client = Axios.create(configuration);
 
   axiosRetry(client, {
@@ -91,9 +89,9 @@ export async function request<T>(
   httpMethod: HttpMethod,
   baseUri: string,
   relativePath: string,
-  apiToken?: string,
+  // apiToken?: string,
   payload?: Record<string, unknown>,
-  requestId?: string,
+  requestId?: string
 ): Promise<AxiosResponse<T>> {
   const originalStack = new Error();
 
@@ -106,7 +104,7 @@ export async function request<T>(
       requestId = uuidv4();
     }
 
-    const axiosClient = getAxiosClient(baseUri, apiToken, requestId);
+    const axiosClient = getAxiosClient(baseUri, undefined, requestId);
 
     switch (httpMethod) {
       case "GET":
@@ -124,7 +122,7 @@ export async function request<T>(
   } catch (error: unknown) {
     if (isAxiosError(error)) {
       console.error(
-        `Request failed with status ${error.response?.status}: ${error.message}`,
+        `Request failed with status ${error.response?.status}: ${error.message}`
       );
       throw getTodoistRequestError(error, originalStack);
     } else if (error instanceof Error) {

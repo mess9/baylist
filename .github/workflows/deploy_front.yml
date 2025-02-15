@@ -1,0 +1,58 @@
+name: Deploy Frontend to Oracle VM
+
+on:
+  push:
+    tags:
+      - 'front_v*'  # Теги вида front_v1.0.0
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Шаг 1: Настроить SSH ключи и добавить сервер в known_hosts для безопасности
+      - name: Setup SSH keys and known hosts
+        run: |
+          # Создаем директорию для SSH ключей
+          mkdir -p ~/.ssh
+
+          # Добавляем приватный ключ для доступа к серверу
+          echo "${{ secrets.REMOTE_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key  # Устанавливаем правильные права для приватного ключа
+
+          # Добавляем публичный ключ сервера в known_hosts для проверки подлинности
+          ssh-keyscan -H ${{ secrets.REMOTE_HOST }} >> ~/.ssh/known_hosts
+          
+          # Устанавливаем права на директорию и файл known_hosts
+          chmod 644 ~/.ssh/known_hosts
+
+      # Шаг 2: Выполняем деплой на сервер
+      - name: Deploy frontend to Oracle VM
+        run: |
+          ssh -o StrictHostKeyChecking=yes -i ~/.ssh/deploy_key ubuntu@${{ secrets.REMOTE_HOST }} << 'EOF'
+
+            # Переходим в папку с фронтендом
+            cd ~/frontend
+
+            # Обновляем репозиторий на сервере, вытягиваем последние изменения
+            git fetch --tags
+            git checkout front_v1.0.0  # Переключаемся на тег (если это нужно)
+
+            # Устанавливаем зависимости
+            npm install
+
+            # Строим фронтенд
+            npm run build
+
+            # Удаляем старые файлы на сервере
+            sudo rm -rf /var/www/html/*
+
+            # Копируем новые файлы
+            sudo cp -r ~/frontend/dist/* /var/www/html/
+
+            # Перезагружаем Nginx для обновления
+            sudo systemctl reload nginx
+
+          EOF
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.REMOTE_SSH_KEY }}

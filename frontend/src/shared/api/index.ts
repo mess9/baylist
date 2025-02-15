@@ -29,10 +29,10 @@ import {
 } from "./consts/endpoints";
 
 export class TodoistApi {
-  authToken: string;
+  // authToken: string;
 
-  constructor(authToken: string, baseUrl?: string) {
-    this.authToken = authToken;
+  constructor(/* authToken?: string, */ baseUrl?: string) {
+    // this.authToken = authToken;
 
     this.restApiBase = getRestBaseUri(baseUrl);
     this.syncApiBase = getSyncBaseUri(baseUrl);
@@ -48,7 +48,7 @@ export class TodoistApi {
       "GET",
       this.syncApiBase,
       ENDPOINT_SYNC_GET_PROJECT_DATA,
-      this.authToken,
+      // this.authToken,
       args
     );
 
@@ -60,7 +60,7 @@ export class TodoistApi {
       "POST",
       this.syncApiBase,
       ENDPOINT_SYNC_ADD_ITEMS,
-      this.authToken,
+      // this.authToken,
       args
     );
 
@@ -72,7 +72,7 @@ export class TodoistApi {
       "POST",
       this.syncApiBase,
       ENDPOINT_SYNC_UPDATE_ITEMS,
-      this.authToken,
+      // this.authToken,
       args
     );
 
@@ -84,7 +84,7 @@ export class TodoistApi {
       "POST",
       this.syncApiBase,
       ENDPOINT_SYNC_MOVE_ITEMS,
-      this.authToken,
+      // this.authToken,
       args
     );
 
@@ -96,7 +96,7 @@ export class TodoistApi {
       "POST",
       this.syncApiBase,
       ENDPOINT_SYNC_DELETE_ITEMS,
-      this.authToken,
+      // this.authToken,
       args
     );
 
@@ -108,7 +108,7 @@ export class TodoistApi {
       "POST",
       this.syncApiBase,
       ENDPOINT_SYNC_REORDER_ITEMS,
-      this.authToken,
+      // this.authToken,
       args
     );
 
@@ -120,7 +120,7 @@ export class TodoistApi {
       "POST",
       this.syncApiBase,
       ENDPOINT_SYNC_UPDATE_SECTIONS,
-      this.authToken,
+      // this.authToken,
       args
     );
 
@@ -134,7 +134,7 @@ export class TodoistApi {
       "POST",
       this.syncApiBase,
       ENDPOINT_SYNC_REORDER_SECTIONS,
-      this.authToken,
+      // this.authToken,
       args
     );
 
@@ -146,7 +146,7 @@ export class TodoistApi {
       "POST",
       this.syncApiBase,
       ENDPOINT_SYNC,
-      this.authToken,
+      // this.authToken,
       args
     );
 

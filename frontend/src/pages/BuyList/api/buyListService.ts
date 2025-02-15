@@ -13,9 +13,9 @@ import type {
   UpdateItemArgs,
   UpdateSectionArgs,
 } from "/shared/api/types/sync";
-import { token } from "/src/ign";
+// const token = "";
 
-const api = new TodoistApi(token);
+const api = new TodoistApi(/* token */);
 
 export async function fetchProjects(): Promise<Project[]> {
   const response = await api.sync({
