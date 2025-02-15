@@ -1,0 +1,10 @@
+:root {
+  --white: rgba(255, 255, 255, 1);
+  --white-tenth: rgba(255, 255, 255, 0.1);
+  --white-two-tenth: rgba(255, 255, 255, 0.2);
+  --background: rgba(30, 30, 30, 1);
+  --deep-blue: #182e4a;
+  --bloody-red: #be2107;
+
+  --count-items-on-vh: 28;
+}
