@@ -57,7 +57,7 @@ function getRequestConfiguration(
   apiToken?: string,
   requestId?: string
 ) {
-  const authHeader = undefined;
+  // const authHeader = undefined;
   const requestIdHeader = requestId ? { "X-Request-Id": requestId } : undefined;
   const headers = { ...defaultHeaders, ...requestIdHeader };
 

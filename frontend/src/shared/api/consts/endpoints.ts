@@ -8,8 +8,8 @@ export function getRestBaseUri(domainBase: string = BASE_URI): string {
   return new URL(API_REST_BASE_URI, domainBase).toString();
 }
 
-export function getSyncBaseUri(domainBase: string = BASE_URI): string {
-  return new URL(API_SYNC_BASE_URI, domainBase).toString();
+export function getSyncBaseUri(): string {
+  return API_SYNC_BASE_URI;
 }
 
 export function getAuthBaseUri(domainBase: string = TODOIST_URI): string {

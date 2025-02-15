@@ -35,7 +35,7 @@ export class TodoistApi {
     // this.authToken = authToken;
 
     this.restApiBase = getRestBaseUri(baseUrl);
-    this.syncApiBase = getSyncBaseUri(baseUrl);
+    this.syncApiBase = getSyncBaseUri();
   }
 
   private restApiBase: string;
