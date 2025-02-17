@@ -37,7 +37,7 @@ interface ICategoryProps extends ICategory {
 }
 
 const Category: Component<ICategoryProps> = (props) => {
-  const [isExpand, setIsExpand] = createSignal(true);
+  const [isCollapsed, setIsCollapsed] = createSignal(true);
   const [isAddItemVisible, setAddItemVisible] = createSignal(false);
   const [inputValue, setInputValue] = createSignal("");
   const [isLoading, setIsLoading] = createSignal(false);
@@ -52,14 +52,14 @@ const Category: Component<ICategoryProps> = (props) => {
     if (!ulRef) return;
     const ul = ulRef;
     const currentHeight = ul.scrollHeight;
-    ul.style.maxHeight = isExpand() ? `${currentHeight}px` : "0";
+    ul.style.maxHeight = isCollapsed() ? "0" : `${currentHeight}px`;
   };
 
   const scrollToLastItem = () => {
     if (!ulRef) return;
 
     const sortableList = ulRef.querySelector(
-      ".sortablejs"
+      ".sortablejs",
     ) as HTMLElement | null;
     if (!sortableList) return;
 
@@ -92,8 +92,8 @@ const Category: Component<ICategoryProps> = (props) => {
   const toggleVisibility = () => {
     if (!ulRef) return;
 
-    merge.handleCollapseCategory(!isExpand());
-    setIsExpand(!isExpand());
+    merge.handleCollapseCategory(!isCollapsed());
+    // setIsCollapsed(!isCollapsed());
     changeMaxHeight();
   };
 
@@ -110,14 +110,14 @@ const Category: Component<ICategoryProps> = (props) => {
   };
 
   createEffect(() => {
-    setIsExpand(merge.collapsed);
+    setIsCollapsed(merge.collapsed);
   });
 
   createEffect(
-    on([isExpand, () => merge.items], () => {
+    on([isCollapsed, () => merge.items], () => {
       changeMaxHeight();
       setIsLoading(false);
-    })
+    }),
   );
 
   createEffect(
@@ -125,7 +125,7 @@ const Category: Component<ICategoryProps> = (props) => {
       if (!isLoading() && addItemBeenCalled()) {
         scrollToLastItem();
       }
-    })
+    }),
   );
 
   return (
@@ -147,8 +147,8 @@ const Category: Component<ICategoryProps> = (props) => {
           <input
             class={classes["category__drop-down-checkbox"]}
             type="checkbox"
-            checked={!merge.collapsed}
-            disabled={merge.isLoadingCollapsed === merge.id}
+            checked={merge.collapsed}
+            // disabled={merge.isLoadingCollapsed === merge.id}
             onChange={toggleVisibility}
           />
           <h2>{merge.name}</h2>
@@ -181,7 +181,7 @@ const Category: Component<ICategoryProps> = (props) => {
           placeholder="Add item"
           value={inputValue()}
           onInput={(e) => setInputValue(e.target.value)}
-          onKeyDown={(e)=>e.key === "Enter" && onAddItem()}
+          onKeyDown={(e) => e.key === "Enter" && onAddItem()}
           enterkeyhint={"enter"}
         />
         <button

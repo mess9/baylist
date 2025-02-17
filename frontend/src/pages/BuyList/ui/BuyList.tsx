@@ -34,10 +34,10 @@ import classesCategory from "/widgets/Category/ui/Category.module.css";
 const BuyList: Component = () => {
   const [isLogIn, setIsLogIn] = createSignal("");
   const [isLoading, setIsLoading] = createSignal<boolean | string>(false);
-  const [err, setErr] =createSignal("");
+  const [err, setErr] = createSignal("");
   const [isLoadingCollapsed, setIsLoadingCollapsed] = createSignal<
-    boolean | string
-  >(false);
+    { id: string; collapsed: boolean }[]
+  >([]);
   const [categories, setCategories] = createStore<ICategory[]>([]);
   const [project, setProject] = createSignal<Project[] | []>([]);
 
@@ -56,16 +56,23 @@ const BuyList: Component = () => {
       () => {
         if (isLogIn().length) {
           document.cookie = `username=${isLogIn()}; max-age=${24 * 60 * 60}; path=/; SameSite=Strict; Secure`;
-          fetchProjects().then((projects) => {
-            setProject(projects.filter((project) => project.name === "Test"));
-          }).catch((err)=>setErr(`${err}`));
+          fetchProjects()
+            .then((projects) => {
+              setProject(
+                projects.filter((project) => project.name === "buylist"),
+              );
+            })
+            .catch((err) => setErr(`${err}`));
         }
       },
     ),
   );
 
   const [getCategories, { mutate, refetch }] = createResource<ICategory[]>(
-    () => (project().length && isLogIn().length ? fetchCategoriesWithItems(project()[0].id) : []),
+    () =>
+      project().length && isLogIn().length
+        ? fetchCategoriesWithItems(project()[0].id)
+        : [],
     { initialValue: [] },
   );
 
@@ -248,11 +255,44 @@ const BuyList: Component = () => {
 
   const handleCollapseCategory = (categoryId: string) => {
     return (collapsed: boolean) => {
-      setIsLoadingCollapsed(categoryId);
+      setCategories(
+        (category) => category.id === categoryId,
+        "collapsed",
+        collapsed,
+      );
+
+      if (isLoadingCollapsed().some((cat) => cat.id === categoryId)) {
+        setIsLoadingCollapsed((prev) => [
+          ...prev.filter((cat) => cat.id !== categoryId),
+          { id: categoryId, collapsed },
+        ]);
+        return;
+      }
+
+      setIsLoadingCollapsed((prev) => [
+        ...prev.filter((cat) => cat.id !== categoryId),
+        { id: categoryId, collapsed },
+      ]);
+
       sync("", []).then((value) => {
         updateCategoryCollapsed(categoryId, collapsed).then(() => {
           sync(value.sync_token, ["sections"]).then((valueNew) => {
             valueNew.sections?.forEach((section) => {
+              const currentisLoadingCollapsed = isLoadingCollapsed().find(
+                (cat) => cat.id === categoryId,
+              );
+
+              if (
+                currentisLoadingCollapsed &&
+                section.collapsed !== currentisLoadingCollapsed.collapsed
+              ) {
+                updateCategoryCollapsed(
+                  categoryId,
+                  currentisLoadingCollapsed.collapsed,
+                );
+                return;
+              }
+
               setCategories(
                 (category) => category.id === section.id,
 
@@ -260,7 +300,9 @@ const BuyList: Component = () => {
                 section.collapsed,
               );
             });
-            setIsLoadingCollapsed(false);
+            setIsLoadingCollapsed((prev) =>
+              prev.filter((category) => category.id !== categoryId),
+            );
           });
         });
       });
@@ -269,7 +311,9 @@ const BuyList: Component = () => {
 
   const handleLogin = (e: KeyboardEvent) => {
     // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-    e.key === "Enter" && e.target instanceof HTMLInputElement && setIsLogIn(`${e.target.value}`);
+    e.key === "Enter" &&
+      e.target instanceof HTMLInputElement &&
+      setIsLogIn(`${e.target.value}`);
   };
 
   return (
@@ -297,12 +341,30 @@ const BuyList: Component = () => {
             fallback={
               <div class={classes["buy-list__loader"]}>
                 <span>GRUZHU...</span>
-                {err() && <><span>~||~<span style={{"color": "red"}}> Try reload, maybe incorrect name </span>~||~</span>{err()}</>}
-                <button class={classes["buy-list__log-out-button"]} onClick={() => {
-                  document.cookie = "username=; max-age=0; path=/; SameSite=Strict; Secure"
-                  setIsLogIn("");
-                  setErr("")
-                }}>LogOut and Reload</button>
+                {err() && (
+                  <>
+                    <span>
+                      ~||~
+                      <span style={{ color: "red" }}>
+                        {" "}
+                        Try reload, maybe incorrect name{" "}
+                      </span>
+                      ~||~
+                    </span>
+                    {err()}
+                  </>
+                )}
+                <button
+                  class={classes["buy-list__log-out-button"]}
+                  onClick={() => {
+                    document.cookie =
+                      "username=; max-age=0; path=/; SameSite=Strict; Secure";
+                    setIsLogIn("");
+                    setErr("");
+                  }}
+                >
+                  LogOut and Reload
+                </button>
               </div>
             }
           >
@@ -312,7 +374,7 @@ const BuyList: Component = () => {
               setItems={setCategories}
               handle={`.${classesCategory["category__header"]}`}
               onEnd={(e) => handleMove(e, 0)}
-              disabled={isLoadingCollapsed() !== false}
+              disabled={!!isLoadingCollapsed().length}
             >
               {(category) => (
                 <li>
@@ -325,7 +387,10 @@ const BuyList: Component = () => {
                     isLoadingOuter={isLoading()}
                     handleRemoveItem={handleRemoveItem(category.id)}
                     handleCollapseCategory={handleCollapseCategory(category.id)}
-                    isLoadingCollapsed={isLoadingCollapsed()}
+                    isLoadingCollapsed={
+                      isLoadingCollapsed().find((cat) => cat.id === category.id)
+                        ?.id || false
+                    }
                   />
                 </li>
               )}

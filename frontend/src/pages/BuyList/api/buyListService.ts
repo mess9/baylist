@@ -14,8 +14,9 @@ import type {
   UpdateSectionArgs,
 } from "/shared/api/types/sync";
 
+const api = new TodoistApi();
+
 export async function fetchProjects(): Promise<Project[]> {
-  const api = new TodoistApi();
   const response = await api.sync({
     sync_token: "",
     resource_types: ["projects"],
@@ -28,15 +29,14 @@ export async function fetchProjects(): Promise<Project[]> {
 }
 
 export async function fetchCategoriesWithItems(
-  projectId: string
+  projectId: string,
 ): Promise<ICategory[]> {
-  const api = new TodoistApi();
   const project = await api.getProjectData({ project_id: projectId });
 
   if (!project) {
     throw new Error("Failed to fetch categories");
   }
-  console.log(project);
+
   const categoriesWithItems = project.sections.map((section) => ({
     ...section,
     items: project.items
@@ -44,46 +44,43 @@ export async function fetchCategoriesWithItems(
       .sort((a, b) => a.child_order - b.child_order),
   }));
 
-  const categoriesWithItems2 = project.items.reduce(
-    (
-      acc: {
-        [key: string]: ICategory | { id: "no_category"; items: ItemType[] };
-      },
-      item
-    ) => {
-      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-      (item.section_id !== null &&
-        ((acc[item.section_id] &&
-          (acc[item.section_id] = {
-            ...acc[item.section_id],
-            items: [...(acc[item.section_id]?.items || []), item],
-          })) ||
-          (acc[item.section_id] = {
-            ...(project.sections.find((s) => s.id === item.section_id) || {
-              id: "no_category",
-            }),
-            items: [...(acc[item.section_id]?.items || []), item],
-          }))) ||
-        (acc["no_category"] = {
-          id: "no_category",
-          items: [...(acc["no_category"]?.items || []), item],
-        });
+  // const categoriesWithItems2 = project.items.reduce(
+  //   (
+  //     acc: {
+  //       [key: string]: ICategory | { id: "no_category"; items: ItemType[] };
+  //     },
+  //     item,
+  //   ) => {
+  //     // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+  //     (item.section_id !== null &&
+  //       ((acc[item.section_id] &&
+  //         (acc[item.section_id] = {
+  //           ...acc[item.section_id],
+  //           items: [...(acc[item.section_id]?.items || []), item],
+  //         })) ||
+  //         (acc[item.section_id] = {
+  //           ...(project.sections.find((s) => s.id === item.section_id) || {
+  //             id: "no_category",
+  //           }),
+  //           items: [...(acc[item.section_id]?.items || []), item],
+  //         }))) ||
+  //       (acc["no_category"] = {
+  //         id: "no_category",
+  //         items: [...(acc["no_category"]?.items || []), item],
+  //       });
 
-      return acc;
-    },
-    {}
-  );
-
-  console.log(categoriesWithItems2);
+  //     return acc;
+  //   },
+  //   {},
+  // );
 
   return categoriesWithItems;
 }
 
 export async function updateCategoryCollapsed(
   categoryId: string,
-  collapsed: boolean
+  collapsed: boolean,
 ): Promise<SyncResponse> {
-  const api = new TodoistApi();
   const commands: UpdateSectionArgs = {
     commands: [
       {
@@ -100,9 +97,8 @@ export async function updateCategoryCollapsed(
 }
 
 export async function updateCategoriesOrder(
-  categories: ICategory[]
+  categories: ICategory[],
 ): Promise<void> {
-  const api = new TodoistApi();
   const sections = categories.map((category, index) => ({
     id: category.id,
     section_order: index + 1,
@@ -125,9 +121,8 @@ export async function updateCategoriesOrder(
 
 export async function updateItemsOrder(
   categoryId: string,
-  items: ItemType[]
+  items: ItemType[],
 ): Promise<void> {
-  const api = new TodoistApi();
   const itemOrder = items.map((item, index) => ({
     id: item.id,
     child_order: index + 1,
@@ -148,9 +143,8 @@ export async function updateItemsOrder(
 }
 
 export async function addItem(
-  params: AddItemArgs["commands"][number]["args"]
+  params: AddItemArgs["commands"][number]["args"],
 ): Promise<SyncResponseWithCommand> {
-  const api = new TodoistApi();
   const itemData =
     "item" in params
       ? params.item
@@ -179,9 +173,8 @@ export async function addItem(
 }
 
 export async function updateItem(
-  params: UpdateItemArgs["commands"][number]["args"]
+  params: UpdateItemArgs["commands"][number]["args"],
 ): Promise<void> {
-  const api = new TodoistApi();
   const commands: UpdateItemArgs = {
     commands: [
       {
@@ -201,9 +194,8 @@ export async function moveItem(
   itemId: string,
   newParentId: string,
   newItemsFromList: ItemType[],
-  newItemsToList: ItemType[]
+  newItemsToList: ItemType[],
 ): Promise<void> {
-  const api = new TodoistApi();
   const commands: MoveItemArgs = {
     commands: [
       {
@@ -240,7 +232,6 @@ export async function moveItem(
 }
 
 export async function deleteItem(itemId: string): Promise<void> {
-  const api = new TodoistApi();
   const commands: DeleteItemArgs = {
     commands: [
       {
@@ -257,9 +248,8 @@ export async function deleteItem(itemId: string): Promise<void> {
 
 export async function sync(
   sync_token: string,
-  entities: ResourceType[]
+  entities: ResourceType[],
 ): Promise<SyncResponse> {
-  const api = new TodoistApi();
   const entitiesResponse = await api.sync({
     sync_token,
     resource_types: entities,
