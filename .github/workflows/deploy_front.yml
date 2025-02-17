@@ -39,7 +39,7 @@ jobs:
             git checkout tea
             git pull origin tea
 
-            cd frontend/
+            cd ~/baylist/frontend/
 
             # Устанавливаем зависимости
             npm install
