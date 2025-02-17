@@ -30,7 +30,7 @@ jobs:
       - name: Deploy frontend to Oracle VM
         run: |
           ssh -o StrictHostKeyChecking=yes -i ~/.ssh/deploy_key ubuntu@${{ secrets.REMOTE_HOST2 }} << 'EOF'
-
+            source ~/.bashrc
             # Переходим в папку с проектом
             cd ~/baylist
 
@@ -39,7 +39,7 @@ jobs:
             git checkout tea
             git pull origin tea
 
-            cd ~/baylist/frontend/
+            cd frontend/
 
             # Устанавливаем зависимости
             npm install
