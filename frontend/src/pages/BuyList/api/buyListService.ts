@@ -14,9 +14,8 @@ import type {
   UpdateSectionArgs,
 } from "/shared/api/types/sync";
 
-const api = new TodoistApi();
-
 export async function fetchProjects(): Promise<Project[]> {
+  const api = new TodoistApi();
   const response = await api.sync({
     sync_token: "",
     resource_types: ["projects"],
@@ -31,6 +30,7 @@ export async function fetchProjects(): Promise<Project[]> {
 export async function fetchCategoriesWithItems(
   projectId: string
 ): Promise<ICategory[]> {
+  const api = new TodoistApi();
   const project = await api.getProjectData({ project_id: projectId });
 
   if (!project) {
@@ -83,6 +83,7 @@ export async function updateCategoryCollapsed(
   categoryId: string,
   collapsed: boolean
 ): Promise<SyncResponse> {
+  const api = new TodoistApi();
   const commands: UpdateSectionArgs = {
     commands: [
       {
@@ -101,6 +102,7 @@ export async function updateCategoryCollapsed(
 export async function updateCategoriesOrder(
   categories: ICategory[]
 ): Promise<void> {
+  const api = new TodoistApi();
   const sections = categories.map((category, index) => ({
     id: category.id,
     section_order: index + 1,
@@ -125,6 +127,7 @@ export async function updateItemsOrder(
   categoryId: string,
   items: ItemType[]
 ): Promise<void> {
+  const api = new TodoistApi();
   const itemOrder = items.map((item, index) => ({
     id: item.id,
     child_order: index + 1,
@@ -147,6 +150,7 @@ export async function updateItemsOrder(
 export async function addItem(
   params: AddItemArgs["commands"][number]["args"]
 ): Promise<SyncResponseWithCommand> {
+  const api = new TodoistApi();
   const itemData =
     "item" in params
       ? params.item
@@ -177,6 +181,7 @@ export async function addItem(
 export async function updateItem(
   params: UpdateItemArgs["commands"][number]["args"]
 ): Promise<void> {
+  const api = new TodoistApi();
   const commands: UpdateItemArgs = {
     commands: [
       {
@@ -198,6 +203,7 @@ export async function moveItem(
   newItemsFromList: ItemType[],
   newItemsToList: ItemType[]
 ): Promise<void> {
+  const api = new TodoistApi();
   const commands: MoveItemArgs = {
     commands: [
       {
@@ -234,6 +240,7 @@ export async function moveItem(
 }
 
 export async function deleteItem(itemId: string): Promise<void> {
+  const api = new TodoistApi();
   const commands: DeleteItemArgs = {
     commands: [
       {
@@ -252,6 +259,7 @@ export async function sync(
   sync_token: string,
   entities: ResourceType[]
 ): Promise<SyncResponse> {
+  const api = new TodoistApi();
   const entitiesResponse = await api.sync({
     sync_token,
     resource_types: entities,
