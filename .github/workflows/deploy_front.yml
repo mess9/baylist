@@ -32,7 +32,7 @@ jobs:
           ssh -o StrictHostKeyChecking=yes -i ~/.ssh/deploy_key ubuntu@${{ secrets.REMOTE_HOST }} << 'EOF'
 
             # Переходим в папку с фронтендом
-            cd ~/frontend
+            cd ~/baylist
 
             # Обновляем репозиторий на сервере, вытягиваем последние изменения
             git fetch
