@@ -1,9 +1,9 @@
 name: Deploy Frontend to Oracle VM
 
-# on:
-#   push:
-#     branches:
-#       - 'tea'  # Будет запускаться только на пуши в ветку tea
+on:
+  push:
+    branches:
+      - "tea" # Будет запускаться только на пуши в ветку tea
 
 jobs:
   deploy:
@@ -21,15 +21,15 @@ jobs:
           chmod 600 ~/.ssh/deploy_key  # Устанавливаем правильные права для приватного ключа
 
           # Добавляем публичный ключ сервера в known_hosts для проверки подлинности
-          ssh-keyscan -H ${{ secrets.REMOTE_HOST }} >> ~/.ssh/known_hosts
-          
+          ssh-keyscan -H ${{ secrets.REMOTE_HOST2 }} >> ~/.ssh/known_hosts
+
           # Устанавливаем права на директорию и файл known_hosts
           chmod 644 ~/.ssh/known_hosts
 
       # Шаг 2: Выполняем деплой на сервер
       - name: Deploy frontend to Oracle VM
         run: |
-          ssh -o StrictHostKeyChecking=yes -i ~/.ssh/deploy_key ubuntu@${{ secrets.REMOTE_HOST }} << 'EOF'
+          ssh -o StrictHostKeyChecking=yes -i ~/.ssh/deploy_key ubuntu@${{ secrets.REMOTE_HOST2 }} << 'EOF'
 
             # Переходим в папку с проектом
             cd ~/baylist
@@ -48,10 +48,10 @@ jobs:
             npm run build
 
             # Удаляем старые файлы на сервере
-            sudo rm -rf /var/www/html/*
+            sudo rm -rf /var/www/*
 
             # Копируем новые файлы
-            sudo cp -r dist /var/www/html/
+            sudo cp -r dist /var/www/
 
             # Перезагружаем Nginx для обновления
             sudo systemctl reload nginx
