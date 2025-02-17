@@ -181,6 +181,8 @@ const Category: Component<ICategoryProps> = (props) => {
           placeholder="Add item"
           value={inputValue()}
           onInput={(e) => setInputValue(e.target.value)}
+          onKeyDown={(e)=>e.key === "Enter" && onAddItem()}
+          enterkeyhint={"enter"}
         />
         <button
           class={classes["category__add-item-button"]}

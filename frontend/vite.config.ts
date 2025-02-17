@@ -19,6 +19,12 @@ export default defineConfig({
   plugins: [solidPlugin(), eslint(), solidSvg()],
   server: {
     port: 3000,
+    proxy: {
+      "/sync/v9/": {
+        target: "http://localhost:3030",
+        changeOrigin: true,
+      },
+    },
   },
   build: {
     target: "esnext",

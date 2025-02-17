@@ -8,3 +8,46 @@
   flex-direction: column;
   gap: 0.4rem;
 }
+
+.buy-list__login-input {
+  width: 100%;
+  padding: 0.5rem;
+  border: none;
+  border-radius: 0.4rem;
+
+  font-size: 1.7rem;
+  color: var(--white);
+
+  background-color: transparent;
+  outline: none;
+}
+
+.buy-list__login-input:focus {
+  outline: 1px solid var(--white-tenth);
+}
+
+.buy-list__loader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem;
+  gap: 10rem;
+}
+
+.buy-list__log-out-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--white);
+  height: 8rem;
+  border: 1px solid var(--white-tenth);
+  border-radius: 0.3rem;
+  padding: 2rem;
+  background: linear-gradient(
+    180deg,
+    rgba(30, 30, 30, 1) 0%,
+    rgba(30, 30, 30, 0.7) 40%,
+    rgba(255, 255, 255, 0.1) 100%
+  );
+}

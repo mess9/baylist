@@ -29,9 +29,9 @@ import {
 } from "./consts/endpoints";
 
 export class TodoistApi {
-  // authToken: string;
+  // authToken?: string;
 
-  constructor(/* authToken?: string, */ baseUrl?: string) {
+  constructor(authToken?: string, baseUrl?: string) {
     // this.authToken = authToken;
 
     this.restApiBase = getRestBaseUri(baseUrl);

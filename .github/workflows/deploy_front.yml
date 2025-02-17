@@ -2,8 +2,8 @@ name: Deploy Frontend to Oracle VM
 
 on:
   push:
-    tags:
-      - 'front_v*'  # Теги вида front_v1.0.0
+    branches:
+      - 'tea'  # Будет запускаться только на пуши в ветку tea
 
 jobs:
   deploy:
@@ -35,8 +35,9 @@ jobs:
             cd ~/frontend
 
             # Обновляем репозиторий на сервере, вытягиваем последние изменения
-            git fetch --tags
-            git checkout front_v1.0.0  # Переключаемся на тег (если это нужно)
+            git fetch
+            git checkout tea
+            git pull origin tea
 
             # Устанавливаем зависимости
             npm install

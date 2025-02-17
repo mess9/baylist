@@ -13,9 +13,8 @@ import type {
   UpdateItemArgs,
   UpdateSectionArgs,
 } from "/shared/api/types/sync";
-// const token = "";
 
-const api = new TodoistApi(/* token */);
+const api = new TodoistApi();
 
 export async function fetchProjects(): Promise<Project[]> {
   const response = await api.sync({
