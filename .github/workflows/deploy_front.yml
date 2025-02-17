@@ -31,13 +31,15 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=yes -i ~/.ssh/deploy_key ubuntu@${{ secrets.REMOTE_HOST }} << 'EOF'
 
-            # Переходим в папку с фронтендом
+            # Переходим в папку с проектом
             cd ~/baylist
 
             # Обновляем репозиторий на сервере, вытягиваем последние изменения
             git fetch
             git checkout tea
             git pull origin tea
+
+            cd frontend/
 
             # Устанавливаем зависимости
             npm install
@@ -49,7 +51,7 @@ jobs:
             sudo rm -rf /var/www/html/*
 
             # Копируем новые файлы
-            sudo cp -r ~/frontend/dist/* /var/www/html/
+            sudo cp -r dist /var/www/html/
 
             # Перезагружаем Nginx для обновления
             sudo systemctl reload nginx
