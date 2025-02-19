@@ -29,5 +29,6 @@ public class Project {
     private String url;
     @JsonProperty("view_style")
     private String viewStyle;
+    private String description;
 
 }

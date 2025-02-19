@@ -1,0 +1,15 @@
+databaseChangeLog:
+  - changeSet:
+      id: 17-fix-fix
+      author: fil
+      changes:
+        - dropSequence:
+            sequenceName: category_seq
+        - createSequence:
+            sequenceName: category_seq
+            startValue: 67
+            incrementBy: 1
+        - addDefaultValue:
+            tableName: categories
+            columnName: id
+            defaultValueSequenceNext: category_seq

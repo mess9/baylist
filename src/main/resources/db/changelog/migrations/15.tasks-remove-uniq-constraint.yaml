@@ -1,0 +1,40 @@
+databaseChangeLog:
+  - changeSet:
+      id: 17
+      author: fil
+      changes:
+        - createSequence:
+            sequenceName: history_seq
+            startValue: 189
+            incrementBy: 1
+        - addDefaultValue:
+            tableName: history
+            columnName: id
+            defaultValueSequenceNext: history_seq
+
+        - createSequence:
+            sequenceName: dialog_seq
+            startValue: 149
+            incrementBy: 1
+        - addDefaultValue:
+            tableName: dialogs
+            columnName: dialog_id
+            defaultValueSequenceNext: dialog_seq
+
+        - createSequence:
+            sequenceName: category_seq
+            startValue: 66
+            incrementBy: 1
+        - addDefaultValue:
+            tableName: categories
+            columnName: id
+            defaultValueSequenceNext: category_seq
+
+        - createSequence:
+            sequenceName: variant_seq
+            startValue: 221
+            incrementBy: 1
+        - addDefaultValue:
+            tableName: variants
+            columnName: id
+            defaultValueSequenceNext: variant_seq

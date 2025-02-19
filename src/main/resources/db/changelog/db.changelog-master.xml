@@ -17,7 +17,9 @@
     <include file="migrations/11.add-task-table.yaml" relativeToChangelogFile="true"/>
     <include file="migrations/12.tasks-rename-order.yaml" relativeToChangelogFile="true"/>
     <include file="migrations/13.tasks-autoincrement.yaml" relativeToChangelogFile="true"/>
-    <include file="migrations/14.tasks-remove-uniq-constraint.yaml" relativeToChangelogFile="true"/>
+    <include file="migrations/15.tasks-remove-uniq-constraint.yaml" relativeToChangelogFile="true"/>
+    <include file="migrations/16.fix-before-migration.yaml" relativeToChangelogFile="true"/>
+    <include file="migrations/17.fix-fix-before-migration.yaml" relativeToChangelogFile="true"/>
 
 
 </databaseChangeLog>
