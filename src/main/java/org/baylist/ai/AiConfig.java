@@ -26,9 +26,6 @@ import org.baylist.ai.record.out.RenamedCategory;
 import org.baylist.ai.record.out.SentTasks;
 import org.baylist.ai.record.out.TodoistData;
 import org.baylist.dto.todoist.api.TaskResponse;
-import org.springframework.ai.embedding.EmbeddingModel;
-import org.springframework.ai.vectorstore.SimpleVectorStore;
-import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Description;
@@ -42,10 +39,10 @@ import java.util.function.Function;
 @Slf4j
 public class AiConfig {
 
-	@Bean
-	VectorStore vectorStore(EmbeddingModel embeddingModel) {
-		return SimpleVectorStore.builder(embeddingModel).build();
-	}
+//	@Bean
+//	VectorStore vectorStore(EmbeddingModel embeddingModel) {
+//		return SimpleVectorStore.builder(embeddingModel).build();
+//	}
 
 
 	//region TODOIST
