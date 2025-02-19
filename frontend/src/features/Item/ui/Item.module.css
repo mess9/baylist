@@ -1,0 +1,210 @@
+.item {
+  position: relative;
+
+  display: flex;
+  gap: 1.5rem;
+  align-items: stretch;
+  /* justify-content: space-between; */
+
+  min-height: calc(100vh / var(--count-items-on-vh));
+  padding: 0.2rem 1rem;
+
+  transition: 0.07s ease opacity;
+}
+
+.item--fresh {
+  opacity: 0.3;
+}
+
+.item__edit-input {
+  flex-grow: 1;
+
+  width: 100%;
+  border: none;
+
+  font-size: 1.7rem;
+  color: var(--white);
+  text-overflow: ellipsis;
+
+  background-color: transparent;
+}
+
+.item__edit-input:focus {
+  outline: 0.1rem solid var(--white);
+}
+
+.item__close-edit-button {
+  cursor: pointer;
+
+  position: absolute;
+  top: 0.2rem;
+  right: 1.2rem;
+
+
+
+  width: 2.6rem;
+  height: 2.6rem;
+  padding: 0.2rem;
+  border-radius: 0.4rem;
+
+  color: var(--white);
+
+  transition: 0.15s ease transform;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .item__close-edit-button:hover {
+    transform: scale(1.08);
+  }
+}
+
+@media (hover: none) {
+  .item__close-edit-button:active {
+    background-color: var(--white-two-tenth);
+  }
+}
+
+.item__close-edit-button:active {
+  transform: scale(1);
+}
+
+
+
+.item__content {
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+  justify-content: space-between;
+
+  width: 100%;
+}
+
+
+.item__content-span {
+  overflow: hidden;
+  flex-grow: 1;
+
+  padding: 0 0.4rem 0 0;
+
+  font-size: 1.7rem;
+  text-overflow: ellipsis;
+
+  transition: 0.15s ease opacity;
+}
+
+.item__content-span--loading {
+  opacity: 0.5;
+}
+
+.buy-item__dnd-button {
+  cursor: pointer;
+
+
+  display: flex;
+  align-items: stretch;
+
+  width: 2.6rem;
+  height: 2.6rem;
+  padding: 0.2rem;
+  border-radius: 0.4rem;
+
+  color: var(--white);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .buy-item__dnd-button {
+    opacity: 0;
+    transition: 0.15s ease opacity;
+  }
+
+  .buy-item__dnd-button:hover {
+    opacity: 1;
+  }
+}
+
+.item__check-input {
+  display: flex;
+  align-items: center;
+
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid var(--white);
+  border-radius: 50%;
+
+  appearance: none;
+}
+
+.item__check-input::before {
+  content: "";
+
+  display: block;
+
+  width: 100%;
+  height: 100%;
+
+  opacity: 0;
+  background-color: var(--white);
+
+  mask: url(/assets/svg/icons/hero/check-mini.svg);
+
+  transition: 0.15s ease opacity;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .item__check-input:hover {
+    cursor: pointer;
+  }
+
+  .item__check-input:hover::before {
+    opacity: 0.7;
+  }
+}
+
+.item__check-input:checked::before {
+  opacity: 1;
+}
+
+.item__remove-button,
+.item__edit-button {
+  cursor: pointer;
+
+
+  width: 2.6rem;
+  height: 2.6rem;
+  padding: 0.2rem;
+  border-radius: 0.4rem;
+
+  color: var(--white);
+
+  transition: 0.2s ease transform;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .item__remove-button:hover {
+    transform: scale(1.08);
+  }
+
+  .item__edit-button:hover {
+    transform: scale(1.08);
+  }
+}
+
+
+@media (hover: none) {
+  .item__remove-button:active {
+    background-color: var(--white-two-tenth);
+  }
+
+  .item__edit-button:active {
+    background-color: var(--white-two-tenth);
+  }
+}
+
+
+.item__remove-button:active {
+  transform: scale(1);
+}
+
+.item__edit-button:active {
+  transform: scale(1);
+}
