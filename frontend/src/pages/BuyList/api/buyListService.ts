@@ -44,35 +44,35 @@ export async function fetchCategoriesWithItems(
       .sort((a, b) => a.child_order - b.child_order),
   }));
 
-  // const categoriesWithItems2 = project.items.reduce(
-  //   (
-  //     acc: {
-  //       [key: string]: ICategory | { id: "no_category"; items: ItemType[] };
-  //     },
-  //     item,
-  //   ) => {
-  //     // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-  //     (item.section_id !== null &&
-  //       ((acc[item.section_id] &&
-  //         (acc[item.section_id] = {
-  //           ...acc[item.section_id],
-  //           items: [...(acc[item.section_id]?.items || []), item],
-  //         })) ||
-  //         (acc[item.section_id] = {
-  //           ...(project.sections.find((s) => s.id === item.section_id) || {
-  //             id: "no_category",
-  //           }),
-  //           items: [...(acc[item.section_id]?.items || []), item],
-  //         }))) ||
-  //       (acc["no_category"] = {
-  //         id: "no_category",
-  //         items: [...(acc["no_category"]?.items || []), item],
-  //       });
+/*  const categoriesWithItems2 = project.items.reduce(
+    (
+      acc: {
+        [key: string]: ICategory | { id: "no_category"; items: ItemType[] };
+      },
+      item,
+    ) => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+      (item.section_id !== null &&
+        ((acc[item.section_id] &&
+          (acc[item.section_id] = {
+            ...acc[item.section_id],
+            items: [...(acc[item.section_id]?.items || []), item],
+          })) ||
+          (acc[item.section_id] = {
+            ...(project.sections.find((s) => s.id === item.section_id) || {
+              id: "no_category",
+            }),
+            items: [...(acc[item.section_id]?.items || []), item],
+          }))) ||
+        (acc["no_category"] = {
+          id: "no_category",
+          items: [...(acc["no_category"]?.items || []), item],
+        });
 
-  //     return acc;
-  //   },
-  //   {},
-  // );
+      return acc;
+    },
+    {},
+  );*/
 
   return categoriesWithItems;
 }

@@ -86,6 +86,7 @@ const BuyList: Component = () => {
   );
 
   createEffect(() => {
+    setErr(getCategories.error);
     setCategories(getCategories() || []);
     mutate(categories);
   });
@@ -374,7 +375,7 @@ const BuyList: Component = () => {
               setItems={setCategories}
               handle={`.${classesCategory["category__header"]}`}
               onEnd={(e) => handleMove(e, 0)}
-              disabled={!!isLoadingCollapsed().length}
+              // disabled={!!isLoadingCollapsed().length}
             >
               {(category) => (
                 <li>
