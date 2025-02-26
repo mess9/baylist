@@ -1,3 +1,40 @@
+# BayList
+
+## Описание
+
+BayList - это многофункциональный бот на базе Spring Boot с интеграцией Telegram и AI возможностями.
+
+## Технологический стек
+
+- Java 21
+- Spring Boot 3.4.0
+- Telegram Bot API 7.10.0
+- Spring AI (OpenAI интеграция)
+- Oracle Database
+- Liquibase
+- Spring Data JPA
+- Spring Cache
+- Feign Client
+
+## Требования
+
+- JDK 21
+- Maven
+- Oracle Database
+- Telegram Bot Token
+- OpenAI API ключ
+
+Настройте переменные окружения:
+
+- `TOKEN_TG` - токен вашего Telegram бота
+- `OPENAI_TOKEN` - ключ API OpenAI
+- `TNS_ADMIN` - путь до сертификатов Oracle
+- `ORACLE_DB_PASSWORD` - пароль Oracle
+
+## Версионирование
+
+Текущая версия: 0.0.7
+
 ## бот для общения с тудуист с помощью телеграм
 
 https://t.me/buylistFABot
