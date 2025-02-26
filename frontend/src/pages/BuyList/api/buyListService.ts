@@ -14,6 +14,10 @@ import type {
   UpdateSectionArgs,
 } from "/shared/api/types/sync";
 
+export type NoCategoryType = { id: string; items: ItemType[] };
+
+export type CategoriesWithNoCategoriesType = (ICategory | NoCategoryType)[];
+
 const api = new TodoistApi();
 
 export async function fetchProjects(): Promise<Project[]> {
@@ -30,7 +34,7 @@ export async function fetchProjects(): Promise<Project[]> {
 
 export async function fetchCategoriesWithItems(
   projectId: string,
-): Promise<ICategory[]> {
+): Promise<CategoriesWithNoCategoriesType> {
   const project = await api.getProjectData({ project_id: projectId });
 
   if (!project) {
@@ -44,37 +48,57 @@ export async function fetchCategoriesWithItems(
       .sort((a, b) => a.child_order - b.child_order),
   }));
 
-/*  const categoriesWithItems2 = project.items.reduce(
-    (
-      acc: {
-        [key: string]: ICategory | { id: "no_category"; items: ItemType[] };
-      },
-      item,
+  // const categoriesWithItems2 = project.items.reduce(
+  //   (
+  //     acc: {
+  //       [key: string]: ICategory | { id: "no_category"; items: ItemType[] };
+  //     },
+  //     item,
+  //   ) => {
+  //     // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+  //     (item.section_id !== null &&
+  //       ((acc[item.section_id] &&
+  //         (acc[item.section_id] = {
+  //           ...acc[item.section_id],
+  //           items: [...(acc[item.section_id]?.items || []), item],
+  //         })) ||
+  //         (acc[item.section_id] = {
+  //           ...(project.sections.find((s) => s.id === item.section_id) || {
+  //             id: "no_category",
+  //           }),
+  //           items: [...(acc[item.section_id]?.items || []), item],
+  //         }))) ||
+  //       (acc["no_category"] = {
+  //         id: "no_category",
+  //         items: [...(acc["no_category"]?.items || []), item],
+  //       });
+
+  //     return acc;
+  //   },
+  //   {},
+  // );
+
+  const categoriesWithItems2 = project.items.reduce((
+    acc: CategoriesWithNoCategoriesType
+    , item: ItemType
     ) => {
-      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-      (item.section_id !== null &&
-        ((acc[item.section_id] &&
-          (acc[item.section_id] = {
-            ...acc[item.section_id],
-            items: [...(acc[item.section_id]?.items || []), item],
-          })) ||
-          (acc[item.section_id] = {
-            ...(project.sections.find((s) => s.id === item.section_id) || {
-              id: "no_category",
-            }),
-            items: [...(acc[item.section_id]?.items || []), item],
-          }))) ||
-        (acc["no_category"] = {
-          id: "no_category",
-          items: [...(acc["no_category"]?.items || []), item],
-        });
+    const sectionId = item.section_id || "no_section";
 
-      return acc;
-    },
-    {},
-  );*/
+    let category = acc.find((cat) => cat.id === sectionId);
 
-  return categoriesWithItems;
+    if (!category) {
+      category = { id: sectionId, items: [] };
+
+      acc.push(category);
+    }
+
+    category.items.push(item);
+
+    return acc;
+  }, []);
+
+  console.log(categoriesWithItems2)
+  return categoriesWithItems2;
 }
 
 export async function updateCategoryCollapsed(

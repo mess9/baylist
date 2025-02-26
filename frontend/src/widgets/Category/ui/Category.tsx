@@ -21,7 +21,7 @@ import classes from "./Category.module.css";
 import classesItem from "/features/Item/ui/Item.module.css";
 
 export interface ICategory extends Section {
-  items: ItemType[] | [];
+  items: ItemType[];
   delimiter?: "top" | "bottom";
 }
 
@@ -151,7 +151,7 @@ const Category: Component<ICategoryProps> = (props) => {
             // disabled={merge.isLoadingCollapsed === merge.id}
             onChange={toggleVisibility}
           />
-          <h2>{merge.name}</h2>
+          <h2>{merge.name || merge.id}</h2>
 
           {/* {merge.id} */}
         </label>
