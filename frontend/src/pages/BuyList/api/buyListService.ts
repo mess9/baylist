@@ -41,12 +41,12 @@ export async function fetchCategoriesWithItems(
     throw new Error("Failed to fetch categories");
   }
 
-  const categoriesWithItems = project.sections.map((section) => ({
-    ...section,
-    items: project.items
-      .filter((item) => item.section_id === section.id)
-      .sort((a, b) => a.child_order - b.child_order),
-  }));
+  //const categoriesWithItems = project.sections.map((section) => ({
+  //  ...section,
+  //  items: project.items
+  //    .filter((item) => item.section_id === section.id)
+  //    .sort((a, b) => a.child_order - b.child_order),
+  //}));
 
   // const categoriesWithItems2 = project.items.reduce(
   //   (
@@ -77,27 +77,24 @@ export async function fetchCategoriesWithItems(
   //   },
   //   {},
   // );
+  const sections: CategoriesWithNoCategoriesType = project.sections.map(e => ({...e, items: []}));
+  sections.push({ id: "no_category", items: [] });
 
   const categoriesWithItems2 = project.items.reduce((
-    acc: CategoriesWithNoCategoriesType
-    , item: ItemType
+		acc: CategoriesWithNoCategoriesType
+		, item: ItemType
     ) => {
-    const sectionId = item.section_id || "no_section";
+    const sectionId = item.section_id || "no_category";
 
-    let category = acc.find((cat) => cat.id === sectionId);
+    const category = acc.find((cat) => cat.id === sectionId);
 
-    if (!category) {
-      category = { id: sectionId, items: [] };
-
-      acc.push(category);
-    }
-
-    category.items.push(item);
+    category?.items.push(item);
 
     return acc;
-  }, []);
+  }, sections);
 
-  console.log(categoriesWithItems2)
+  //console.log(categoriesWithItems2)
+
   return categoriesWithItems2;
 }
 
@@ -216,9 +213,10 @@ export async function updateItem(
 
 export async function moveItem(
   itemId: string,
-  newParentId: string,
+  newParentId: string | null,
   newItemsFromList: ItemType[],
   newItemsToList: ItemType[],
+  projectId?: string,
 ): Promise<void> {
   const commands: MoveItemArgs = {
     commands: [
@@ -227,7 +225,8 @@ export async function moveItem(
         uuid: crypto.randomUUID(),
         args: {
           id: itemId,
-          section_id: newParentId,
+          section_id: newParentId || undefined,
+		  project_id: projectId || undefined,
         },
       },
       {

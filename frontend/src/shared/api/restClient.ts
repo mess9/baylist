@@ -2,7 +2,6 @@ import type { AxiosResponse, AxiosError } from "axios";
 import Axios from "axios";
 import { TodoistRequestError } from "./types/errors";
 import type { HttpMethod } from "./types/http";
-import { v4 as uuidv4 } from "uuid";
 import axiosRetry from "axios-retry";
 import { API_SYNC_BASE_URI } from "./consts/endpoints";
 
@@ -103,7 +102,7 @@ export async function request<T>(
       !requestId &&
       !baseUri.includes(API_SYNC_BASE_URI)
     ) {
-      requestId = uuidv4();
+      requestId = crypto.randomUUID();
     }
 
     const axiosClient = getAxiosClient(baseUri, undefined, requestId);

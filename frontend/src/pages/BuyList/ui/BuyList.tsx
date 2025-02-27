@@ -205,11 +205,11 @@ const BuyList: Component = () => {
       return updatedItems;
     };
 
-    const updateSectionId = (parentId: string) => {
+    const updateSectionId = (parentId: string | null) => {
       setCategories(
         (category) => category.id === parentId,
         "items",
-        (items) => items.map((item) => ({ ...item, sectionId: parentId })),
+        (items) => items.map((item) => ({ ...item, sectionId: parentToId === "no_category" ? null : parentToId })),
       );
     };
 
@@ -251,7 +251,7 @@ const BuyList: Component = () => {
     const newItemsFromList = updateItemOrder(parentFromId, false);
     const newItemsToList = updateItemOrder(parentToId, false);
 
-    moveItem(itemId, parentToId, newItemsFromList, newItemsToList);
+    moveItem(itemId, parentToId === "no_category" ? null : parentToId, newItemsFromList, newItemsToList, parentToId === "no_category" ? project()[0].id : undefined);
   };
 
   const handleCollapseCategory = (categoryId: string) => {

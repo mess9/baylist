@@ -150,7 +150,7 @@ export type UpdateItemArgs = {
 
 export type MoveItemArgs = {
   commands: (
-    | SyncCommand<{ id: string; section_id: string }>
+    | SyncCommand<{ id: string; section_id: string | undefined, project_id: string | undefined}>
     | SyncCommand<{ items: { id: string; child_order: number }[] }>
   )[];
 };

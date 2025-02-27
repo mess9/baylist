@@ -151,7 +151,7 @@ const Category: Component<ICategoryProps> = (props) => {
             // disabled={merge.isLoadingCollapsed === merge.id}
             onChange={toggleVisibility}
           />
-          <h2>{merge.name || merge.id}</h2>
+          <h2>{merge.name || "Out of categories"}</h2>
 
           {/* {merge.id} */}
         </label>
