@@ -62,7 +62,11 @@ management:
 
 server:
   port: 8080
-  address: 0.0.0.0
+  ssl:
+    key-store-type: PKCS12
+    key-store: file:${CERT_PATH}
+    key-store-password: ${CERT_PASS}
+    key-alias: myalias
 
 jwt:
   secret: ${JWT_SECRET:49cc56846dbc00e7d2d1022821833fe138489cdd42dabb0eccd963db710b4dff}
