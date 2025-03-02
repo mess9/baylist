@@ -1,8 +1,6 @@
-package org.baylist.config;
+package org.baylist.security;
 
 import lombok.RequiredArgsConstructor;
-import org.baylist.security.JwtAuthenticationFilter;
-import org.baylist.security.TelegramAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -27,6 +25,7 @@ public class SecurityConfig {
 				.authorizeHttpRequests(auth -> auth
 						.requestMatchers("/api/auth/**").permitAll()
 						.requestMatchers("/api/webhook/**").permitAll()
+						.requestMatchers("/actuator/**").permitAll()
 						.anyRequest().authenticated()
 				)
 				.sessionManagement(session -> session

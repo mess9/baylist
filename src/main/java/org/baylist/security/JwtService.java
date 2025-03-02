@@ -11,6 +11,7 @@ import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 
 @Service
 public class JwtService {
@@ -49,7 +50,7 @@ public class JwtService {
 		}
 	}
 
-	private <T> T extractClaim(String token, java.util.function.Function<Claims, T> claimsResolver) {
+	private <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
 		final Claims claims = extractAllClaims(token);
 		return claimsResolver.apply(claims);
 	}
