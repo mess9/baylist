@@ -9,7 +9,7 @@ import "./index.css";
 
 
 export default function App() {
-  // @ts-ignore
+  // @ts-expect-error beta try
   const tg = window.Telegram?.WebApp;
 
   onMount(() => {
