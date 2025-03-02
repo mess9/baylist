@@ -7,6 +7,7 @@ import BaseTest from "/shared/ui/TestComponents";
 import "./index.css";
 
 
+const backUrl = import.meta.env.VITE_BACK_URL; 
 
 export default function App() {
   // @ts-expect-error beta try
@@ -28,7 +29,7 @@ export default function App() {
   }).toString();
 
   fetch(
-	`http://152.70.174.74:8080/api/auth/telegram?${reqQP}`,
+	`${backUrl}/api/auth/telegram?${reqQP}`,
 	{
 		method: "POST",
 		mode: "no-cors",
