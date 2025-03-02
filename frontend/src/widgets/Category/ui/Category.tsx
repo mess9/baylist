@@ -130,7 +130,9 @@ const Category: Component<ICategoryProps> = (props) => {
 
   return (
     <section class={classes["category-section"]}>
-      <div class={classes["category__header"]}>
+      <div classList={{
+		  [classes["category__header"]]: true
+	  }}>
         <label
           classList={{
             [classes["category__drop-down-control-label"]]: true,

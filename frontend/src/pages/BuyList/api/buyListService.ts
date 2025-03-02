@@ -77,8 +77,8 @@ export async function fetchCategoriesWithItems(
   //   },
   //   {},
   // );
-  const sections: CategoriesWithNoCategoriesType = project.sections.map(e => ({...e, items: []}));
-  sections.push({ id: "no_category", items: [] });
+  const sections: CategoriesWithNoCategoriesType = [{ id: "no_category", items: [] }].concat(project.sections.map(e => ({...e, items: []})));
+  //sections.push();
 
   const categoriesWithItems2 = project.items.reduce((
 		acc: CategoriesWithNoCategoriesType
