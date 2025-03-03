@@ -30,6 +30,8 @@ jobs:
       - name: Deploy frontend to Oracle VM
         run: |
           ssh -o StrictHostKeyChecking=yes -i ~/.ssh/deploy_key ubuntu@${{ secrets.REMOTE_HOST2 }} << 'EOF'
+            set -x
+
             export NVM_DIR="$HOME/.nvm"
             source "$NVM_DIR/nvm.sh"
 
