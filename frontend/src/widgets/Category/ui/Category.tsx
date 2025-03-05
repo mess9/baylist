@@ -129,9 +129,14 @@ const Category: Component<ICategoryProps> = (props) => {
   );
 
   return (
-    <section class={classes["category-section"]}>
+    <section classList={{
+	  [classes["category-section"]]: true,
+	  [classes["category-section--no-category"]]: merge.id === "no_category",
+	}}>
       <div classList={{
-		  [classes["category__header"]]: true
+		  [classes["category__header"]]: true,
+		  [classes["category__header--no-category"]]: merge.id === "no_category",
+		  [classes["category__item-li--delimiter-bottom"]]: merge.id === "no_category",
 	  }}>
         <label
           classList={{
