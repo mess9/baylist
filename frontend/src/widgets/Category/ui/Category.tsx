@@ -52,8 +52,10 @@ const Category: Component<ICategoryProps> = (props) => {
   const changeMaxHeight = () => {
     if (!ulRef) return;
     const ul = ulRef;
-    const currentHeight = ul.scrollHeight;
-    ul.style.maxHeight = isCollapsed() ? "0" : `${currentHeight}px`;
+    requestAnimationFrame(() => {
+		const currentHeight = ul.scrollHeight;
+		ul.style.maxHeight = isCollapsed() ? "0" : `${currentHeight}px`;
+  	})
   };
 
   const scrollToLastItem = () => {
@@ -94,7 +96,6 @@ const Category: Component<ICategoryProps> = (props) => {
     if (!ulRef) return;
 
     merge.handleCollapseCategory(!isCollapsed());
-    // setIsCollapsed(!isCollapsed());
     changeMaxHeight();
   };
 
