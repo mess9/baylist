@@ -14,7 +14,7 @@ import type {
   UpdateSectionArgs,
 } from "/shared/api/types/sync";
 
-export type NoCategoryType = { id: string; items: ItemType[] };
+export type NoCategoryType = { id: string; items: ItemType[], name?: string, collapsed: boolean };
 
 export type CategoriesWithNoCategoriesType = (ICategory | NoCategoryType)[];
 
@@ -76,22 +76,23 @@ export async function fetchCategoriesWithItems(
   //     return acc;
   //   },
   //   {},
-  // );
-  const sections: CategoriesWithNoCategoriesType = [{ id: "no_category", items: [] }].concat(project.sections.map(e => ({...e, items: []})));
+  // )
+  const no_cat:CategoriesWithNoCategoriesType = [{ id: "no_category", name: undefined, items: [], collapsed: false }]
+  const sections:CategoriesWithNoCategoriesType  = no_cat.concat(project.sections.map((e) => ({...e, items: [] })));
   //sections.push();
 
-  const categoriesWithItems2 = project.items.reduce((
-		acc: CategoriesWithNoCategoriesType
-		, item: ItemType
-    ) => {
-    const sectionId = item.section_id || "no_category";
+  const categoriesWithItems2 = project.items.reduce(
+    (acc: CategoriesWithNoCategoriesType, item: ItemType) => {
+      const sectionId = item.section_id || "no_category";
 
-    const category = acc.find((cat) => cat.id === sectionId);
+      const category = acc.find((cat) => cat.id === sectionId);
 
-    category?.items.push(item);
+      category?.items.push(item);
 
-    return acc;
-  }, sections);
+      return acc;
+    },
+    sections,
+  );
 
   //console.log(categoriesWithItems2)
 
@@ -118,9 +119,9 @@ export async function updateCategoryCollapsed(
 }
 
 export async function updateCategoriesOrder(
-  categories: ICategory[],
+  categories: CategoriesWithNoCategoriesType,
 ): Promise<void> {
-  const sections = categories.map((category, index) => ({
+  const sections = categories.filter((cat)=>cat.id !== "no_category").map((category, index) => ({
     id: category.id,
     section_order: index + 1,
   }));
@@ -226,7 +227,7 @@ export async function moveItem(
         args: {
           id: itemId,
           section_id: newParentId || undefined,
-		  project_id: projectId || undefined,
+          project_id: projectId || undefined,
         },
       },
       {

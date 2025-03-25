@@ -38,7 +38,9 @@ export function getTaskFromQuickAddResponse(
     url: getTaskUrlFromQuickAddResponse(responseData),
     creatorId: responseData.addedByUid ?? "",
     ...(due !== undefined && { due }),
-    ...(responseData.parentId !== null && { parentId: responseData.parentId }),
+    ...(responseData.parentId !== null && {
+      parentId: responseData.parentId,
+    }),
     ...(responseData.responsibleUid !== null && {
       assigneeId: responseData.responsibleUid,
     }),

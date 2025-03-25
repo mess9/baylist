@@ -81,13 +81,13 @@ export const Item = RecordRunType({
       string: StringRunType,
       lang: StringRunType,
       is_recurring: BooleanRunType,
-    })
+    }),
   ),
   deadline: Null.Or(
     RecordRunType({
       date: StringRunType,
       lang: StringRunType,
-    })
+    }),
   ),
   parent_id: StringRunType.Or(Null),
   child_order: NumberRunType,
@@ -102,10 +102,11 @@ export const Item = RecordRunType({
     RecordRunType({
       amount: NumberRunType.withConstraint(
         (n) =>
-          (Number.isInteger(n) && n > 0) || "Value should be a positive integer"
+          (Number.isInteger(n) && n > 0) ||
+          "Value should be a positive integer",
       ),
       unit: Union(Literal("minute"), Literal("day")),
-    })
+    }),
   ),
 });
 
@@ -138,7 +139,7 @@ export type FileAttachments = Static<typeof FileAttachments>;
 export const Duration = RecordRunType({
   amount: NumberRunType.withConstraint(
     (n) =>
-      (Number.isInteger(n) && n > 0) || "Value should be a positive integer"
+      (Number.isInteger(n) && n > 0) || "Value should be a positive integer",
   ),
   unit: Union(Literal("minute"), Literal("day")),
 });
@@ -180,7 +181,7 @@ export const Reminder = RecordRunType({
       is_recurring: BooleanRunType,
       string: StringRunType,
       lang: StringRunType,
-    })
+    }),
   ),
   minute_offset: NumberRunType,
   name: StringRunType,
@@ -306,7 +307,7 @@ export const LiveNotification = Union(
   Literal("biz_invitation_accepted"),
   Literal("biz_invitation_rejected"),
   Literal("daily_goal_reached"),
-  Literal("weekly_goal_reached")
+  Literal("weekly_goal_reached"),
 );
 
 export type LiveNotification = Static<typeof LiveNotification>;

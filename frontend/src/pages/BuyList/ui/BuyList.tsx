@@ -9,8 +9,8 @@ import {
 import type { SortableEvent } from "solid-sortablejs";
 import Sortable from "solid-sortablejs";
 
-import type { ICategory } from "/widgets/Category/ui/Category";
 import Category from "/widgets/Category/ui/Category";
+import type { ICategory } from "/widgets/Category/ui/Category";
 
 import { createStore } from "solid-js/store";
 import type { Item as ItemType, Project } from "/shared/api/types/syncEntities";
@@ -28,9 +28,12 @@ import {
   fetchProjects,
   updateCategoryCollapsed,
 } from "../api/buyListService";
+import type { CategoriesWithNoCategoriesType } from "../api/buyListService";
+
 
 import classes from "./BuyList.module.css";
 import classesCategory from "/widgets/Category/ui/Category.module.css";
+
 const BuyList: Component = () => {
   const [isLogIn, setIsLogIn] = createSignal("");
   const [isLoading, setIsLoading] = createSignal<boolean | string>(false);
@@ -38,7 +41,7 @@ const BuyList: Component = () => {
   const [isLoadingCollapsed, setIsLoadingCollapsed] = createSignal<
     { id: string; collapsed: boolean }[]
   >([]);
-  const [categories, setCategories] = createStore<ICategory[]>([]);
+  const [categories, setCategories] = createStore<CategoriesWithNoCategoriesType>([]);
   const [project, setProject] = createSignal<Project[] | []>([]);
 
   onMount(() => {
@@ -68,7 +71,7 @@ const BuyList: Component = () => {
     ),
   );
 
-  const [getCategories, { mutate, refetch }] = createResource<ICategory[]>(
+  const [getCategories, { mutate, refetch }] = createResource<CategoriesWithNoCategoriesType>(
     () =>
       project().length && isLogIn().length
         ? fetchCategoriesWithItems(project()[0].id)
@@ -105,18 +108,39 @@ const BuyList: Component = () => {
     };
   };
 
+  const createSetCategory = (): Setter<CategoriesWithNoCategoriesType> => {
+    return (
+      updater:
+        | Exclude<CategoriesWithNoCategoriesType, () => void>
+        | ((prev: CategoriesWithNoCategoriesType) => CategoriesWithNoCategoriesType),
+    ) => {
+      setCategories(
+        typeof updater === "function" ? updater : (prevCategories) => ([ prevCategories[0], ...updater ]),
+      );
+    };
+  };
+
   const handleAddItem = (sectionId: string, projectId: string) => {
     return (content: string) => {
       sync("", [])
         .then((value) => {
           addItem({
             content,
-            section_id: sectionId,
+            section_id: sectionId === "no_category" ? null : sectionId,
             project_id: projectId,
           }).then(() => {
             sync(value.sync_token, ["items"]).then((valueNew) => {
               valueNew.items?.forEach((item) => {
-                setCategories(
+                // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+				item.section_id === null
+				? setCategories(
+                  (category) => category.id === "no_category",
+                  "items",
+                  (items) =>
+                    [...items, item].sort(
+                      (a, b) => a.child_order - b.child_order,
+                    ),
+				) : setCategories(
                   (category) => category.id === item.section_id,
                   "items",
                   (items) =>
@@ -175,14 +199,18 @@ const BuyList: Component = () => {
 
   const handleMove = (e: SortableEvent, depth: number) => {
     const updateCategoryOrder = () => {
-      setCategories((categories) =>
-        categories.map((category, index) => ({
-          ...category,
-          order: index + 1,
-        })),
-      );
+      setCategories((categories) => 
+	    categories.map((category) => ({
+            ...category,
+    	}))
+	  );
       updateCategoriesOrder(categories);
     };
+
+    if (depth === 0) {
+      updateCategoryOrder();
+      return;
+    }
 
     const updateItemOrder = (
       parentId: string,
@@ -209,14 +237,13 @@ const BuyList: Component = () => {
       setCategories(
         (category) => category.id === parentId,
         "items",
-        (items) => items.map((item) => ({ ...item, sectionId: parentToId === "no_category" ? null : parentToId })),
+        (items) =>
+          items.map((item) => ({
+            ...item,
+            sectionId: parentToId === "no_category" ? null : parentToId,
+          })),
       );
     };
-
-    if (depth === 0) {
-      updateCategoryOrder();
-      return;
-    }
 
     const item = e.item;
 
@@ -241,6 +268,7 @@ const BuyList: Component = () => {
     }
 
     const closestToParent = toList.closest("[data-id]") as HTMLElement | null;
+
     if (!closestToParent) return;
 
     const parentToId = closestToParent.dataset["id"];
@@ -251,7 +279,13 @@ const BuyList: Component = () => {
     const newItemsFromList = updateItemOrder(parentFromId, false);
     const newItemsToList = updateItemOrder(parentToId, false);
 
-    moveItem(itemId, parentToId === "no_category" ? null : parentToId, newItemsFromList, newItemsToList, parentToId === "no_category" ? project()[0].id : undefined);
+    moveItem(
+      itemId,
+      parentToId === "no_category" ? null : parentToId,
+      newItemsFromList,
+      newItemsToList,
+      parentToId === "no_category" ? project()[0].id : undefined,
+    );
   };
 
   const handleCollapseCategory = (categoryId: string) => {
@@ -317,6 +351,18 @@ const BuyList: Component = () => {
       setIsLogIn(`${e.target.value}`);
   };
 
+  // const onCategoryMove = (e: MoveEvent, originalEvent: DragEvent) => {
+  //  console.log(e);
+  //const staticItem = e.to.querySelector('[data-id="no_category"]');
+  //
+  //if (staticItem) {
+  //  const staticRect = staticItem.getBoundingClientRect();
+  //  console.log(staticRect.top,"asd", e.draggedRect.top);
+  //  if (e.draggedRect.top < staticRect.top + staticRect.height / 2) {
+  //	  return false;
+  //  }
+  //}
+  // }
   return (
     <Show
       when={isLogIn()}
@@ -369,15 +415,33 @@ const BuyList: Component = () => {
               </div>
             }
           >
+            <div data-id="no_category">
+              <Category
+                {...categories.find((cat) => cat.id === "no_category")!}
+                setItems={createSetItemsForCategory("no_category")}
+                handleMove={handleMove}
+                handleAddItem={handleAddItem("no_category", project()[0].id)}
+                handleEditItem={handleEditItem}
+                isLoadingOuter={isLoading()}
+                handleRemoveItem={handleRemoveItem("no_category")}
+                handleCollapseCategory={handleCollapseCategory("no_category")}
+                isLoadingCollapsed={
+                  isLoadingCollapsed().find((cat) => cat.id === "no_category")
+                    ?.id || false
+                }
+              />
+            </div>
             <Sortable
               idField={"id"}
-              items={categories}
-              setItems={setCategories}
+              items={categories.filter((cat) => cat.id !== "no_category"!) as ICategory[]}
+              setItems={createSetCategory() as Setter<ICategory[]>}
               handle={`.${classesCategory["category__header"]}`}
               onEnd={(e) => handleMove(e, 0)}
+              //filter={'[data-id="no_category"]'}
+              //onDrag={onCategoryMove}
               // disabled={!!isLoadingCollapsed().length}
             >
-              {(category) => (
+              {(category: ICategory) => (
                 <li>
                   <Category
                     {...category}
