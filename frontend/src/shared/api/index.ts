@@ -42,14 +42,14 @@ export class TodoistApi {
   private syncApiBase: string;
 
   async getProjectData(
-    args: GetProjectDataArgs
+    args: GetProjectDataArgs,
   ): Promise<GetProjectDataResponse> {
     const response = await request<GetProjectDataResponse>(
       "GET",
       this.syncApiBase,
       ENDPOINT_SYNC_GET_PROJECT_DATA,
       // this.authToken,
-      args
+      args,
     );
 
     return response.data;
@@ -61,7 +61,7 @@ export class TodoistApi {
       this.syncApiBase,
       ENDPOINT_SYNC_ADD_ITEMS,
       // this.authToken,
-      args
+      args,
     );
 
     return response.data;
@@ -73,7 +73,7 @@ export class TodoistApi {
       this.syncApiBase,
       ENDPOINT_SYNC_UPDATE_ITEMS,
       // this.authToken,
-      args
+      args,
     );
 
     return response.data;
@@ -85,7 +85,7 @@ export class TodoistApi {
       this.syncApiBase,
       ENDPOINT_SYNC_MOVE_ITEMS,
       // this.authToken,
-      args
+      args,
     );
 
     return response.data;
@@ -97,7 +97,7 @@ export class TodoistApi {
       this.syncApiBase,
       ENDPOINT_SYNC_DELETE_ITEMS,
       // this.authToken,
-      args
+      args,
     );
 
     return response.data;
@@ -109,7 +109,7 @@ export class TodoistApi {
       this.syncApiBase,
       ENDPOINT_SYNC_REORDER_ITEMS,
       // this.authToken,
-      args
+      args,
     );
 
     return response.data;
@@ -121,21 +121,21 @@ export class TodoistApi {
       this.syncApiBase,
       ENDPOINT_SYNC_UPDATE_SECTIONS,
       // this.authToken,
-      args
+      args,
     );
 
     return response.data;
   }
 
   async reorderSections(
-    args: ReorderSectionsArgs
+    args: ReorderSectionsArgs,
   ): Promise<SyncResponseWithCommand> {
     const response = await request<SyncResponseWithCommand>(
       "POST",
       this.syncApiBase,
       ENDPOINT_SYNC_REORDER_SECTIONS,
       // this.authToken,
-      args
+      args,
     );
 
     return response.data;
@@ -147,7 +147,7 @@ export class TodoistApi {
       this.syncApiBase,
       ENDPOINT_SYNC,
       // this.authToken,
-      args
+      args,
     );
 
     return response.data;

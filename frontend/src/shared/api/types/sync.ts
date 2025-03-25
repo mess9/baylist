@@ -97,7 +97,7 @@ export type GetProjectDataResponse = {
 
 export type UpdateSectionArgs = {
   commands: SyncCommand<{
-    id: string;
+    id: string | null;
     name?: string;
     collapsed?: boolean;
   }>[];
@@ -106,7 +106,7 @@ export type UpdateSectionArgs = {
 export type ReorderSectionsArgs = {
   commands: SyncCommand<{
     sections: {
-      id: string;
+      id: string | null;
       section_order: number;
     }[];
   }>[];
@@ -119,7 +119,7 @@ export interface ReorderItem {
 
 export type AddItemArgs = {
   commands: SyncCommand<
-    | { content: string; section_id: string; project_id: string }
+    | { content: string; section_id: string | null; project_id: string }
     | {
         item: Item;
       }
@@ -150,7 +150,11 @@ export type UpdateItemArgs = {
 
 export type MoveItemArgs = {
   commands: (
-    | SyncCommand<{ id: string; section_id: string | undefined, project_id: string | undefined}>
+    | SyncCommand<{
+        id: string;
+        section_id: string | undefined;
+        project_id: string | undefined;
+      }>
     | SyncCommand<{ items: { id: string; child_order: number }[] }>
   )[];
 };

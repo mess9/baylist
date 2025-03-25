@@ -19,13 +19,14 @@ import type { Section } from "/shared/api/types/syncEntities";
 
 import classes from "./Category.module.css";
 import classesItem from "/features/Item/ui/Item.module.css";
+import { NoCategoryType } from "/src/pages/BuyList/api/buyListService";
 
 export interface ICategory extends Section {
   items: ItemType[];
   delimiter?: "top" | "bottom";
 }
 
-interface ICategoryProps extends ICategory {
+type ICategoryProps = (ICategory | NoCategoryType) & {
   setItems: Setter<ItemType[]>;
   handleMove: (event: SortableEvent, depth: number) => void;
   handleAddItem: (content: string) => void;
@@ -129,10 +130,21 @@ const Category: Component<ICategoryProps> = (props) => {
   );
 
   return (
-    <section class={classes["category-section"]}>
-      <div classList={{
-		  [classes["category__header"]]: true
-	  }}>
+    <section
+      classList={{
+        [classes["category-section"]]: true,
+        [classes["category-section--no-category"]]: merge.id === "no_category",
+      }}
+    >
+      <div
+        classList={{
+          [classes["category__header"]]: true,
+          [classes["category__header--no-category"]]:
+            merge.id === "no_category",
+          [classes["category__item-li--delimiter-bottom"]]:
+            merge.id === "no_category",
+        }}
+      >
         <label
           classList={{
             [classes["category__drop-down-control-label"]]: true,

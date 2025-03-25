@@ -13,7 +13,7 @@ import {
 
 export const Int = NumberRunType.withConstraint(
   (n) =>
-    Number.isInteger(n) || `${n} is not a valid entity id. Should be a string`
+    Number.isInteger(n) || `${n} is not a valid entity id. Should be a string`,
 );
 
 export type TodoistEntity = {
@@ -37,14 +37,14 @@ export const DueDate = RecordRunType({
     datetime: String.Or(Null),
     timezone: String.Or(Null),
     lang: String.Or(Null),
-  })
+  }),
 );
 
 export type DueDate = Static<typeof DueDate>;
 
 export const Duration = RecordRunType({
   amount: NumberRunType.withConstraint(
-    (n) => n > 0 || "Value should be greater than zero"
+    (n) => n > 0 || "Value should be greater than zero",
   ),
   unit: Union(Literal("minute"), Literal("day")),
 });
@@ -72,7 +72,7 @@ export const Task = RecordRunType({
     assignerId: String.Or(Null),
     parentId: String.Or(Null),
     sectionId: String.Or(Null),
-  })
+  }),
 );
 
 export type Task = Static<typeof Task>;
@@ -89,7 +89,7 @@ export const TaskSync = Task.And(
     archived_timestamp: Int,
     color: String,
     view_style: String,
-  })
+  }),
 );
 
 export type TaskSync = Static<typeof TaskSync>;
@@ -109,7 +109,7 @@ export const Project = RecordRunType({
 }).And(
   PartialRunTypes({
     parentId: String.Or(Null),
-  })
+  }),
 );
 
 export type Project = Static<typeof Project>;
@@ -125,7 +125,7 @@ export const ProjectSync = Project.And(
     archived_timestamp: Int,
     color: String,
     view_style: String,
-  })
+  }),
 );
 
 export type ProjectSync = Static<typeof ProjectSync>;
@@ -147,7 +147,7 @@ export const SectionSync = Section.And(
     archived_at: String.Or(Null),
     added_at: String,
     updated_at: String,
-  })
+  }),
 );
 
 export type SectionSync = Static<typeof SectionSync>;
@@ -177,7 +177,7 @@ export const Attachment = RecordRunType({
     imageHeight: Int.Or(Null),
     url: String.Or(Null),
     title: String.Or(Null),
-  })
+  }),
 );
 
 export type Attachment = Static<typeof Attachment>;
@@ -191,7 +191,7 @@ export const Comment = RecordRunType({
     taskId: String.Or(Null),
     projectId: String.Or(Null),
     attachment: Attachment.Or(Null),
-  })
+  }),
 );
 
 export type Comment = Static<typeof Comment>;

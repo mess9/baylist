@@ -40,8 +40,6 @@
   top: 0.2rem;
   right: 1.2rem;
 
-
-
   width: 2.6rem;
   height: 2.6rem;
   padding: 0.2rem;
@@ -68,8 +66,6 @@
   transform: scale(1);
 }
 
-
-
 .item__content {
   display: flex;
   gap: 1.5rem;
@@ -78,7 +74,6 @@
 
   width: 100%;
 }
-
 
 .item__content-span {
   overflow: hidden;
@@ -98,7 +93,6 @@
 
 .buy-item__dnd-button {
   cursor: pointer;
-
 
   display: flex;
   align-items: stretch;
@@ -168,7 +162,6 @@
 .item__edit-button {
   cursor: pointer;
 
-
   width: 2.6rem;
   height: 2.6rem;
   padding: 0.2rem;
@@ -189,7 +182,6 @@
   }
 }
 
-
 @media (hover: none) {
   .item__remove-button:active {
     background-color: var(--white-two-tenth);
@@ -199,7 +191,6 @@
     background-color: var(--white-two-tenth);
   }
 }
-
 
 .item__remove-button:active {
   transform: scale(1);
