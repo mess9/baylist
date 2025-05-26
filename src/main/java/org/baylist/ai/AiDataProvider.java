@@ -24,6 +24,7 @@ import org.baylist.dto.todoist.api.TaskResponse;
 import org.baylist.exception.AiException;
 import org.baylist.service.DictionaryService;
 import org.baylist.service.UserService;
+import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -45,6 +46,12 @@ public class AiDataProvider {
 
 	//region TODOIST
 
+	@Tool(description = """
+			получить список задач из проекта buylist, приоритетная функция на вопрос пользователя о задачах
+			для авторизации используется - todoistToken
+			выводить ответ с разбивкой по категориям
+			игнорировать поле url
+			""")
 	public TodoistData getTodoistBuylistData(UserRequest userRequest) {
 		log.info("ai function called - getTodoistData project buylist");
 		try {
@@ -68,6 +75,11 @@ public class AiDataProvider {
 		}
 	}
 
+	@Tool(description = """
+			получить абсолютно все задачи из todoist
+			для авторизации используется - todoistToken
+			игнорировать поле url
+			""")
 	public TodoistData getAllTodoistData(UserRequest userRequest) {
 		log.info("ai function called - getAllTodoistData");
 		try {
@@ -93,6 +105,7 @@ public class AiDataProvider {
 	//region FRIENDS
 
 	@Transactional
+	@Tool(description = "получить список друзей которые могут отправлять/добавлять мне задачи")
 	public Friends getMyFriends(UserRequest userRequest) {
 		log.info("ai function called - getMyFriends");
 		try {
@@ -104,6 +117,7 @@ public class AiDataProvider {
 		}
 	}
 
+	@Tool(description = "получить список друзей которым я могу отправлять/добавлять задачи")
 	public Friends getFriendsMe(UserRequest userRequest) {
 		log.info("ai function called - getFriendsMe");
 		try {
@@ -119,6 +133,11 @@ public class AiDataProvider {
 
 	//region DICT
 
+	@Tool(description = """
+			получить полностью словарь пользователя с категориями и вариантами задач внутри них
+			в словаре перечислены категории задач
+			внутри категорий перечислены варианты задач для этой категории
+			""")
 	public Dictionary getDict(UserRequest userRequest) {
 		log.info("ai function called - getDict");
 		try {
@@ -128,6 +147,10 @@ public class AiDataProvider {
 		}
 	}
 
+	@Tool(description = """
+			получить полный список всех категорий в словаре пользователя.
+			без вариантов задач внутри категорий
+			""")
 	public CategoryNameList getDictAllCategories(UserRequest userRequest) {
 		log.info("ai function called - getDictAllCategories");
 		try {
@@ -138,6 +161,10 @@ public class AiDataProvider {
 		}
 	}
 
+	@Tool(description = """
+			получить информацию по одной категории пользователя
+			со всеми вариантами задач внутри этой категории
+			""")
 	public OneCategoryInfo getDictOneCategory(UserWithCategoryName userRequest) {
 		log.info("ai function called - getDictOneCategory");
 		try {

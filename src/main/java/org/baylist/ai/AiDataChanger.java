@@ -34,6 +34,7 @@ import org.baylist.service.DictionaryService;
 import org.baylist.service.HistoryService;
 import org.baylist.service.TodoistService;
 import org.baylist.service.UserService;
+import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -67,6 +68,11 @@ public class AiDataChanger {
 		}
 	}
 
+	@Tool(description = """
+			изменение словарика пользователя
+			изменение имени одной категории
+			изменяется старое имя категории на новое имя категории
+			""")
 	public RenamedCategory renameCategory(UserWithCategoryRename userRequest) {
 		log.info("ai function called - renameCategory");
 		try {
@@ -81,6 +87,10 @@ public class AiDataChanger {
 		}
 	}
 
+	@Tool(description = """
+			изменение словарика пользователя
+			добавление одной новой пустой категории в словарик
+			""")
 	public CreatedCategory createCategory(UserWithCategoryName userRequest) {
 		log.info("ai function called - createCategory");
 		try {
@@ -91,6 +101,11 @@ public class AiDataChanger {
 		}
 	}
 
+	@Tool(description = """
+			изменение словарика пользователя
+			удаление одной категории вместе со всеми вариантами
+			удалять только при однозначной формулировке этого действия
+			""")
 	public DeletedCategory deleteCategory(UserWithCategoryName userRequest) {
 		log.info("ai function called - deleteCategory");
 		try {
@@ -109,6 +124,16 @@ public class AiDataChanger {
 		}
 	}
 
+	@Tool(description = """
+			изменение словарика пользователя
+			изменение существующих вариантов внутри указанной категории
+			переименование нескольких вариантов сразу
+			List<String> variantsForChange - варианты которые нужно переименовать/изменить
+			List<String> variantsNewNames - новые имена для вариантов которые нужно переименовать/изменить
+			проверить существует ли категория - можно функцией getDictOnlyAllCategories
+			проверить какие варианты сейчас есть в категории - можно функцией getDictOneCategoryWithVariants
+			переименовывать/изменять только при однозначной формулировке этого действия
+			""")
 	public ChangedVariants changeVariants(UserWithChangeVariants userRequest) {
 		log.info("ai function called - changeVariants");
 		try {
@@ -139,6 +164,13 @@ public class AiDataChanger {
 		}
 	}
 
+	@Tool(description = """
+			изменение словарика пользователя
+			удаление существующих вариантов из указанной категории
+			проверить существует ли категория - можно функцией getDictOnlyAllCategories
+			перед удалением получить информацию о том какие сейчас варианты есть внутри указанной категории - можно функцией getDictOneCategoryWithVariants
+			удалять только при однозначной формулировке этого действия
+			""")
 	public DeletedVariants deleteVariants(UserWithVariants userRequest) {
 		log.info("ai function called - deleteVariants");
 		try {
@@ -158,6 +190,11 @@ public class AiDataChanger {
 		}
 	}
 
+	@Tool(description = """
+			изменение словарика пользователя
+			добавление новых вариантов в указанную категорию
+			проверить существует ли категория - можно функцией getDictOnlyAllCategories
+			""")
 	public CreatedVariants createVariants(UserWithVariants userRequest) {
 		log.info("ai function called - createVariants");
 		try {
@@ -181,6 +218,10 @@ public class AiDataChanger {
 
 	//region FRIENDS
 
+	@Tool(description = """
+			удалить одного друга который может отправлять/добавлять мне задачи
+			удалять только при однозначной формулировке этого действия
+			""")
 	public DeletedFriend removeMyFriend(UserRequestWithFriend userRequest) {
 		log.info("ai function called - removeMyFriend");
 		try {
@@ -191,6 +232,10 @@ public class AiDataChanger {
 		}
 	}
 
+	@Tool(description = """
+			удалить одного друга которому я могу отправлять/добавлять задачи
+			удалять только при однозначной формулировке этого действия
+			""")
 	public DeletedFriend removeFriendMe(UserRequestWithFriend userRequest) {
 		log.info("ai function called - removeFriendMe");
 		try {
@@ -205,6 +250,10 @@ public class AiDataChanger {
 
 	//region TODOIST
 
+	@Tool(description = """
+			удалить задачи из todoist
+			для авторизации используется - todoistToken
+			""")
 	public TodoistData deleteTasksFromTodoist(UserRequestWithTasks userRequest) {
 		log.info("ai function called - deleteTasksFromTodoist");
 		try {
@@ -242,6 +291,26 @@ public class AiDataChanger {
 		}
 	}
 
+	@Tool(description = """
+			добавить задачи в todoist
+			для авторизации используется - todoistToken
+			
+			задачи будут автоматически распределены в проекте todoist согласованно словарю пользователя
+			посмотреть словарь пользователя - функция getAllDict
+			ЕСЛИ задача должна быть добавлена в новую категорию то: {
+			в начале/до/before отправки в todoist
+			нужно создать нужную категорию в словаре пользователя - функция createCategory
+			добавить в созданную категорию вариант этой задачи - функция createVariants
+			и только ПОСЛЕ - отправить задачу в todoist }
+			ЕСЛИ задача должна быть добавлена в существующую категорию но в этой категории ещё нет варианта этой задачи {
+			добавить в существующую категорию вариант этой задачи - функция createVariants
+			и только ПОСЛЕ - отправить задачу в todoist }
+			ЕСЛИ задача присутствует в словаре пользователя {
+			отправить её в todoist }
+			ЕСЛИ не указано в какую категорию нужно поместить задачу
+			или прямо сказано что у задачи не должно быть категорий {
+			отправить задачу в todoist }
+			""")
 	public SentTasks sendTaskToTodoist(UserRequestWithTasks userRequest) {
 		log.info("ai function called - sendTaskToTodoist");
 		try {
@@ -262,6 +331,16 @@ public class AiDataChanger {
 		}
 	}
 
+	@Tool(description = """
+			только для задач у которых есть дата выполнения
+			не нужны категории. не использовать словарик.
+			для авторизации используется - todoistToken
+			
+			заполнить все нужные поля в Task
+			content - название задачи
+			priority - Task priority from 1 (normal) to 4 (urgent)
+			due_datetime - Specific date and time in RFC3339 format in UTC
+			""")
 	public TaskResponse sendOneTaskToTodoist(UserRequestWithTask userRequest) {
 		log.info("ai function called - sendOneTaskToTodoist");
 		try {

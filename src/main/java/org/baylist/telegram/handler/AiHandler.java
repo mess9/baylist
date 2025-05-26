@@ -4,6 +4,8 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.baylist.ai.AiDataChanger;
+import org.baylist.ai.AiDataProvider;
 import org.baylist.dto.telegram.ChatValue;
 import org.baylist.exception.AiException;
 import org.baylist.telegram.handler.config.DialogHandler;
@@ -15,8 +17,12 @@ import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.memory.MessageWindowChatMemory;
 import org.springframework.ai.chat.model.ChatModel;
+import org.springframework.ai.chat.prompt.ChatOptions;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.chat.prompt.PromptTemplate;
+import org.springframework.ai.model.tool.ToolCallingChatOptions;
+import org.springframework.ai.support.ToolCallbacks;
+import org.springframework.ai.tool.ToolCallback;
 import org.springframework.stereotype.Component;
 
 import java.time.OffsetDateTime;
@@ -26,7 +32,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.baylist.ai.AiConfig.functions;
 import static org.baylist.ai.AiConfig.systemPrompt;
 
 @Component
@@ -95,7 +100,6 @@ public class AiHandler implements DialogHandler {
 		if (chatMemoryMap.containsKey(userId)) {
 			chatMemory = chatMemoryMap.get(userId);
 		} else {
-//			chatMemory = new InMemoryChatMemory();
 			chatMemory = MessageWindowChatMemory.builder().maxMessages(100).build();
 			chatMemoryMap.put(userId, chatMemory);
 		}
@@ -103,10 +107,34 @@ public class AiHandler implements DialogHandler {
 		if (inputText.equals("аи")) {
 			chatMemoryMap.put(userId, MessageWindowChatMemory.builder().maxMessages(100).build()); //очистка памяти
 		}
-
+		//todo аи сломался от того что спринг изменил подход к написанию функций
+		ToolCallback[] tools = ToolCallbacks.from(AiDataChanger.class, AiDataProvider.class);
+		ChatOptions chatOptions = ToolCallingChatOptions.builder().toolCallbacks(tools).build();
 		return ChatClient.builder(chatModel)
 				.defaultSystem(systemPrompt())
-				.defaultTools(functions())
+				.defaultOptions(chatOptions)
+//				.defaultToolCallbacks(tools)
+//				.defaultTools(new AiConfig())
+//				.defaultTools(aiConfig)
+//				.defaultToolCallbacks(ToolCallbacks.from(
+//						"getTodoistData",
+//						"getAllTodoistData",
+//						"sendTasksToTodoist",
+//						"sendDateTaskToTodoist",
+//						"deleteTasksFromTodoist",
+//						"getMyFriends",
+//						"getFriendsMe",
+//						"removeMyFriend",
+//						"removeFriendMe",
+//						"getAllDict",
+//						"getDictOnlyAllCategories",
+//						"getDictOneCategoryWithVariants",
+//						"renameCategory",
+//						"createCategory",
+//						"deleteCategory",
+//						"createVariants",
+//						"deleteVariants",
+//						"changeVariants"))
 				.defaultAdvisors(
 						new SimpleLoggerAdvisor(),
 						MessageChatMemoryAdvisor.builder(chatMemory).conversationId(String.valueOf(userId)).build()
