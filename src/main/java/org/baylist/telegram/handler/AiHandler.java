@@ -13,7 +13,7 @@ import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
 import org.springframework.ai.chat.memory.ChatMemory;
-import org.springframework.ai.chat.memory.InMemoryChatMemory;
+import org.springframework.ai.chat.memory.MessageWindowChatMemory;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.chat.prompt.PromptTemplate;
@@ -95,23 +95,21 @@ public class AiHandler implements DialogHandler {
 		if (chatMemoryMap.containsKey(userId)) {
 			chatMemory = chatMemoryMap.get(userId);
 		} else {
-			chatMemory = new InMemoryChatMemory();
+//			chatMemory = new InMemoryChatMemory();
+			chatMemory = MessageWindowChatMemory.builder().maxMessages(100).build();
 			chatMemoryMap.put(userId, chatMemory);
 		}
 
 		if (inputText.equals("аи")) {
-			chatMemoryMap.put(userId, new InMemoryChatMemory()); //очистка памяти
+			chatMemoryMap.put(userId, MessageWindowChatMemory.builder().maxMessages(100).build()); //очистка памяти
 		}
 
 		return ChatClient.builder(chatModel)
 				.defaultSystem(systemPrompt())
-				.defaultFunctions(functions())
+				.defaultTools(functions())
 				.defaultAdvisors(
 						new SimpleLoggerAdvisor(),
-						new MessageChatMemoryAdvisor(
-								chatMemory,
-								String.valueOf(userId),
-								100)
+						MessageChatMemoryAdvisor.builder(chatMemory).conversationId(String.valueOf(userId)).build()
 				)
 				.build();
 	}

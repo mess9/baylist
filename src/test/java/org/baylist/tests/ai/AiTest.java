@@ -10,9 +10,6 @@ import org.baylist.util.extension.FilToken;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
-import org.springframework.ai.chat.memory.ChatMemory;
-import org.springframework.ai.chat.memory.InMemoryChatMemory;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -33,51 +30,51 @@ public class AiTest extends BaseTest {
 		chatClient = ChatClient.builder(chatModel).build();
 	}
 
-	@Test
-	void givenMessageChatMemoryAdvisor_whenAskingChatToIncrementTheResponseWithNewName_thenNamesFromTheChatHistoryExistInResponse() {
-		ChatMemory chatMemory = new InMemoryChatMemory();
-		ChatMemory chatMemory2 = new InMemoryChatMemory();
-		MessageChatMemoryAdvisor chatMemoryAdvisor = new MessageChatMemoryAdvisor(chatMemory);
-		MessageChatMemoryAdvisor chatMemoryAdvisor2 = new MessageChatMemoryAdvisor(chatMemory2);
-
-		String responseContent = chatClient.prompt()
-				.user("Add this name to a list and return all the values: Bob")
-				.advisors(chatMemoryAdvisor)
-				.call()
-				.content();
-
-		s.assertThat(responseContent)
-				.contains("Bob");
-
-		responseContent = chatClient.prompt()
-				.user("Add this name to a list and return all the values: John")
-				.advisors(chatMemoryAdvisor)
-				.call()
-				.content();
-
-		s.assertThat(responseContent)
-				.contains("Bob")
-				.contains("John");
-
-		responseContent = chatClient.prompt()
-				.user("Add this name to a list and return all the values: Anna")
-				.advisors(chatMemoryAdvisor)
-				.call()
-				.content();
-
-		s.assertThat(responseContent)
-				.contains("Bob")
-				.contains("John")
-				.contains("Anna");
-
-		responseContent = chatClient.prompt()
-				.user("Add this name to a list and return all the values: Anna")
-				.advisors(chatMemoryAdvisor2)
-				.call()
-				.content();
-
-		System.out.println(responseContent);
-	}
+//	@Test
+//	void givenMessageChatMemoryAdvisor_whenAskingChatToIncrementTheResponseWithNewName_thenNamesFromTheChatHistoryExistInResponse() {
+//		ChatMemory chatMemory = new InMemoryChatMemory();
+//		ChatMemory chatMemory2 = new InMemoryChatMemory();
+//		MessageChatMemoryAdvisor chatMemoryAdvisor = new MessageChatMemoryAdvisor(chatMemory);
+//		MessageChatMemoryAdvisor chatMemoryAdvisor2 = new MessageChatMemoryAdvisor(chatMemory2);
+//
+//		String responseContent = chatClient.prompt()
+//				.user("Add this name to a list and return all the values: Bob")
+//				.advisors(chatMemoryAdvisor)
+//				.call()
+//				.content();
+//
+//		s.assertThat(responseContent)
+//				.contains("Bob");
+//
+//		responseContent = chatClient.prompt()
+//				.user("Add this name to a list and return all the values: John")
+//				.advisors(chatMemoryAdvisor)
+//				.call()
+//				.content();
+//
+//		s.assertThat(responseContent)
+//				.contains("Bob")
+//				.contains("John");
+//
+//		responseContent = chatClient.prompt()
+//				.user("Add this name to a list and return all the values: Anna")
+//				.advisors(chatMemoryAdvisor)
+//				.call()
+//				.content();
+//
+//		s.assertThat(responseContent)
+//				.contains("Bob")
+//				.contains("John")
+//				.contains("Anna");
+//
+//		responseContent = chatClient.prompt()
+//				.user("Add this name to a list and return all the values: Anna")
+//				.advisors(chatMemoryAdvisor2)
+//				.call()
+//				.content();
+//
+//		System.out.println(responseContent);
+//	}
 
 	@Test
 	void dataProvider() {

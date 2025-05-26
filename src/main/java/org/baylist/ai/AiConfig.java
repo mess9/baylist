@@ -26,9 +26,8 @@ import org.baylist.ai.record.out.RenamedCategory;
 import org.baylist.ai.record.out.SentTasks;
 import org.baylist.ai.record.out.TodoistData;
 import org.baylist.dto.todoist.api.TaskResponse;
-import org.springframework.context.annotation.Bean;
+import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Description;
 
 import java.util.List;
 import java.util.function.Function;
@@ -118,8 +117,7 @@ public class AiConfig {
 				""";
 	}
 
-	@Bean
-	@Description("""
+	@Tool(description = """
 			получить список задач из проекта buylist, приоритетная функция на вопрос пользователя о задачах
 			для авторизации используется - todoistToken
 			выводить ответ с разбивкой по категориям
@@ -129,8 +127,7 @@ public class AiConfig {
 		return dataProvider::getTodoistBuylistData;
 	}
 
-	@Bean
-	@Description("""
+	@Tool(description = """
 			получить абсолютно все задачи из todoist
 			для авторизации используется - todoistToken
 			игнорировать поле url
@@ -139,8 +136,7 @@ public class AiConfig {
 		return dataProvider::getAllTodoistData;
 	}
 
-	@Bean
-	@Description("""
+	@Tool(description = """
 			удалить задачи из todoist
 			для авторизации используется - todoistToken
 			""")
@@ -156,20 +152,17 @@ public class AiConfig {
 
 	//region FRIENDS
 
-	@Bean
-	@Description("получить список друзей которые могут отправлять/добавлять мне задачи")
+	@Tool(description = "получить список друзей которые могут отправлять/добавлять мне задачи")
 	public Function<UserRequest, Friends> getMyFriends(AiDataProvider dataProvider) {
 		return dataProvider::getMyFriends;
 	}
 
-	@Bean
-	@Description("получить список друзей которым я могу отправлять/добавлять задачи")
+	@Tool(description = "получить список друзей которым я могу отправлять/добавлять задачи")
 	public Function<UserRequest, Friends> getFriendsMe(AiDataProvider dataProvider) {
 		return dataProvider::getFriendsMe;
 	}
 
-	@Bean
-	@Description("""
+	@Tool(description = """
 			добавить задачи в todoist
 			для авторизации используется - todoistToken
 			
@@ -193,8 +186,7 @@ public class AiConfig {
 		return dataChanger::sendTaskToTodoist;
 	}
 
-	@Bean
-	@Description("""
+	@Tool(description = """
 			только для задач у которых есть дата выполнения
 			не нужны категории. не использовать словарик.
 			для авторизации используется - todoistToken
@@ -214,8 +206,7 @@ public class AiConfig {
 
 	//region GET DICT
 
-	@Bean
-	@Description("""
+	@Tool(description = """
 			получить полностью словарь пользователя с категориями и вариантами задач внутри них
 			в словаре перечислены категории задач
 			внутри категорий перечислены варианты задач для этой категории
@@ -224,8 +215,7 @@ public class AiConfig {
 		return dataProvider::getDict;
 	}
 
-	@Bean
-	@Description("""
+	@Tool(description = """
 			удалить одного друга который может отправлять/добавлять мне задачи
 			удалять только при однозначной формулировке этого действия
 			""")
@@ -233,8 +223,7 @@ public class AiConfig {
 		return dataChanger::removeMyFriend;
 	}
 
-	@Bean
-	@Description("""
+	@Tool(description = """
 			удалить одного друга которому я могу отправлять/добавлять задачи
 			удалять только при однозначной формулировке этого действия
 			""")
@@ -266,8 +255,7 @@ public class AiConfig {
 //		return dataChanger::changeAllDict;
 //	}
 
-	@Bean
-	@Description("""
+	@Tool(description = """
 			изменение словарика пользователя
 			изменение имени одной категории
 			изменяется старое имя категории на новое имя категории
@@ -276,8 +264,7 @@ public class AiConfig {
 		return dataChanger::renameCategory;
 	}
 
-	@Bean
-	@Description("""
+	@Tool(description = """
 			изменение словарика пользователя
 			добавление одной новой пустой категории в словарик
 			""")
@@ -285,8 +272,7 @@ public class AiConfig {
 		return dataChanger::createCategory;
 	}
 
-	@Bean
-	@Description("""
+	@Tool(description = """
 			изменение словарика пользователя
 			удаление одной категории вместе со всеми вариантами
 			удалять только при однозначной формулировке этого действия
@@ -295,8 +281,7 @@ public class AiConfig {
 		return dataChanger::deleteCategory;
 	}
 
-	@Bean
-	@Description("""
+	@Tool(description = """
 			изменение словарика пользователя
 			добавление новых вариантов в указанную категорию
 			проверить существует ли категория - можно функцией getDictOnlyAllCategories
@@ -305,8 +290,7 @@ public class AiConfig {
 		return dataChanger::createVariants;
 	}
 
-	@Bean
-	@Description("""
+	@Tool(description = """
 			получить полный список всех категорий в словаре пользователя.
 			без вариантов задач внутри категорий
 			""")
@@ -314,8 +298,7 @@ public class AiConfig {
 		return dataProvider::getDictAllCategories;
 	}
 
-	@Bean
-	@Description("""
+	@Tool(description = """
 			получить информацию по одной категории пользователя
 			со всеми вариантами задач внутри этой категории
 			""")
@@ -329,8 +312,7 @@ public class AiConfig {
 
 	//region SETTINGS
 
-	@Bean
-	@Description("""
+	@Tool(description = """
 			изменение словарика пользователя
 			удаление существующих вариантов из указанной категории
 			проверить существует ли категория - можно функцией getDictOnlyAllCategories
@@ -341,8 +323,7 @@ public class AiConfig {
 		return dataChanger::deleteVariants;
 	}
 
-	@Bean
-	@Description("""
+	@Tool(description = """
 			изменение словарика пользователя
 			изменение существующих вариантов внутри указанной категории
 			переименование нескольких вариантов сразу

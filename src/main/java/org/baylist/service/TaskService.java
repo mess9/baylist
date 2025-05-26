@@ -40,7 +40,8 @@ public class TaskService {
 				.collect(Collectors.toMap(Section::getId, Section::getName));
 		List<Task> existTasks = taskRepository.findByUser(owner);
 		Map<String, Task> existTasksMap = existTasks.stream()
-				.collect(Collectors.toMap(Task::getContent, task -> task));
+				.collect(Collectors.toMap(Task::getContent, task -> task, (task1, task2) -> task1
+				));
 		List<Task> tasksToSave = new ArrayList<>();
 
 		// Обрабатываем задачи с удаленной стороны
