@@ -29,8 +29,10 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKe
 import java.time.OffsetDateTime;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReentrantLock;
 
 import static org.baylist.dto.Constants.FIL_USER_ID;
 import static org.baylist.dto.Constants.STRING_FIL_USER_ID;
@@ -52,6 +54,9 @@ public class UserService {
 
 	@Getter
 	Set<Long> modifiedUserIds = ConcurrentHashMap.newKeySet();
+
+	Map<Long, ReentrantLock> locks = new ConcurrentHashMap<>();
+
 
 
 	@CachePut(value = "user", key = "#user.userId")
@@ -135,10 +140,30 @@ public class UserService {
 		return userRepository.findByUserId(userId).getTodoistToken() != null;
 	}
 
-	private boolean saveFriend(User user, User friend) {
-		user.getFriends().add(friend);
-		userRepository.save(user);
-		return true;
+	@Transactional
+	protected boolean saveFriend(User user, User friend) {
+		ReentrantLock lock = locks.computeIfAbsent(user.getUserId(), id -> new ReentrantLock());
+
+		lock.lock();
+		try {
+			// Перепроверяем наличие друга под блокировкой, чтобы исключить
+			// гонку, возникшую между вызовом existFriend и saveFriend
+			if (existFriend(user, friend.getUserId())) {
+				return false; // Друг уже добавлен, не делаем ничего
+			}
+
+			// Добавляем друга и сохраняем
+			user.getFriends().add(friend);
+			userRepository.save(user);
+			return true;
+		} finally {
+			lock.unlock();
+			// Опционально удаляем замок, если очередь пуста
+			if (!lock.hasQueuedThreads()) {
+				locks.remove(user.getUserId(), lock);
+			}
+		}
+
 	}
 
 	private User createNewFriend(Contact contact) {
