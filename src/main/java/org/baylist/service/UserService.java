@@ -146,24 +146,19 @@ public class UserService {
 
 		lock.lock();
 		try {
-			// Перепроверяем наличие друга под блокировкой, чтобы исключить
-			// гонку, возникшую между вызовом existFriend и saveFriend
 			if (existFriend(user, friend.getUserId())) {
-				return false; // Друг уже добавлен, не делаем ничего
+				return false;
 			}
 
-			// Добавляем друга и сохраняем
 			user.getFriends().add(friend);
 			userRepository.save(user);
 			return true;
 		} finally {
 			lock.unlock();
-			// Опционально удаляем замок, если очередь пуста
 			if (!lock.hasQueuedThreads()) {
 				locks.remove(user.getUserId(), lock);
 			}
 		}
-
 	}
 
 	private User createNewFriend(Contact contact) {
