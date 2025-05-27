@@ -140,8 +140,7 @@ public class UserService {
 		return userRepository.findByUserId(userId).getTodoistToken() != null;
 	}
 
-	@Transactional
-	protected boolean saveFriend(User user, User friend) {
+	private boolean saveFriend(User user, User friend) {
 		ReentrantLock lock = locks.computeIfAbsent(user.getUserId(), id -> new ReentrantLock());
 
 		lock.lock();
