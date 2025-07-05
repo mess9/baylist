@@ -83,6 +83,7 @@ public class CommonResponseService {
 				chatValue.setEditText("выберите чьи задачки посмотреть");
 				chatValue.setEditReplyKeyboard(recipientsKeyboard(recipients, false));
 			}
+			chatValue.setState(State.MENU);
 		} else {
 			if (recipients.isEmpty()) {
 				menuService.mainMenu(chatValue, true);
@@ -98,7 +99,6 @@ public class CommonResponseService {
 				chatValue.setReplyText("выберите чьи задачки посмотреть");
 				chatValue.setReplyKeyboard(recipientsKeyboard(recipients, false));
 			}
-			chatValue.setState(State.MENU);
 		}
 	}
 
