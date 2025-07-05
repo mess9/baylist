@@ -35,7 +35,7 @@ public class MenuService {
 						List.of(new KeyboardRow(List.of(
 								KeyboardButton.builder().text(textInputMode).build(),
 								KeyboardButton.builder().text(Commands.MENU_BOTTOM_KEYBOARD.getCommand()).build()
-						))), true, true, true, " =^..^= кнопотьки =^..^= ", false
+						))), true, false, true, " =^..^= кнопотьки =^..^= ", true
 				);
 				chatValue.setReplyKeyboard(markup);
 			}
