@@ -324,8 +324,11 @@ public class DictionaryService {
 
 	@NotNull
 	private static String findCategoryInDictionary(String word, Map<String, Set<String>> dict) {
+		var lowerWord = word.toLowerCase();
 		return dict.entrySet().stream()
-				.filter(entry -> entry.getValue().contains(word))
+				.filter(entry -> entry.getValue()
+						.stream().map(String::toLowerCase).toList()
+						.contains(lowerWord))
 				.map(Map.Entry::getKey)
 				.findAny()
 				.orElse(UNKNOWN_CATEGORY);
