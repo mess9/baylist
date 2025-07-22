@@ -222,7 +222,7 @@
                         <allure.results.directory>${project.build.directory}/allure-results</allure.results.directory>
                     </systemPropertyVariables>
                     <argLine>
-                        -Xms1024M -Xmx4G -Dfile.encoding=UTF-8
+                        -Xms128M -Xmx256M -Dfile.encoding=UTF-8
                         -javaagent:"${settings.localRepository}/org/mockito/mockito-core/5.14.2/mockito-core-5.14.2.jar"
                         -javaagent:"${settings.localRepository}/org/aspectj/aspectjweaver/${aspectj.version}/aspectjweaver-${aspectj.version}.jar"
                     </argLine>
