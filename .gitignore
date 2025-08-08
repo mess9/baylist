@@ -36,6 +36,7 @@ build/
 .allure
 amplicode.xml
 .deploy/oracle/dbWallet
+*.vim
 
 ### Frontend ###
 */node_modules/

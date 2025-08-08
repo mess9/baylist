@@ -8,6 +8,7 @@ import {
 } from "solid-js";
 import type { SortableEvent } from "solid-sortablejs";
 import Sortable from "solid-sortablejs";
+// import type { SortableOptions, MoveEvent } from "sortablejs";
 
 import Category from "/widgets/Category/ui/Category";
 import type { ICategory } from "/widgets/Category/ui/Category";
@@ -43,6 +44,8 @@ const BuyList: Component = () => {
   >([]);
   const [categories, setCategories] = createStore<CategoriesWithNoCategoriesType>([]);
   const [project, setProject] = createSignal<Project[] | []>([]);
+
+  // const [isMoveIn, setIsMoveIn] = createSignal<string>('');
 
   onMount(() => {
     setIsLogIn(
@@ -197,7 +200,7 @@ const BuyList: Component = () => {
     };
   };
 
-  const handleMove = (e: SortableEvent, depth: number) => {
+  const handleEnd = (e: SortableEvent, depth: number) => {
     const updateCategoryOrder = () => {
       setCategories((categories) => 
 	    categories.map((category) => ({
@@ -243,6 +246,7 @@ const BuyList: Component = () => {
             sectionId: parentToId === "no_category" ? null : parentToId,
           })),
       );
+	  // setIsMoveIn('');
     };
 
     const item = e.item;
@@ -351,6 +355,14 @@ const BuyList: Component = () => {
       setIsLogIn(`${e.target.value}`);
   };
 
+  // const handleMove: SortableOptions["onMove"] = (e: MoveEvent) => {
+  //  const closestSrtItem = e.to.closest("[data-id]")
+  //  if (closestSrtItem instanceof HTMLDivElement) {
+  //   setIsMoveIn(`${closestSrtItem.dataset["id"]}`);
+  //   console.log("im Move to :", e.to, e.to.closest("[data-id]"));	
+  //  }
+  // }
+  
   // const onCategoryMove = (e: MoveEvent, originalEvent: DragEvent) => {
   //  console.log(e);
   //const staticItem = e.to.querySelector('[data-id="no_category"]');
@@ -415,20 +427,22 @@ const BuyList: Component = () => {
               </div>
             }
           >
-            <div data-id="no_category">
+         <div data-id="no_category">
               <Category
                 {...categories.find((cat) => cat.id === "no_category")!}
                 setItems={createSetItemsForCategory("no_category")}
-                handleMove={handleMove}
+                handleEnd={handleEnd}
                 handleAddItem={handleAddItem("no_category", project()[0].id)}
                 handleEditItem={handleEditItem}
                 isLoadingOuter={isLoading()}
                 handleRemoveItem={handleRemoveItem("no_category")}
                 handleCollapseCategory={handleCollapseCategory("no_category")}
+				// handleMove={handleMove}
                 isLoadingCollapsed={
                   isLoadingCollapsed().find((cat) => cat.id === "no_category")
                     ?.id || false
                 }
+				// isMoveInMe={isMoveIn() === "no_category"}
               />
             </div>
             <Sortable
@@ -436,7 +450,7 @@ const BuyList: Component = () => {
               items={categories.filter((cat) => cat.id !== "no_category"!) as ICategory[]}
               setItems={createSetCategory() as Setter<ICategory[]>}
               handle={`.${classesCategory["category__header"]}`}
-              onEnd={(e) => handleMove(e, 0)}
+              onEnd={(e) => handleEnd(e, 0)}
               //filter={'[data-id="no_category"]'}
               //onDrag={onCategoryMove}
               // disabled={!!isLoadingCollapsed().length}
@@ -446,16 +460,18 @@ const BuyList: Component = () => {
                   <Category
                     {...category}
                     setItems={createSetItemsForCategory(category.id)}
-                    handleMove={handleMove}
+                    handleEnd={handleEnd}
                     handleAddItem={handleAddItem(category.id, project()[0].id)}
                     handleEditItem={handleEditItem}
                     isLoadingOuter={isLoading()}
                     handleRemoveItem={handleRemoveItem(category.id)}
                     handleCollapseCategory={handleCollapseCategory(category.id)}
+					// handleMove={handleMove}
                     isLoadingCollapsed={
                       isLoadingCollapsed().find((cat) => cat.id === category.id)
                         ?.id || false
                     }
+					// isMoveInMe={isMoveIn() === category.id}
                   />
                 </li>
               )}

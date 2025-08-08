@@ -20,6 +20,7 @@ import type { Item as ItemType } from "/shared/api/types/syncEntities";
 type ItemProps = ItemType & {
   handleEditItem: (content: string) => void;
   handleRemoveItem: () => void;
+  onDrag: (e: Event)=>void;
   isLoading: boolean | string;
 };
 
@@ -81,6 +82,8 @@ const Item: Component<ItemProps> = (props) => {
         [classes["item"]]: true,
         [classes["item--fresh"]]: isFreshItem(),
       }}
+	  ondrag={(e) => props.onDrag(e)}
+	  draggable="true"
     >
       <Switch>
         <Match when={isEditMode()}>

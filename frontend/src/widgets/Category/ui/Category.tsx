@@ -13,13 +13,15 @@ import type { Item as ItemType } from "/shared/api/types/syncEntities";
 import Item from "/features/Item/ui/Item";
 
 import type { SortableEvent } from "solid-sortablejs";
+// import type { SortableOptions } from "sortablejs";
+import SortableOrigin from "sortablejs";
 import Sortable from "solid-sortablejs";
 
 import type { Section } from "/shared/api/types/syncEntities";
 
 import classes from "./Category.module.css";
 import classesItem from "/features/Item/ui/Item.module.css";
-import { NoCategoryType } from "/src/pages/BuyList/api/buyListService";
+import type { NoCategoryType } from "/src/pages/BuyList/api/buyListService";
 
 export interface ICategory extends Section {
   items: ItemType[];
@@ -28,13 +30,15 @@ export interface ICategory extends Section {
 
 type ICategoryProps = (ICategory | NoCategoryType) & {
   setItems: Setter<ItemType[]>;
-  handleMove: (event: SortableEvent, depth: number) => void;
+  handleEnd: (event: SortableEvent, depth: number) => void;
   handleAddItem: (content: string) => void;
   handleEditItem: (itemId: string) => (content: string) => void;
   handleRemoveItem: (itemId: string) => () => void;
   handleCollapseCategory: (collapsed: boolean) => void;
+  // handleMove: SortableOptions["onMove"]
   isLoadingCollapsed: boolean | string;
   isLoadingOuter: boolean | string;
+  // isMoveInMe: boolean;
 }
 
 const Category: Component<ICategoryProps> = (props) => {
@@ -45,6 +49,7 @@ const Category: Component<ICategoryProps> = (props) => {
   const [addItemBeenCalled, setAddItemBeenCalled] = createSignal(false);
 
   let ulRef: HTMLUListElement | undefined;
+  let droppable: HTMLDivElement | undefined;
 
   const merge = mergeProps({ delimiter: "bottom" }, props);
 
@@ -130,6 +135,25 @@ const Category: Component<ICategoryProps> = (props) => {
     }),
   );
 
+  createEffect(
+	() => {
+	  if (droppable) {
+		console.log("here")
+		SortableOrigin.create(droppable, {
+		  group: 'bl1',
+		  disabled: !isCollapsed(),
+		  onAdd: function (evt) {
+			const siblingList = evt.to.nextSibling?.nextSibling?.firstChild
+			console.log(siblingList)
+		  }
+		})
+	  }
+	},
+  );
+
+  const handleStart = (event: Event) => {
+	console.log(event);
+  }; 
   return (
     <section
       classList={{
@@ -145,6 +169,7 @@ const Category: Component<ICategoryProps> = (props) => {
           [classes["category__item-li--delimiter-bottom"]]:
             merge.id === "no_category",
         }}
+		 ref={droppable} 
       >
         <label
           classList={{
@@ -153,6 +178,8 @@ const Category: Component<ICategoryProps> = (props) => {
               merge.isLoadingCollapsed === merge.id,
           }}
         >
+		{// <div>{`${merge.isMoveInMe}`}</div>
+		}
           <div
             classList={{
               [classes["on-load-mask"]]: true,
@@ -219,8 +246,10 @@ const Category: Component<ICategoryProps> = (props) => {
           setItems={merge.setItems}
           group="bl1"
           handle={`.${classesItem["buy-item__dnd-button"]}`}
-          onChange={() => changeMaxHeight()}
-          onEnd={(e) => merge.handleMove(e, 1)}
+          onChange={changeMaxHeight}
+		  // onStart={handleStart}
+		  // onMove={merge.handleMove}
+          onEnd={(e) => merge.handleEnd(e, 1)}
         >
           {(item) => (
             <li
@@ -242,6 +271,7 @@ const Category: Component<ICategoryProps> = (props) => {
                 handleEditItem={merge.handleEditItem(item.id)}
                 handleRemoveItem={merge.handleRemoveItem(item.id)}
                 isLoading={merge.isLoadingOuter}
+				onDrag={handleStart}
               />
             </li>
           )}
