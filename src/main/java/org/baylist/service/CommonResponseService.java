@@ -1,6 +1,5 @@
 package org.baylist.service;
 
-import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -130,7 +129,7 @@ public class CommonResponseService {
 		}
 		recipients.forEach(r -> rows.add(new InlineKeyboardRow(InlineKeyboardButton.builder()
 				.text(getName(r))
-				.callbackData(callbacks.getCallbackData() + r.getUserId())
+				.callbackData(callbacks.getCallbackData() + r.userId())
 				.build())));
 		rows.add(new InlineKeyboardRow(InlineKeyboardButton.builder()
 				.text("отмена")
@@ -139,7 +138,6 @@ public class CommonResponseService {
 		return new InlineKeyboardMarkup(rows);
 	}
 
-	@Transactional
 	public void info(ChatValue chatValue) {
 		InlineKeyboardMarkup markup = new InlineKeyboardMarkup(List.of(
 				new InlineKeyboardRow(InlineKeyboardButton.builder()
@@ -148,19 +146,18 @@ public class CommonResponseService {
 						.build())
 		));
 
+		long userId = chatValue.getUserId();
+		User user = userService.getUserFromDb(userId);
+		boolean existToken = userService.isExistToken(userId);
+
+		List<Category> categoriesByUserId = dictionaryService.getCategoriesByUserId(userId);
+		long variantsTotal = categoriesByUserId.isEmpty()
+				? 0
+				: dictionaryService.countVariantsForUser(userId);
+
 		StringBuilder sb = new StringBuilder();
-		boolean existToken = userService.isExistToken(chatValue.getUserId());
-		User user = userService.getUserFromDb(chatValue.getUserId());
-		List<Category> categoriesByUserId = dictionaryService.getCategoriesByUserId(user.getUserId());
-		long variants = 0;
-		if (!categoriesByUserId.isEmpty()) {
-			variants = categoriesByUserId.stream()
-					.filter(c -> !c.getVariants().isEmpty())
-					.mapToLong(c -> c.getVariants().size())
-					.sum();
-		}
-		List<User> friends = user.getFriends();
-		List<User> friendList = userService.getFriendMe(user.getUserId());
+		List<User> friends = userService.getFriends(userId);
+		List<User> friendList = userService.getFriendMe(userId);
 
 
 		sb.append("<b>сводная информация:</b>\n")
@@ -171,9 +168,9 @@ public class CommonResponseService {
 			sb.append("вы подключены к todoist\n\n");
 			if (!categoriesByUserId.isEmpty()) {
 				sb.append("вы создали категорий задач - ").append(categoriesByUserId.size()).append("\n");
-				categoriesByUserId.forEach(c -> sb.append(" <code>").append(c.getName()).append("</code>\n"));
-				if (variants > 0) {
-					sb.append("<i>вы создали вариантов задач - </i>").append(variants).append("\n\n");
+				categoriesByUserId.forEach(c -> sb.append(" <code>").append(c.name()).append("</code>\n"));
+				if (variantsTotal > 0) {
+					sb.append("<i>вы создали вариантов задач - </i>").append(variantsTotal).append("\n\n");
 				} else {
 					sb.append("<i>вы не создали вариантов задач в ваших категориях </i> <b>:(</b>\n\n");
 				}
@@ -185,7 +182,7 @@ public class CommonResponseService {
 			if (friendList.isEmpty()) {
 				sb.append("""
 						вы не подключены к todoist
-						
+
 						и у вас нет друзей
 						которые бы внесли бы вас в свой список отправителей им задач
 						для вас этот бот
@@ -332,10 +329,9 @@ public class CommonResponseService {
 		}
 	}
 
-	@Transactional
 	public void listMyFriends(ChatValue chatValue) {
 		User user = userService.getUserFromDb(chatValue.getUserId());
-		List<User> friends = user.getFriends();
+		List<User> friends = userService.getFriends(user.userId());
 		StringBuilder sb = new StringBuilder();
 		checkFriends(friends, sb);
 		chatValue.setEditText(sb.toString());
@@ -348,7 +344,6 @@ public class CommonResponseService {
 		chatValue.setEditReplyParseModeHtml();
 	}
 
-	@Transactional
 	public void listFriendsMe(ChatValue chatValue) {
 		List<User> friendsMe = userService.getFriendMe(chatValue.getUserId());
 		StringBuilder sb = new StringBuilder();

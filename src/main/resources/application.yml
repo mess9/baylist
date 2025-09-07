@@ -11,35 +11,13 @@ logging:
 todoist:
   baseUrl: https://api.todoist.com/rest/v2
 spring:
-  ai:
-    openai:
-      api-key: ${OPENAI_TOKEN}
-      chat:
-        options:
-          model: gpt-4o-mini
-          temperature: 0.7
-  #  ai:
-  #    openai:
-  #      base-url: https://api.deepseek.com
-  #      api-key: ${DS_TOKEN}
-  #      chat:
-  #        enabled: true
-  #        options:
-  #          model: deepseek-chat
-  #          temperature: 0.7
-  #      embedding:
-  #        enabled: false
   liquibase:
     change-log: classpath:/db/changelog/db.changelog-master.xml
     enabled: true
-  autoconfigure:
-    exclude:
-      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
   datasource:
-    url: jdbc:oracle:thin:@db1_high
-    username: BUYLIST
-    password: ${ORACLE_DB_PASSWORD}
-    driver-class-name: oracle.jdbc.OracleDriver
+    url: jdbc:postgresql://152.70.174.74:5432/buylist
+    username: buylist
+    password: ${POSTGRES_DB_PASSWORD}
   jpa:
     hibernate:
       ddl-auto: validate

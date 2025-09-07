@@ -1,6 +1,5 @@
 package org.baylist.service;
 
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.baylist.db.entity.History;
@@ -18,11 +17,10 @@ public class HistoryService {
 
 	HistoryRepository historyRepository;
 
-	@Transactional
 	public void sendTasks(User sourceUser, User recipientUser, Action action, String content) {
 		History event = History.builder()
-				.source(sourceUser)
-				.recipient(recipientUser)
+				.source(sourceUser.userId())
+				.recipient(recipientUser.userId())
 				.action(action)
 				.date(OffsetDateTime.now())
 				.content(content)
@@ -31,12 +29,11 @@ public class HistoryService {
 		historyRepository.save(event);
 	}
 
-	@Transactional
 	public void changeFriend(User sourceUser, User friend, Action action) {
-		String content = "User - " + sourceUser.getUserId() + " " + action + " - " + friend.getUserId();
+		String content = "User - " + sourceUser.userId() + " " + action + " - " + friend.userId();
 		History event = History.builder()
-				.source(sourceUser)
-				.recipient(sourceUser)
+				.source(sourceUser.userId())
+				.recipient(sourceUser.userId())
 				.action(action)
 				.date(OffsetDateTime.now())
 				.content(content)
@@ -45,12 +42,11 @@ public class HistoryService {
 		historyRepository.save(event);
 	}
 
-	@Transactional
 	public void register(User sourceUser, Action action) {
-		String content = "User - " + sourceUser.getUserId() + " " + action;
+		String content = "User - " + sourceUser.userId() + " " + action;
 		History event = History.builder()
-				.source(sourceUser)
-				.recipient(sourceUser)
+				.source(sourceUser.userId())
+				.recipient(sourceUser.userId())
 				.action(action)
 				.date(OffsetDateTime.now())
 				.content(content)
@@ -59,14 +55,11 @@ public class HistoryService {
 		historyRepository.save(event);
 	}
 
-	@Transactional
 	public void changeDict(Long userId, Action action, String entity) {
 		String content = "User - " + userId + " " + action + " - " + entity;
-		User user = new User();
-		user.setUserId(userId);
 		History event = History.builder()
-				.source(user)
-				.recipient(user)
+				.source(userId)
+				.recipient(userId)
 				.action(action)
 				.date(OffsetDateTime.now())
 				.content(content)

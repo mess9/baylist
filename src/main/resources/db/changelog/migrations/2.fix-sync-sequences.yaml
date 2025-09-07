@@ -1,0 +1,16 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1.7-sync-identities-after-import
+      author: fil
+      changes:
+        - sql: |
+            SELECT setval(pg_get_serial_sequence('categories','id'),
+                          COALESCE((SELECT MAX(id) FROM categories), 0), true);
+            SELECT setval(pg_get_serial_sequence('variants','id'),
+                          COALESCE((SELECT MAX(id) FROM variants), 0), true);
+            SELECT setval(pg_get_serial_sequence('dialogs','dialog_id'),
+                          COALESCE((SELECT MAX(dialog_id) FROM dialogs), 0), true);
+            SELECT setval(pg_get_serial_sequence('history','id'),
+                          COALESCE((SELECT MAX(id) FROM history), 0), true);
+            SELECT setval(pg_get_serial_sequence('tasks','task_id'),
+                          COALESCE((SELECT MAX(task_id) FROM tasks), 0), true);

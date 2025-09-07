@@ -2,6 +2,7 @@ package org.baylist.dto.telegram;
 
 import lombok.Data;
 import org.baylist.db.entity.User;
+import org.baylist.service.DialogService;
 import org.telegram.telegrambots.meta.api.methods.ForwardMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
@@ -9,6 +10,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 
+import static org.baylist.util.SpringBeans.getBean;
 import static org.telegram.telegrambots.meta.api.methods.ParseMode.HTML;
 import static org.telegram.telegrambots.meta.api.methods.ParseMode.MARKDOWN;
 
@@ -24,6 +26,7 @@ public class ChatValue {
 	private EditMessageText editMessage;
 
 	private User user;
+	private State state;
 
 
 	public ChatValue(Update update) {
@@ -50,16 +53,19 @@ public class ChatValue {
 		return update.getCallbackQuery().getData();
 	}
 
-	public State getState() {
-		return user.getDialog().getState();
-	}
-
 	public String getToken() {
-		return "Bearer " + user.getTodoistToken();
+		return "Bearer " + user.todoistToken();
 	}
 
 	public Long getUserId() {
-		return user.getUserId();
+		return user.userId();
+	}
+
+	public State getState() {
+		if (state == null && user != null) {
+			state = getBean(DialogService.class).getState(user.userId());
+		}
+		return state;
 	}
 	//endregion GETTER
 
@@ -87,6 +93,7 @@ public class ChatValue {
 	    this.message.setParseMode(HTML);
     }
 
+	@SuppressWarnings("unused")
 	public void setReplyParseModeMarkdown() {
 		this.message.setParseMode(MARKDOWN);
 	}
@@ -109,8 +116,16 @@ public class ChatValue {
 	}
 
 	public void setState(State state) {
-		user.getDialog().setState(state);
+		this.state = state;
+		if (this.user != null) {
+			try {
+				getBean(DialogService.class).setState(this.user.userId(), state);
+			} catch (Exception e) {
+				System.out.println("Failed to set state for user " + this.user.userId() + ": " + e.getMessage());
+			}
+		}
 	}
+
 	//endregion SETTER
 
 
