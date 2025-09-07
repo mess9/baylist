@@ -24,7 +24,7 @@ public class FeedbackAnswerHandler implements DialogHandler {
 				ваше сообщение будет передано куда надо
 				""");
 		ForwardMessage forwardMessage = ForwardMessage.builder()
-				.chatId(fil.getUserId())
+				.chatId(fil.userId())
 				.messageId(chatValue.getUpdate().getMessage().getMessageId())
 				.fromChatId(chatValue.getUpdate().getMessage().getChatId())
 				.build();

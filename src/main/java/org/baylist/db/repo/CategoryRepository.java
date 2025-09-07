@@ -1,22 +1,26 @@
 package org.baylist.db.repo;
 
 import org.baylist.db.entity.Category;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jdbc.repository.query.Query;
+import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
-public interface CategoryRepository extends JpaRepository<Category, Long> {
+public interface CategoryRepository extends CrudRepository<Category, Long> {
 
-	List<Category> findAllByUserId(Long userId);
+	@Query("select c.* from categories c where c.user_id = :u")
+	List<Category> findByUserId(@Param("u") long userId);
 
-	@Query("SELECT c FROM Category c LEFT JOIN FETCH c.variants where c.id = :categoryId")
+	@Query("SELECT c FROM categories c JOIN variants v on v.category_id = c.id where c.id = :categoryId")
 	Category findCategoryWithVariants(Long categoryId);
 
-	@Query("SELECT c FROM Category c LEFT JOIN FETCH c.variants where c.name = :categoryName and c.userId = :userId")
-	Category findCategoryWithVariantsByName(Long userId, String categoryName);
-
-	@Query("SELECT c FROM Category c LEFT JOIN FETCH c.variants where c.userId = :userId")
-	List<Category> findAllCategoriesWithVariants(Long userId);
+	@Query("""
+			select c.*
+			from categories c
+			where user_id = :u and lower(name) = lower(:name)
+			""")
+	Optional<Category> findByUserIdAndName(@Param("u") long userId, @Param("name") String name);
 
 }

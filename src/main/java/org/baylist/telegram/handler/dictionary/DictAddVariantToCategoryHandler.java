@@ -46,7 +46,7 @@ public class DictAddVariantToCategoryHandler implements DialogHandler {
 						<code>- название задачи должно быть в одну строчку</code>
 						<code>- состоять из одного или нескольких слов</code>
 						<code>- без спецсимволов</code>
-						""".formatted(category.getName()));
+						""".formatted(category.name()));
 				chatValue.setEditReplyParseModeHtml();
 				chatValue.setState(State.DICT_ADD_TASK_TO_CATEGORY);
 				selectedCategoryStore.put(chatValue.getUserId(), category);

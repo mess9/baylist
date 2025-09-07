@@ -31,18 +31,6 @@
         <jjwt.version>0.12.6</jjwt.version>
     </properties>
 
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.springframework.ai</groupId>
-                <artifactId>spring-ai-bom</artifactId>
-                <version>1.0.0</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
-
     <dependencies>
         <!--spring-->
         <dependency>
@@ -55,35 +43,21 @@
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-jpa</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-cache</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.springframework.ai</groupId>
-            <artifactId>spring-ai-starter-model-openai</artifactId>
-        </dependency>
-        <!--        <dependency>-->
-        <!--            <groupId>org.springframework.ai</groupId>-->
-        <!--            <artifactId>spring-ai-starter-model-chat-memory-repository-jdbc</artifactId>-->
-        <!--        </dependency>-->
-
 
         <!--DB-->
         <dependency>
-            <groupId>com.oracle.database.jdbc</groupId>
-            <artifactId>ojdbc11</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.oracle.database.spring</groupId>
-            <artifactId>oracle-spring-boot-starter-wallet</artifactId>
-            <version>${spring-oracle-wallet.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.liquibase</groupId>
             <artifactId>liquibase-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jdbc</artifactId>
         </dependency>
 
         <!--utils-->
@@ -188,7 +162,30 @@
         </dependency>
 
     </dependencies>
-
+    <!--Для миграции с Oracle на PostgreSQL в Spring Boot-проекте рекомендуется следующий порядок действий:
+    Обновить зависимости
+    В pom.xml замени драйвер Oracle на драйвер PostgreSQL (org.postgresql:postgresql).
+    Изменить настройки подключения
+    В файле application.properties или application.yml пропиши новые параметры подключения к PostgreSQL:
+    spring.datasource.url=jdbc:postgresql://<host>:<port>/<database>
+    spring.datasource.username=<username>
+    spring.datasource.password=<password>
+    spring.datasource.driver-class-name=org.postgresql.Driver
+    Проверить совместимость схемы
+    PostgreSQL и Oracle имеют различия в типах данных и синтаксисе.
+    Проверь DDL-скрипты (создание таблиц, индексов и т.д.).
+    Используй инструменты миграции, например, Flyway или Liquibase.
+    Мигрировать данные
+    Экспортируй данные из Oracle (например, с помощью expdp/impdp или SQL Developer).
+    Импортируй в PostgreSQL (например, через COPY, pgAdmin, ETL-инструменты).
+    Проверить и адаптировать код
+    Проверь, нет ли в коде специфичных для Oracle SQL-запросов.
+    Проверь работу транзакций, генерацию идентификаторов, функции и процедуры.
+    Протестировать приложение
+    Запусти тесты, проверь основные сценарии работы.
+    Обновить документацию
+    Обнови инструкции по развертыванию и настройке.
+    Это базовый план. Если нужна помощь на каком-то этапе — уточни, и помогу подробнее.-->
     <build>
         <plugins>
             <plugin>

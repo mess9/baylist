@@ -1,46 +1,14 @@
 package org.baylist.db.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Column;
+import org.springframework.data.relational.core.mapping.Table;
 
-import java.util.List;
+@Table("categories")
+public record Category(
+		@Id @Column("id") Long id,
+		@Column("name") String name,
+		@Column("user_id") Long userId
+) {
 
-import static jakarta.persistence.CascadeType.ALL;
-
-@Entity
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@ToString(exclude = "variants")
-@Table(name = "categories")
-public class Category {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column(nullable = false)
-    private String name;
-
-    @Column(nullable = false, name = "user_id")
-    private Long userId;
-
-	@OneToMany(cascade = ALL, orphanRemoval = true, mappedBy = "category")
-    private List<Variant> variants;
-
-    public Category(String categoryName, Long userId) {
-        this.name = categoryName;
-        this.userId = userId;
-    }
 }

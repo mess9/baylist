@@ -1,6 +1,5 @@
 package org.baylist.service;
 
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +18,7 @@ import org.baylist.dto.todoist.api.TaskRequest;
 import org.baylist.dto.todoist.api.TaskResponse;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardRow;
@@ -91,12 +91,12 @@ public class TodoistService {
 	}
 
 	public void sendTasksToTodoist(ChatValue chatValue, User recipient, String input) {
-		if (storageIsEmpty(recipient.getUserId())) {
+		if (storageIsEmpty(recipient.userId())) {
 			syncBuyListData(recipient);
 		}
 		List<String> tasksInput = dictionaryService.splitInputTasks(input);
-		Map<String, Set<String>> inputTasks = dictionaryService.parseInputWithDict(tasksInput, recipient.getUserId());
-		Optional<ProjectDto> buyListProjectDb = todoistStateMap.get(recipient.getUserId()).getBuyListProject();
+		Map<String, Set<String>> inputTasks = dictionaryService.parseInputWithDict(tasksInput, recipient.userId());
+		Optional<ProjectDto> buyListProjectDb = todoistStateMap.get(recipient.userId()).getBuyListProject();
 
 		if (buyListProjectDb.isPresent()) {
 			List<String> submittedTasks = submitToTodoist(chatValue.getUser(), recipient, buyListProjectDb, inputTasks);
@@ -109,16 +109,16 @@ public class TodoistService {
 
 	public void syncBuyListData(User recipient) {
 		log.info("request to todoist for get data by buylist project");
-		List<Project> projects = todoistApi.getProjects(recipient.getBearerToken());
+		List<Project> projects = todoistApi.getProjects(recipient.bearerToken());
 		Optional<Project> buylistProject = projects
 				.stream().filter(p -> p.getName().equalsIgnoreCase(BUYLIST_PROJECT))
 				.findAny();
 		if (buylistProject.isPresent()) {
 			String projectId = buylistProject.get().getId();
-			List<Section> todoistBuylistSections = todoistApi.getSectionsByProject(recipient.getBearerToken(), projectId);
-			List<TaskResponse> todoistBuylistTasks = todoistApi.getTasksByProject(recipient.getBearerToken(), projectId);
+			List<Section> todoistBuylistSections = todoistApi.getSectionsByProject(recipient.bearerToken(), projectId);
+			List<TaskResponse> todoistBuylistTasks = todoistApi.getTasksByProject(recipient.bearerToken(), projectId);
 			taskService.syncTasks(recipient, todoistBuylistSections, todoistBuylistTasks);
-			todoistStateMap.put(recipient.getUserId(),
+			todoistStateMap.put(recipient.userId(),
 					new TodoistState(projects, todoistBuylistSections, todoistBuylistTasks));
 		} else {
 			log.error("buylist project not found");
@@ -127,7 +127,7 @@ public class TodoistService {
 
 	public String getBuylistProject(User recipient) {
 		syncBuyListData(recipient);
-		Optional<ProjectDto> projectByName = todoistStateMap.get(recipient.getUserId())
+		Optional<ProjectDto> projectByName = todoistStateMap.get(recipient.userId())
 				.getProjectByName(BUYLIST_PROJECT);
 		if (projectByName.isPresent()) {
 			return projectByName.get().toString();
@@ -139,8 +139,8 @@ public class TodoistService {
 	@Transactional
 	public List<User> checkRecipients(ChatValue chatValue) {
 		User iUser = chatValue.getUser();
-		boolean isExistToken = userService.isExistToken(iUser.getUserId());
-		List<User> friendMe = userService.getFriendMe(iUser.getUserId());
+		boolean isExistToken = userService.isExistToken(iUser.userId());
+		List<User> friendMe = userService.getFriendMe(iUser.userId());
 
 		if (isExistToken) friendMe.add(iUser);
 		return friendMe;
@@ -149,7 +149,7 @@ public class TodoistService {
 	@NotNull
 	public List<String> submitToTodoist(User source, User recipient, Optional<ProjectDto> buyListProjectDb, Map<String, Set<String>> inputTasks) {
 		if (buyListProjectDb.isPresent()) {
-			String token = recipient.getBearerToken();
+			String token = recipient.bearerToken();
 			ProjectDto buylistProject = buyListProjectDb.get();
 			String projectId = buylistProject.getProject().getId();
 			List<TaskResponse> tasks = buylistProject.getTasks();
@@ -180,9 +180,9 @@ public class TodoistService {
 		List<TaskResponse> tasksWithoutSection = buylistProject.getTasksWithoutSection();
 		Section section = buylistProject.getSections().stream()
 				.map(SectionDto::getSection)
-				.filter(s -> s.getName().equals(category.getName()))
+				.filter(s -> s.getName().equals(category.name()))
 				.findAny().orElseGet(() -> createSection(token, Section.builder()
-						.name(category.getName())
+						.name(category.name())
 						.projectId(buylistProject.getProject().getId())
 						.build()));
 
@@ -191,7 +191,7 @@ public class TodoistService {
 
 	public ProjectDto getBuylistProjectDto(User recipient) {
 		syncBuyListData(recipient);
-		Optional<ProjectDto> projectByName = todoistStateMap.get(recipient.getUserId())
+		Optional<ProjectDto> projectByName = todoistStateMap.get(recipient.userId())
 				.getProjectByName(BUYLIST_PROJECT);
 		return projectByName.orElseGet(ProjectDto::new);
 	}
