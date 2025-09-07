@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.baylist.db.entity.Category;
 import org.baylist.db.entity.Variant;
+import org.baylist.db.repo.VariantRepository;
 import org.baylist.dto.telegram.Callbacks;
 import org.baylist.dto.telegram.ChatValue;
 import org.baylist.dto.telegram.PaginationState;
@@ -32,6 +33,7 @@ public class DictViewHandler implements DialogHandler {
 
 	CommonResponseService responseService;
 	DictionaryService dictionaryService;
+	VariantRepository variantRepository;
 	MenuService menuService;
 	Map<Long, PaginationState> paginationStateMap = new ConcurrentHashMap<>();
 
@@ -67,13 +69,12 @@ public class DictViewHandler implements DialogHandler {
 	}
 
 	public void handleCategoryChoice(ChatValue chatValue, Category category, boolean isRemove) {
-		category = dictionaryService.getCategoryWithVariants(category.getId());
-		List<String> variants = category.getVariants().stream().map(Variant::getName).toList();
+		List<String> variants = variantRepository.findAllByCategoryId(category.id()).stream().map(Variant::name).toList();
 		Map<Integer, List<String>> paginate = paginate(variants);
 		paginationStateMap.put(chatValue.getUserId(),
-				new PaginationState(1, paginate, category.getId(), category.getName()));
+				new PaginationState(1, paginate, category.id(), category.name()));
 
-		sendPaginatedResponse(chatValue, category.getName(), paginate, 1, isRemove);
+		sendPaginatedResponse(chatValue, category.name(), paginate, 1, isRemove);
 	}
 
 	private void updatePagination(ChatValue chatValue, boolean forward) {

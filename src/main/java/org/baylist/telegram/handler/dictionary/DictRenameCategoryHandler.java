@@ -34,7 +34,7 @@ public class DictRenameCategoryHandler implements DialogHandler {
 				Long userId = chatValue.getUserId();
 				var categoryDb = dictionaryService.getCategoryByCategoryIdAndUserId(categoryId, userId);
 				selectedCategory.put(userId, categoryDb);
-				chatValue.setEditText("прошу ввести новое название для категории - [ <b>" + categoryDb.getName() + "</b> ]");
+				chatValue.setEditText("прошу ввести новое название для категории - [ <b>" + categoryDb.name() + "</b> ]");
 				chatValue.setEditReplyParseModeHtml();
 				chatValue.setState(State.DICT_RENAME_CATEGORY);
 			}

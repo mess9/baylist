@@ -40,7 +40,7 @@ public class DictRemoveCategoryHandler implements DialogHandler {
 				List<Category> allCategories = dictionaryService.getCategoriesByUserId(chatValue.getUserId());
 
 				Long removalCategoryId = Long.parseLong(callbackData.substring(Callbacks.CATEGORY_CHOICE.getCallbackData().length()));
-				Category removalCategory = allCategories.stream().filter(c -> Objects.equals(c.getId(), removalCategoryId)).findFirst().orElse(null);
+				Category removalCategory = allCategories.stream().filter(c -> Objects.equals(c.id(), removalCategoryId)).findFirst().orElse(null);
 
 				Long userId = chatValue.getUserId();
 
@@ -64,13 +64,13 @@ public class DictRemoveCategoryHandler implements DialogHandler {
 				dictionaryService.removeCategory(selectedCategories);
 				if (selectedCategories.size() > 1) {
 					StringBuilder sb = new StringBuilder();
-					selectedCategories.forEach(c -> sb.append(" - <b>").append(c.getName()).append("</b>\n"));
+					selectedCategories.forEach(c -> sb.append(" - <b>").append(c.name()).append("</b>\n"));
 					dictionaryService.settingsShortMenu(chatValue,
 							"категории:\n" + sb + "\nудалены",
 							true);
 				} else {
 					dictionaryService.settingsShortMenu(chatValue,
-							"категория - [ <b>" + selectedCategories.getFirst().getName() + "</b> ] - удалена",
+							"категория - [ <b>" + selectedCategories.getFirst().name() + "</b> ] - удалена",
 							true);
 				}
 				selectedCategoryState.remove(chatValue.getUserId());

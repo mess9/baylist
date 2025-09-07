@@ -26,11 +26,9 @@ import static org.baylist.dto.Constants.UNKNOWN_CATEGORY;
 public class TaskService {
 
 	TaskRepository taskRepository;
-	UserService userService;
 
 	public List<Task> getTasksByUser(String userId) {
-		User byUserId = userService.findByUserId(Long.parseLong(userId));
-		return taskRepository.findByUser(byUserId);
+		return taskRepository.findByUser(Long.valueOf(userId));
 	}
 
 
@@ -38,9 +36,9 @@ public class TaskService {
 	public void syncTasks(User owner, List<Section> sections, List<TaskResponse> tasks) {
 		Map<String, String> sectionsIdNameMap = sections.stream()
 				.collect(Collectors.toMap(Section::getId, Section::getName));
-		List<Task> existTasks = taskRepository.findByUser(owner);
+		List<Task> existTasks = taskRepository.findByUser(owner.userId());
 		Map<String, Task> existTasksMap = existTasks.stream()
-				.collect(Collectors.toMap(Task::getContent, task -> task, (task1, task2) -> task1
+				.collect(Collectors.toMap(Task::content, task -> task, (task1, task2) -> task1
 				));
 		List<Task> tasksToSave = new ArrayList<>();
 
@@ -51,13 +49,23 @@ public class TaskService {
 
 			if (localTask == null) {
 				// Задача есть на удаленной стороне, но отсутствует локально — добавляем
-				tasksToSave.add(new Task(null, owner, sectionName, remoteTask.getOrder(), remoteTask.getContent(), remoteTask.isCompleted()));
+				tasksToSave.add(new Task(null,
+						owner.userId(),
+						sectionName,
+						remoteTask.getOrder(),
+						remoteTask.getContent(),
+						remoteTask.isCompleted()));
 			} else {
 				// Задача есть и там, и там — обновляем, если необходимо
-				if (!localTask.getSection().equals(sectionName) || localTask.getOrder() != remoteTask.getOrder() || localTask.isCompleted() != remoteTask.isCompleted()) {
-					localTask.setSection(sectionName);
-					localTask.setOrder(remoteTask.getOrder());
-					localTask.setCompleted(remoteTask.isCompleted());
+				if (!localTask.section().equals(sectionName)
+						|| localTask.taskOrder() != remoteTask.getOrder()
+						|| localTask.isCompleted() != remoteTask.isCompleted()) {
+					localTask = new Task(localTask.taskId(),
+							localTask.userId(),
+							sectionName,
+							remoteTask.getOrder(),
+							localTask.content(),
+							remoteTask.isCompleted());
 					tasksToSave.add(localTask);
 				}
 				// Удаляем задачу из мапы существующих задач, чтобы позже удалить те, которые не были обработаны

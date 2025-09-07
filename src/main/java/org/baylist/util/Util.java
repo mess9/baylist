@@ -8,10 +8,10 @@ import org.telegram.telegrambots.meta.api.objects.Contact;
 public class Util {
 
 	public static String getName(User user) {
-		if (user.getLastName() != null) {
-			return user.getFirstName() + " " + user.getLastName();
+		if (user.lastName() != null) {
+			return user.firstName() + " " + user.lastName();
 		} else {
-			return user.getFirstName();
+			return user.firstName();
 		}
 	}
 

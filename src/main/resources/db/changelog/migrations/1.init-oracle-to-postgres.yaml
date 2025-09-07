@@ -1,0 +1,179 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1.0-create-users
+      author: fil
+      changes:
+        - createTable:
+            tableName: users
+            columns:
+              - column: { name: user_id, type: bigint, constraints: { primaryKey: true, primaryKeyName: pk_users } }
+              - column: { name: first_name, type: text, constraints: { nullable: false } }
+              - column: { name: last_name, type: text }
+              - column: { name: last_seen, type: timestamptz }
+              - column: { name: registered, type: timestamptz }
+              - column: { name: todoist_token, type: text }
+
+  - changeSet:
+      id: 1.1-create-categories
+      author: fil
+      changes:
+        - createTable:
+            tableName: categories
+            columns:
+              - column: { name: id, type: bigint, autoIncrement: true, constraints: { primaryKey: true, primaryKeyName: pk_categories } }
+              - column: { name: name, type: text, constraints: { nullable: false } }
+              - column: { name: user_id, type: bigint, defaultValueNumeric: 69716214, constraints: { nullable: false } }
+        - addForeignKeyConstraint:
+            baseTableName: categories
+            baseColumnNames: user_id
+            referencedTableName: users
+            referencedColumnNames: user_id
+            onDelete: CASCADE
+            constraintName: fk_categories_user
+
+  - changeSet:
+      id: 1.2-create-dialogs
+      author: fil
+      changes:
+        - createTable:
+            tableName: dialogs
+            columns:
+              - column: { name: dialog_id, type: bigint, autoIncrement: true, constraints: { primaryKey: true, primaryKeyName: pk_dialogs } }
+              - column: { name: user_id, type: bigint, constraints: { nullable: false, unique: true, uniqueConstraintName: uq_dialogs_user } }
+              - column: { name: chat_id, type: bigint }
+              - column: { name: state, type: text, defaultValue: "START", constraints: { nullable: false } }
+        - addForeignKeyConstraint:
+            baseTableName: dialogs
+            baseColumnNames: user_id
+            referencedTableName: users
+            referencedColumnNames: user_id
+            onDelete: CASCADE
+            constraintName: fk_dialogs_user
+        - createIndex:
+            tableName: dialogs
+            indexName: ix_dialogs_user_id
+            columns:
+              - column: { name: user_id }
+
+  - changeSet:
+      id: 1.3-create-friends
+      author: fil
+      changes:
+        - createTable:
+            tableName: friends
+            columns:
+              - column: { name: user_id, type: bigint, constraints: { nullable: false } }
+              - column: { name: friend_id, type: bigint, constraints: { nullable: false } }
+        - addPrimaryKey:
+            tableName: friends
+            columnNames: user_id, friend_id
+            constraintName: pk_friends
+        - addForeignKeyConstraint:
+            baseTableName: friends
+            baseColumnNames: user_id
+            referencedTableName: users
+            referencedColumnNames: user_id
+            onDelete: CASCADE
+            constraintName: fk_friends_user
+        - addForeignKeyConstraint:
+            baseTableName: friends
+            baseColumnNames: friend_id
+            referencedTableName: users
+            referencedColumnNames: user_id
+            onDelete: CASCADE
+            constraintName: fk_friends_friend
+        - createIndex:
+            tableName: friends
+            indexName: ix_friends_user_id
+            columns: [ { name: user_id } ]
+        - createIndex:
+            tableName: friends
+            indexName: ix_friends_friend_id
+            columns: [ { name: friend_id } ]
+
+  - changeSet:
+      id: 1.4-create-history
+      author: fil
+      changes:
+        - createTable:
+            tableName: history
+            columns:
+              - column: { name: id, type: bigint, autoIncrement: true, constraints: { primaryKey: true, primaryKeyName: pk_history } }
+              - column: { name: source, type: bigint, constraints: { nullable: false } }
+              - column: { name: recipient, type: bigint, constraints: { nullable: false } }
+              - column: { name: datetime, type: timestamptz, constraints: { nullable: false } }
+              - column: { name: action, type: text, constraints: { nullable: false } }
+              - column: { name: content, type: text }
+        - addForeignKeyConstraint:
+            baseTableName: history
+            baseColumnNames: source
+            referencedTableName: users
+            referencedColumnNames: user_id
+            onDelete: CASCADE
+            constraintName: fk_history_source
+        - addForeignKeyConstraint:
+            baseTableName: history
+            baseColumnNames: recipient
+            referencedTableName: users
+            referencedColumnNames: user_id
+            onDelete: CASCADE
+            constraintName: fk_history_recipient
+        - createIndex:
+            tableName: history
+            indexName: ix_history_source
+            columns: [ { name: source } ]
+        - createIndex:
+            tableName: history
+            indexName: ix_history_recipient
+            columns: [ { name: recipient } ]
+        - createIndex:
+            tableName: history
+            indexName: ix_history_datetime
+            columns: [ { name: datetime } ]
+
+  - changeSet:
+      id: 1.5-create-variants
+      author: fil
+      changes:
+        - createTable:
+            tableName: variants
+            columns:
+              - column: { name: id, type: bigint, autoIncrement: true, constraints: { primaryKey: true, primaryKeyName: pk_variants } }
+              - column: { name: name, type: text, constraints: { nullable: false } }
+              - column: { name: category_id, type: bigint }
+        - addForeignKeyConstraint:
+            baseTableName: variants
+            baseColumnNames: category_id
+            referencedTableName: categories
+            referencedColumnNames: id
+            onDelete: CASCADE
+            constraintName: fk_variants_category
+        - createIndex:
+            tableName: variants
+            indexName: ix_variants_category_id
+            columns: [ { name: category_id } ]
+
+  - changeSet:
+      id: 1.6-create-tasks
+      author: fil
+      changes:
+        - createTable:
+            tableName: tasks
+            columns:
+              - column: { name: task_id, type: bigint, autoIncrement: true, constraints: { primaryKey: true, primaryKeyName: pk_tasks } }
+              - column: { name: user_id, type: bigint, constraints: { nullable: false } }
+              - column: { name: section, type: text }
+              - column: { name: task_order, type: int }
+              - column: { name: content, type: text, constraints: { nullable: false } }
+              - column: { name: is_completed, type: boolean, constraints: { nullable: false } }
+        - addForeignKeyConstraint:
+            baseTableName: tasks
+            baseColumnNames: user_id
+            referencedTableName: users
+            referencedColumnNames: user_id
+            onDelete: CASCADE
+            constraintName: fk_tasks_user
+        - createIndex:
+            tableName: tasks
+            indexName: ix_tasks_user_id
+            columns: [ { name: user_id } ]
