@@ -66,6 +66,7 @@ jobs:
           key: ${{ secrets.REMOTE_SSH_KEY }}
           port: 22
           script: |
-            ~/deploy/run.sh
+            sudo systemctl restart buylist.service
+            sudo systemctl status buylist-bot.service
             exit 0
             
