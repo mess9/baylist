@@ -20,7 +20,7 @@ public class ClearTestData implements AfterAllCallback {
         TodoistFeignClient todoistApi = GetStatic.getBean(TodoistFeignClient.class);
         UserService userService = GetStatic.getBean(UserService.class);
         User fil = userService.getFil();
-        String token = "Bearer " + fil.getTodoistToken();
+	    String token = "Bearer " + fil.todoistToken();
         if (!projects.isEmpty()) {
             projects.forEach(e -> todoistApi.deleteProject(token, e.getId()));
         }

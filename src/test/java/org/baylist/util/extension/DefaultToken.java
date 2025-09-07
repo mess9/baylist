@@ -49,7 +49,7 @@ public class DefaultToken implements BeforeAllCallback, TestInstancePostProcesso
 		String token;
 
 		var user = userService.getFil();
-		token = "Bearer " + user.getTodoistToken();
+		token = "Bearer " + user.todoistToken();
 
 		return token;
 	}
