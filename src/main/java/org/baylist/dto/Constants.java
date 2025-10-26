@@ -11,7 +11,6 @@ public interface Constants {
 	//cache
 	String CATEGORIES = "categories";
 	String DICT = "dict";
-	String USER = "user";
 
 
 }

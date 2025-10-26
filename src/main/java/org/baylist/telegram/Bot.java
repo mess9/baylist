@@ -61,7 +61,7 @@ public class Bot implements SpringLongPollingBot, LongPollingSingleThreadUpdateC
 
 		stateHandlers.get(state).handle(chatValue);
 
-		userService.saveUserInCache(chatValue.getUser());
+		userService.saveUserInDb(chatValue.getUser());
 
 		menuService.defaultMenu(chatValue);
 		sendMessageToTelegram(chatValue);

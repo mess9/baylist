@@ -66,15 +66,17 @@ public class CommonResponseService {
 
 	public void checkAndView(ChatValue chatValue, boolean isMenu) {
 		List<User> recipients = todoist.checkRecipients(chatValue);
+		String emptyError = """
+				нет возможности посмотреть то чего не существует.
+				<i>но может быть оно и к лучшему...</i>
+				
+				ps. вероятно надо таки добавить токен todoist
+				""";
 
 		if (isMenu) {
 			if (recipients.isEmpty()) {
 				menuService.mainMenu(chatValue, true);
-				chatValue.setEditText("""
-						нет возможности посмотреть то чего не существует.
-						
-						<i>но может быть оно и к лучшему...</i>
-						""");
+				chatValue.setEditText(emptyError);
 				chatValue.setEditReplyParseModeHtml();
 			} else if (recipients.size() == 1) {
 				view(chatValue, recipients.getFirst(), true);
@@ -86,11 +88,7 @@ public class CommonResponseService {
 		} else {
 			if (recipients.isEmpty()) {
 				menuService.mainMenu(chatValue, true);
-				chatValue.setReplyText("""
-						нет возможности посмотреть то чего не существует.
-						
-						<i>но может быть оно и к лучшему...</i>
-						""");
+				chatValue.setReplyText(emptyError);
 				chatValue.setReplyParseModeHtml();
 			} else if (recipients.size() == 1) {
 				view(chatValue, recipients.getFirst(), false);

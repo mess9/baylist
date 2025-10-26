@@ -14,9 +14,7 @@ import org.baylist.dto.telegram.Callbacks;
 import org.baylist.dto.telegram.ChatValue;
 import org.baylist.dto.telegram.State;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.context.ApplicationContext;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,7 +33,6 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import static org.baylist.dto.Constants.FIL_USER_ID;
 import static org.baylist.dto.Constants.STRING_FIL_USER_ID;
-import static org.baylist.dto.Constants.USER;
 import static org.baylist.util.Util.getName;
 
 @Component
@@ -48,7 +45,6 @@ public class UserService {
 	DialogService dialogService;
 	FriendsDao friendsDao;
 
-	ApplicationContext context;
 	HistoryService historyService;
 
 	@Getter
@@ -58,11 +54,6 @@ public class UserService {
 
 	/* ===================== cache utils ===================== */
 
-	@CachePut(value = "user", key = "#user.userId")
-	public void saveUserInCache(User user) {
-		modifiedUserIds.add(user.userId());
-	}
-
 	public void saveUserInDb(User user) {
 		try {
 			userRepository.save(user);
@@ -71,29 +62,21 @@ public class UserService {
 		}
 	}
 
-
-	@Cacheable(value = USER, unless = "#result == null")
-	public User findByUserId(Long userId) {
-		return userRepository.findById(userId).orElse(null);
-	}
-
 	public User getUserFromDb(long userId) { //no cache
-		return userRepository.findById(userId).orElse(null);
+		return userRepository.findByUserId(userId);
 	}
 
 	/* ===================== bootstrap / binding ===================== */
 
 	@Transactional
 	public void checkUser(ChatValue chatValue) {
-		UserService self = context.getBean(UserService.class);
-
 		if (chatValue.isCallback()) {
 			Long userId = chatValue.getUpdate().getCallbackQuery().getFrom().getId();
-			User user = self.findByUserId(userId);
+			User user = getUserFromDb(userId);
 			bindUser(chatValue, user); // кнопки можем показывать только уже известному юзеру
 		} else {
 			Long userId = chatValue.getUpdate().getMessage().getFrom().getId();
-			User user = self.findByUserId(userId);
+			User user = getUserFromDb(userId);
 			if (user != null) {
 				bindUser(chatValue, user);
 			} else {
@@ -106,7 +89,6 @@ public class UserService {
 	/* ===================== friends ===================== */
 
 
-	@CacheEvict(value = USER, key = "#chatValue.getUser().userId")
 	public boolean addFriend(ChatValue chatValue, Contact contact) {
 		User user = getUserFromDb(chatValue.getUserId());
 		User friend = getUserFromDb(contact.getUserId());

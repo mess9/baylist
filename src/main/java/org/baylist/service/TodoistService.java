@@ -217,7 +217,9 @@ public class TodoistService {
 	                                             String token) {
 		Set<String> unknownSectionInputTask = inputTasks.get(UNKNOWN_CATEGORY);
 		if (unknownSectionInputTask != null && !unknownSectionInputTask.isEmpty()) {
-			tasks.stream().map(TaskResponse::getContent).toList().forEach(unknownSectionInputTask::remove);
+			tasks.stream()
+					.map(TaskResponse::getContent)
+					.forEach(unknownSectionInputTask::remove);
 			sendTasks(unknownSectionInputTask, projectId, token);
 			return unknownSectionInputTask;
 		} else {
@@ -261,12 +263,13 @@ public class TodoistService {
 	                                                  String token) {
 		List<Section> createdSections = getNotExistSections(inputTasks, sections).stream()
 				.map(s -> sendSection(s, projectId, token)).toList();
-		Set<String> inputTaskSet = new HashSet<>();
+		Set<String> submittedTasks = new HashSet<>();
 		createdSections.forEach(s -> {
-			inputTaskSet.addAll(inputTasks.get(s.getName()));
-			sendTasks(inputTaskSet, s, projectId, token);
+			Set<String> tasksForSection = new HashSet<>(inputTasks.get(s.getName()));
+			sendTasks(tasksForSection, s, projectId, token);
+			submittedTasks.addAll(tasksForSection);
 		});
-		return inputTaskSet;
+		return submittedTasks;
 	}
 
 	private void sendTasks(Set<String> taskList, Section section, String buyListProjectId, String token) {

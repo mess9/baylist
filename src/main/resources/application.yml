@@ -18,12 +18,7 @@ spring:
     url: jdbc:postgresql://152.70.174.74:5432/buylist
     username: buylist
     password: ${POSTGRES_DB_PASSWORD}
-  jpa:
-    hibernate:
-      ddl-auto: validate
-    show-sql: true
-    open-in-view: true
-    database-platform: org.hibernate.dialect.OracleDialect
+
   cloud:
     openfeign:
       client:
