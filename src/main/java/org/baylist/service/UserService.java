@@ -59,9 +59,8 @@ public class UserService {
 	/* ===================== cache utils ===================== */
 
 	@CachePut(value = "user", key = "#user.userId")
-	public User saveUserInCache(User user) {
+	public void saveUserInCache(User user) {
 		modifiedUserIds.add(user.userId());
-		return user;
 	}
 
 	public void saveUserInDb(User user) {

@@ -23,7 +23,6 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardRow;
 
-import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -58,12 +57,10 @@ public class TodoistService {
 		return todoistApi.createSection(token, section);
 	}
 
-	public Map.Entry<Boolean, TaskResponse> deleteTask(String token, TaskResponse task) {
+	public void deleteTask(String token, TaskResponse task) {
 		try {
 			todoistApi.deleteTask(token, task.getId());
-			return new AbstractMap.SimpleEntry<>(true, task);
-		} catch (Exception e) {
-			return new AbstractMap.SimpleEntry<>(false, task);
+		} catch (Exception ignored) {
 		}
 	}
 
@@ -197,8 +194,8 @@ public class TodoistService {
 	}
 
 
-	public TaskResponse sendOneTasksToTodoist(String token, TaskRequest task) {
-		return todoistApi.createTask(token, task);
+	public void sendOneTasksToTodoist(String token, TaskRequest task) {
+		todoistApi.createTask(token, task);
 	}
 
 	//private

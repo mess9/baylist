@@ -35,11 +35,11 @@ public class DefaultHandler implements DialogHandler {
 		if (chatValue.isCallback()) {
 			String callbackData = chatValue.getCallbackData();
 			if (callbackData.startsWith(Callbacks.SEND_TASK_TO.getCallbackData())) {
-				Long recipientId = Long.valueOf(callbackData.substring(Callbacks.SEND_TASK_TO.getCallbackData().length()));
+				long recipientId = Long.parseLong(callbackData.substring(Callbacks.SEND_TASK_TO.getCallbackData().length()));
 				Long userId = chatValue.getUserId();
 				todoist.sendTasksToTodoist(chatValue, userService.getUserFromDb(recipientId), inputTasksState.get(userId));
 			} else if (callbackData.startsWith(Callbacks.VIEW_TASK_TO.getCallbackData())) {
-				Long userId = Long.valueOf(callbackData.substring(Callbacks.VIEW_TASK_TO.getCallbackData().length()));
+				long userId = Long.parseLong(callbackData.substring(Callbacks.VIEW_TASK_TO.getCallbackData().length()));
 				responseService.view(chatValue, userService.getUserFromDb(userId), false);
 			} else {
 				Callbacks callback = Callbacks.fromValue(chatValue.getCallbackData());

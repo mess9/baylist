@@ -21,7 +21,7 @@ import java.util.List;
 @Slf4j
 public class MenuService {
 
-	String invisibleSpace = "⠀";
+	final String invisibleSpace = "⠀";
 
 	public void defaultMenu(ChatValue chatValue) {
 		if (chatValue.getMessage() != null && chatValue.getMessage().getReplyMarkup() == null && !chatValue.getState().equals(State.START)) {

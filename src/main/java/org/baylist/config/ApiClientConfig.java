@@ -14,6 +14,7 @@ import static org.springframework.util.MimeTypeUtils.APPLICATION_JSON_VALUE;
 @EnableFeignClients(basePackageClasses = {org.baylist.api.TodoistFeignClient.class}, defaultConfiguration = ApiClientConfig.class)
 public class ApiClientConfig {
 
+	@SuppressWarnings("SameReturnValue")
 	@Bean
 	Logger.Level feignLoggerLevel() {
 		return Logger.Level.FULL;

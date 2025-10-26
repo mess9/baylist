@@ -28,7 +28,7 @@ public class MainMenuHandler implements DialogHandler {
 		if (chatValue.isCallback()) {
 			String callbackData = chatValue.getCallbackData();
 			if (callbackData.startsWith(Callbacks.VIEW_TASK_TO.getCallbackData())) {
-				Long userId = Long.valueOf(callbackData.substring(Callbacks.VIEW_TASK_TO.getCallbackData().length()));
+				long userId = Long.parseLong(callbackData.substring(Callbacks.VIEW_TASK_TO.getCallbackData().length()));
 				responseService.view(chatValue, userService.getUserFromDb(userId), true);
 			} else {
 				Callbacks callback = Callbacks.fromValue(chatValue.getCallbackData());

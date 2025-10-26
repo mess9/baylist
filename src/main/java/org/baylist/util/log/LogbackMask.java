@@ -11,7 +11,7 @@ import java.util.stream.IntStream;
 
 /**
  * паттерны накидываются в logback.xml
- *
+ * <p>
  * изначальная задумка - прятать за звёздочками вывод в логи bearer токена
  */
 public class LogbackMask extends PatternLayout {

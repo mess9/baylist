@@ -162,30 +162,6 @@
         </dependency>
 
     </dependencies>
-    <!--Для миграции с Oracle на PostgreSQL в Spring Boot-проекте рекомендуется следующий порядок действий:
-    Обновить зависимости
-    В pom.xml замени драйвер Oracle на драйвер PostgreSQL (org.postgresql:postgresql).
-    Изменить настройки подключения
-    В файле application.properties или application.yml пропиши новые параметры подключения к PostgreSQL:
-    spring.datasource.url=jdbc:postgresql://<host>:<port>/<database>
-    spring.datasource.username=<username>
-    spring.datasource.password=<password>
-    spring.datasource.driver-class-name=org.postgresql.Driver
-    Проверить совместимость схемы
-    PostgreSQL и Oracle имеют различия в типах данных и синтаксисе.
-    Проверь DDL-скрипты (создание таблиц, индексов и т.д.).
-    Используй инструменты миграции, например, Flyway или Liquibase.
-    Мигрировать данные
-    Экспортируй данные из Oracle (например, с помощью expdp/impdp или SQL Developer).
-    Импортируй в PostgreSQL (например, через COPY, pgAdmin, ETL-инструменты).
-    Проверить и адаптировать код
-    Проверь, нет ли в коде специфичных для Oracle SQL-запросов.
-    Проверь работу транзакций, генерацию идентификаторов, функции и процедуры.
-    Протестировать приложение
-    Запусти тесты, проверь основные сценарии работы.
-    Обновить документацию
-    Обнови инструкции по развертыванию и настройке.
-    Это базовый план. Если нужна помощь на каком-то этапе — уточни, и помогу подробнее.-->
     <build>
         <plugins>
             <plugin>

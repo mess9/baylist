@@ -35,6 +35,6 @@ public interface VariantRepository extends CrudRepository<Variant, Long> {
 			delete from variants v
 			where v.category_id = :c and v.name in (:names)
 			""")
-	int deleteByCategoryIdAndNameIn(@Param("c") long categoryId, @Param("names") Collection<String> names);
+	void deleteByCategoryIdAndNameIn(@Param("c") long categoryId, @Param("names") Collection<String> names);
 
 }

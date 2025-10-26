@@ -25,8 +25,8 @@ public class FriendsDao {
 				.update();
 	}
 
-	public int remove(long userId, long friendId) {
-		return jdbc.sql("delete from friends where user_id = :u and friend_id = :f")
+	public void remove(long userId, long friendId) {
+		jdbc.sql("delete from friends where user_id = :u and friend_id = :f")
 				.param("u", userId)
 				.param("f", friendId)
 				.update();
