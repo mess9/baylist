@@ -77,20 +77,18 @@ public class TodoistService {
 	public String clearBuyList(ChatValue chatValue) {
 		syncBuyListData(chatValue.getUser());
 		Optional<ProjectDto> buyListProject = todoistStateMap.get(chatValue.getUserId()).getBuyListProject();
-			if (buyListProject.isPresent()) {
-				ProjectDto project = buyListProject.get();
-				project.getTasks().forEach(t -> todoistApi.deleteTask(chatValue.getToken(), t.getId()));
-				syncBuyListData(chatValue.getUser());
-				return "список покупок беспощадно изничтожен";
-			} else {
-				return "проекта со списком покупок не существует, можно настроить тут /start";
-			}
+		if (buyListProject.isPresent()) {
+			ProjectDto project = buyListProject.get();
+			project.getTasks().forEach(t -> todoistApi.deleteTask(chatValue.getToken(), t.getId()));
+			syncBuyListData(chatValue.getUser());
+			return "список покупок беспощадно изничтожен";
+		} else {
+			return "проекта со списком покупок не существует, можно настроить тут /start";
+		}
 	}
 
 	public void sendTasksToTodoist(ChatValue chatValue, User recipient, String input) {
-		if (storageIsEmpty(recipient.userId())) {
-			syncBuyListData(recipient);
-		}
+		syncBuyListData(recipient);
 		List<String> tasksInput = dictionaryService.splitInputTasks(input);
 		Map<String, Set<String>> inputTasks = dictionaryService.parseInputWithDict(tasksInput, recipient.userId());
 		Optional<ProjectDto> buyListProjectDb = todoistStateMap.get(recipient.userId()).getBuyListProject();
