@@ -5,6 +5,7 @@ import org.baylist.dto.todoist.api.Project;
 import org.baylist.dto.todoist.api.Section;
 import org.baylist.dto.todoist.api.TaskRequest;
 import org.baylist.dto.todoist.api.TaskResponse;
+import org.baylist.dto.todoist.api.TodoistPage;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,12 +15,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
 @FeignClient(name = "todoistClient", url = "${todoist.baseUrl}")
 public interface TodoistFeignClient {
 
 	String AUTHORIZATION = "Authorization";
+	int PAGE_LIMIT = 200;
 
 	String PROJECT_METHOD = "/projects";
 	String PROJECT_ID_METHOD = "/projects/{projectId}";
@@ -38,37 +42,84 @@ public interface TodoistFeignClient {
 	//region GET
 
 	@GetMapping(PROJECT_METHOD)
-	List<Project> getProjects(@RequestHeader(AUTHORIZATION) String token);
+	TodoistPage<Project> getProjectsPage(@RequestHeader(AUTHORIZATION) String token,
+	                                     @RequestParam(required = false) String cursor,
+	                                     @RequestParam(required = false) Integer limit);
+
+	default List<Project> getProjects(String token) {
+		return collectAllPages(cursor -> getProjectsPage(token, cursor, PAGE_LIMIT));
+	}
 
 	@GetMapping(PROJECT_ID_METHOD)
 	Project getProject(@RequestHeader(AUTHORIZATION) String token,
 	                   @PathVariable String projectId);
 
 	@GetMapping(TASK_METHOD)
-	List<TaskResponse> getTasks(@RequestHeader(AUTHORIZATION)
-	                    String token);
+	TodoistPage<TaskResponse> getTasksPage(@RequestHeader(AUTHORIZATION) String token,
+	                                       @RequestParam(required = false) String cursor,
+	                                       @RequestParam(required = false) Integer limit);
+
+	default List<TaskResponse> getTasks(String token) {
+		return collectAllPages(cursor -> getTasksPage(token, cursor, PAGE_LIMIT));
+	}
 
 	@GetMapping(TASK_METHOD)
-	List<TaskResponse> getTasksByProject(@RequestHeader(AUTHORIZATION) String token,
-	                                     @RequestParam String project_id);
+	TodoistPage<TaskResponse> getTasksByProjectPage(@RequestHeader(AUTHORIZATION) String token,
+	                                                @RequestParam("project_id") String projectId,
+	                                                @RequestParam(required = false) String cursor,
+	                                                @RequestParam(required = false) Integer limit);
+
+	default List<TaskResponse> getTasksByProject(String token, String projectId) {
+		return collectAllPages(cursor -> getTasksByProjectPage(token, projectId, cursor, PAGE_LIMIT));
+	}
 
 	@GetMapping(TASK_METHOD)
-	List<TaskResponse> getTasksBySection(@RequestHeader(AUTHORIZATION) String token,
-	                                     @RequestParam String section_id);
+	TodoistPage<TaskResponse> getTasksBySectionPage(@RequestHeader(AUTHORIZATION) String token,
+	                                                @RequestParam("section_id") String sectionId,
+	                                                @RequestParam(required = false) String cursor,
+	                                                @RequestParam(required = false) Integer limit);
+
+	default List<TaskResponse> getTasksBySection(String token, String sectionId) {
+		return collectAllPages(cursor -> getTasksBySectionPage(token, sectionId, cursor, PAGE_LIMIT));
+	}
 
 	@GetMapping(TASK_METHOD)
-	List<TaskResponse> getTasksByLabel(@RequestHeader(AUTHORIZATION) String token,
-	                                   @RequestParam String label);
+	TodoistPage<TaskResponse> getTasksByLabelPage(@RequestHeader(AUTHORIZATION) String token,
+	                                              @RequestParam("label") String label,
+	                                              @RequestParam(required = false) String cursor,
+	                                              @RequestParam(required = false) Integer limit);
+
+	default List<TaskResponse> getTasksByLabel(String token, String label) {
+		return collectAllPages(cursor -> getTasksByLabelPage(token, label, cursor, PAGE_LIMIT));
+	}
 
 	@GetMapping(SECTION_METHOD)
-	List<Section> getSections(@RequestHeader(AUTHORIZATION) String token);
+	TodoistPage<Section> getSectionsPage(@RequestHeader(AUTHORIZATION) String token,
+	                                     @RequestParam(required = false) String cursor,
+	                                     @RequestParam(required = false) Integer limit);
+
+	default List<Section> getSections(String token) {
+		return collectAllPages(cursor -> getSectionsPage(token, cursor, PAGE_LIMIT));
+	}
 
 	@GetMapping(SECTION_METHOD)
-	List<Section> getSectionsByProject(@RequestHeader(AUTHORIZATION) String token,
-	                                   @RequestParam String project_id);
+	TodoistPage<Section> getSectionsByProjectPage(@RequestHeader(AUTHORIZATION) String token,
+	                                              @RequestParam("project_id") String projectId,
+	                                              @RequestParam(required = false) String cursor,
+	                                              @RequestParam(required = false) Integer limit);
+
+	default List<Section> getSectionsByProject(String token, String projectId) {
+		return collectAllPages(cursor -> getSectionsByProjectPage(token, projectId, cursor, PAGE_LIMIT));
+	}
 
 	@GetMapping(LABEL_METHOD)
-	List<Label> getLabels(@RequestHeader(AUTHORIZATION) String token);
+	TodoistPage<Label> getLabelsPage(@RequestHeader(AUTHORIZATION) String token,
+	                                 @RequestParam(required = false) String cursor,
+	                                 @RequestParam(required = false) Integer limit);
+
+	default List<Label> getLabels(String token) {
+		return collectAllPages(cursor -> getLabelsPage(token, cursor, PAGE_LIMIT));
+	}
 
 	//endregion GET
 
@@ -133,5 +184,24 @@ public interface TodoistFeignClient {
 	void reopenTask(@RequestHeader(AUTHORIZATION) String token,
 	                @PathVariable String taskId);
 
+	private static <T> List<T> collectAllPages(Function<String, TodoistPage<T>> pageFetcher) {
+		List<T> results = new ArrayList<>();
+		String cursor = null;
+		while (true) {
+			TodoistPage<T> page = pageFetcher.apply(cursor);
+			if (page == null) {
+				break;
+			}
+			if (page.getResults() != null) {
+				results.addAll(page.getResults());
+			}
+			String nextCursor = page.getNextCursor();
+			if (nextCursor == null || nextCursor.isBlank() || nextCursor.equals(cursor)) {
+				break;
+			}
+			cursor = nextCursor;
+		}
+		return results;
+	}
 
 }

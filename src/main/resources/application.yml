@@ -9,7 +9,7 @@ logging:
 
 ### connect ###
 todoist:
-  baseUrl: https://api.todoist.com/rest/v2
+  baseUrl: https://api.todoist.com/api/v1
 spring:
   liquibase:
     change-log: classpath:/db/changelog/db.changelog-master.xml
