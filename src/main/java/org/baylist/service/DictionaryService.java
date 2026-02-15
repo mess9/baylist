@@ -74,13 +74,20 @@ public class DictionaryService {
 		DictionaryService self = context.getBean(DictionaryService.class);
 		Map<String, Set<String>> dict = self.getDict(userId);
 		Map<String, Set<String>> buyList = new HashMap<>();
+		List<String> cleaned = input == null ? List.of() : input.stream()
+				.filter(Objects::nonNull)
+				.map(String::trim)
+				.filter(s -> !s.isBlank())
+				.toList();
 		if (dict != null) {
-			input.forEach(word -> {
+			cleaned.forEach(word -> {
 				String category = findCategoryInDictionary(word, dict);
 				buyList.computeIfAbsent(category, v -> new HashSet<>()).add(word);
 			});
 		} else {
-			buyList.put(UNKNOWN_CATEGORY, new HashSet<>(input));
+			if (!cleaned.isEmpty()) {
+				buyList.put(UNKNOWN_CATEGORY, new HashSet<>(cleaned));
+			}
 		}
 
         return buyList;
@@ -117,7 +124,10 @@ public class DictionaryService {
 
 	public List<String> splitInputTasks(String input) {
 		if (input != null) {
-			return Arrays.stream(input.split("\n")).toList();
+			return Arrays.stream(input.split("\n"))
+					.map(String::trim)
+					.filter(s -> !s.isBlank())
+					.toList();
 		}
 		return new ArrayList<>();
 	}

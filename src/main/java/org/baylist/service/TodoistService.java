@@ -162,10 +162,6 @@ public class TodoistService {
 		}
 	}
 
-	public boolean storageIsEmpty(Long userId) {
-		return todoistStateMap.get(userId) == null || todoistStateMap.get(userId).isEmpty();
-	}
-
 	public TaskResponse createTask(String token, TaskRequest task) {
 		return todoistApi.createTask(token, task);
 	}
@@ -249,10 +245,13 @@ public class TodoistService {
 	}
 
 	private void sendTasks(Set<String> taskList, String buyListProjectId, String token) {
-		taskList.forEach(t -> createTask(token, TaskRequest.builder()
-				.content(t)
-				.projectId(buyListProjectId)
-				.build()));
+		taskList.stream()
+				.filter(t -> t != null && !t.isBlank())
+				.map(String::trim)
+				.forEach(t -> createTask(token, TaskRequest.builder()
+						.content(t)
+						.projectId(buyListProjectId)
+						.build()));
 	}
 
 	private Set<String> sendTasksWithNotExistCategory(Map<String, Set<String>> inputTasks,
@@ -271,11 +270,14 @@ public class TodoistService {
 	}
 
 	private void sendTasks(Set<String> taskList, Section section, String buyListProjectId, String token) {
-		taskList.forEach(t -> createTask(token, TaskRequest.builder()
-				.content(t)
-				.sectionId(section.getId())
-				.projectId(buyListProjectId)
-				.build()));
+		taskList.stream()
+				.filter(t -> t != null && !t.isBlank())
+				.map(String::trim)
+				.forEach(t -> createTask(token, TaskRequest.builder()
+						.content(t)
+						.sectionId(section.getId())
+						.projectId(buyListProjectId)
+						.build()));
 	}
 
 	private void resultMessage(List<String> submittedTasks, ChatValue chatValue) {
