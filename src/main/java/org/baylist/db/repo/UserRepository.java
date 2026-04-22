@@ -1,10 +1,12 @@
 package org.baylist.db.repo;
 
 import org.baylist.db.entity.User;
+import org.springframework.data.jdbc.repository.query.Modifying;
 import org.springframework.data.jdbc.repository.query.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 
 public interface UserRepository extends CrudRepository<User, Long> {
@@ -14,6 +16,18 @@ public interface UserRepository extends CrudRepository<User, Long> {
 			where user_id = :userId
 			""")
 	User findByUserId(Long userId);
+
+	@Modifying
+	@Query("""
+			insert into users(user_id, first_name, last_name, todoist_token, registered, last_seen)
+			values (:userId, :firstName, :lastName, :todoistToken, :registered, :lastSeen)
+			""")
+	int insertUser(@Param("userId") Long userId,
+	               @Param("firstName") String firstName,
+	               @Param("lastName") String lastName,
+	               @Param("todoistToken") String todoistToken,
+	               @Param("registered") OffsetDateTime registered,
+	               @Param("lastSeen") OffsetDateTime lastSeen);
 
 
 	@Query("""

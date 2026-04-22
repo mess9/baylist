@@ -66,6 +66,17 @@ public class UserService {
 		return userRepository.findByUserId(userId);
 	}
 
+	private void insertUser(User user) {
+		userRepository.insertUser(
+				user.userId(),
+				user.firstName(),
+				user.lastName(),
+				user.todoistToken(),
+				user.registered(),
+				user.lastSeen()
+		);
+	}
+
 	/* ===================== bootstrap / binding ===================== */
 
 	@Transactional
@@ -244,7 +255,7 @@ public class UserService {
 
 		OffsetDateTime now = OffsetDateTime.now();
 		User newUser = new User(userId, fn, ln, null, now, now);
-		userRepository.save(newUser);
+		insertUser(newUser);
 
 		// создаём диалог (user_id UNIQUE): chatId = текущий чат
 		dialogService.saveDialog(new Dialog(
@@ -296,15 +307,9 @@ public class UserService {
 				OffsetDateTime.now(),
 				OffsetDateTime.now()
 		);
-		Dialog dialog = new Dialog(
-				null,
-				contact.getUserId(),
-				contact.getUserId(),
-				State.START
-		);
+		insertUser(newUser);
+		Dialog dialog = new Dialog(null, contact.getUserId(), contact.getUserId(), State.START);
 		dialogService.saveDialog(dialog);
-		userRepository.save(newUser);
-		userRepository.save(newUser);
 		log.info("created new friend - {}", newUser.firstName());
 		return newUser;
 	}
