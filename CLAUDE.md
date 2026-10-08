@@ -23,7 +23,7 @@ mvn allure:serve                      # Allure report from target/allure-results
 
 Frontend (`frontend/`): `npm run dev`, `npm run build`, `npm run storybook`.
 
-Environment variables: `TOKEN_TG` (required at startup, because `Bot` builds its Telegram client in the constructor), `POSTGRES_DB_PASSWORD`, and optionally `JWT_SECRET` and `JWT_EXPIRATION`.
+Environment variables: `TOKEN_TG` (required at startup, because `Bot` builds its Telegram client in the constructor), `POSTGRES_DB_PASSWORD`, and optionally `JWT_SECRET` (base64, at least 256 bits; without it JWTs are signed with a random key, so they die on restart) and `JWT_EXPIRATION`.
 
 ## Things to know before running anything
 
@@ -62,7 +62,7 @@ For each Telegram update, `Bot.consume` runs these steps in order:
 - **Todoist client:** `api/TodoistFeignClient` calls the Todoist **v1 API** (`todoist.baseUrl` = `https://api.todoist.com/api/v1`; the REST v2 API was retired). Pass the token as `"Bearer " + token` (`User.bearerToken()`). Errors go through `FeignErrorDecoder` → `TodoistApiException`.
 - **Caches:** `user`, `dict` and `categories` use Spring Cache. Within the same class, `DictionaryService` calls its own cached methods through `context.getBean(DictionaryService.class)` (the `self` pattern) so the cache proxy is not bypassed. Keep this pattern, and evict the `dict`/`categories` caches whenever the dictionary changes.
 - **Friends:** `FriendsDao` uses `JdbcClient` with hand-written SQL instead of a repository, and the friend relationship goes both ways. `TodoistService.checkRecipients` decides who receives the tasks.
-- **REST API:** under `/api` (`AuthController`, `TaskController`, `UserController`). `/api/auth/telegram` issues a JWT after Telegram auth (`TelegramAuthenticationFilter`, `JwtService`). `/api/auth/**`, `/api/webhook/**` and `/actuator/**` are public.
+- **REST API:** `AuthController` (`/api/auth/telegram`), `TaskController` (`/tasks`), `UserController` (`/user`). `/api/auth/telegram` issues a JWT only after `TelegramAuthService` checks the Login Widget signature and `auth_date`; anything else gets 401. `/tasks` and `/user` work only on the caller's own data (the Telegram id from the JWT), never take a user id as a parameter, and never return `todoist_token` (`@JsonIgnore` on `User`). Only `/api/auth/**` and `/actuator/health` are public.
 - **Constants (`dto/Constants`):** `BUYLIST_PROJECT = "buylist"`, `UNKNOWN_CATEGORY = "other"`, `FIL_USER_ID` (the developer's Telegram ID; tests use this account's Todoist token).
 - **Telegram limits:** see `src/main/resources/telegram_limits.md`. Long output is paged at `LIMIT_CHAR_FOR_ONE_PAGE = 4000` characters.
 

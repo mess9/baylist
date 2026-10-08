@@ -1,5 +1,6 @@
 package org.baylist.security;
 
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -33,18 +35,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 		}
 
 		final String jwt = authHeader.substring(7);
-		final String telegramId = jwtService.extractTelegramId(jwt);
+		// extractTelegramId проверяет подпись и срок; битый или чужой токен просто не аутентифицирует запрос
+		String telegramId = null;
+		try {
+			telegramId = jwtService.extractTelegramId(jwt);
+		} catch (JwtException | IllegalArgumentException ignored) {
+		}
 
 		if (telegramId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-			if (jwtService.isTokenValid(jwt)) {
-				UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-						telegramId,
-						null,
-						null
-				);
-				authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-				SecurityContextHolder.getContext().setAuthentication(authToken);
-			}
+			UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+					telegramId,
+					null,
+					List.of()
+			);
+			authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+			SecurityContextHolder.getContext().setAuthentication(authToken);
 		}
 		filterChain.doFilter(request, response);
 	}

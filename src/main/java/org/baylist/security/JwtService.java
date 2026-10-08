@@ -3,6 +3,8 @@ package org.baylist.security;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -14,9 +16,10 @@ import java.util.Map;
 import java.util.function.Function;
 
 @Service
+@Slf4j
 public class JwtService {
 
-	@Value("${jwt.secret}")
+	@Value("${jwt.secret:}")
 	private String secretKey;
 
 	@Value("${jwt.expiration}")
@@ -64,8 +67,20 @@ public class JwtService {
 				.getPayload();
 	}
 
+	private SecretKey signingKey;
+
+	@PostConstruct
+	void initSigningKey() {
+		if (secretKey == null || secretKey.isBlank()) {
+			// без JWT_SECRET ключ случайный: выданные токены живут до рестарта
+			log.warn("JWT_SECRET не задан, JWT подписываются случайным ключом");
+			signingKey = Jwts.SIG.HS256.key().build();
+		} else {
+			signingKey = Keys.hmacShaKeyFor(Base64.getDecoder().decode(secretKey));
+		}
+	}
+
 	private SecretKey getSigningKey() {
-		byte[] keyBytes = Base64.getDecoder().decode(secretKey);
-		return Keys.hmacShaKeyFor(keyBytes);
+		return signingKey;
 	}
 } 
