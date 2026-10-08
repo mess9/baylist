@@ -57,11 +57,6 @@ public class DefaultHandler implements DialogHandler {
 				responseService.cancel(chatValue, false);
 			} else if (inputText.equals(Commands.DEFAULT_BOTTOM_KEYBOARD.getCommand())) {
 				responseService.cancel(chatValue, false);
-			} else if (inputText.equals(Commands.NOT_AI_BOTTOM_KEYBOARD.getCommand())) {
-				chatValue.setReplyText("""
-						режим аи отключён
-						 включен режим приёма задач
-						 можно вводить задачи по старинке""");
 			} else {
 				checkAndInput(chatValue);
 			}
@@ -69,7 +64,7 @@ public class DefaultHandler implements DialogHandler {
 	}
 
 	public void checkAndInput(ChatValue chatValue) {
-		String input = chatValue.getUpdate().getMessage().getText();
+		String input = chatValue.getInputText();
 		if (validateInput(input)) {
 			List<User> recipients = todoist.checkRecipients(chatValue);
 			if (recipients.isEmpty()) {

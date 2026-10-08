@@ -25,20 +25,14 @@ public class MenuService {
 
 	public void defaultMenu(ChatValue chatValue) {
 		if (chatValue.getMessage() != null && chatValue.getMessage().getReplyMarkup() == null && !chatValue.getState().equals(State.START)) {
-			String textInputMode;
-			if (chatValue.getState().equals(State.AI)) {
-				textInputMode = Commands.NOT_AI_BOTTOM_KEYBOARD.getCommand();
-			} else {
-				textInputMode = Commands.DEFAULT_BOTTOM_KEYBOARD.getCommand();
-			}
-				ReplyKeyboardMarkup markup = new ReplyKeyboardMarkup(
-						List.of(new KeyboardRow(List.of(
-								KeyboardButton.builder().text(textInputMode).build(),
-								KeyboardButton.builder().text(Commands.MENU_BOTTOM_KEYBOARD.getCommand()).build()
-						))), true, false, true, " =^..^= кнопотьки =^..^= ", true
-				);
-				chatValue.setReplyKeyboard(markup);
-			}
+			ReplyKeyboardMarkup markup = new ReplyKeyboardMarkup(
+					List.of(new KeyboardRow(List.of(
+							KeyboardButton.builder().text(Commands.DEFAULT_BOTTOM_KEYBOARD.getCommand()).build(),
+							KeyboardButton.builder().text(Commands.MENU_BOTTOM_KEYBOARD.getCommand()).build()
+					))), true, false, true, " =^..^= кнопотьки =^..^= ", true
+			);
+			chatValue.setReplyKeyboard(markup);
+		}
 	}
 
 	public void friendsSettings(ChatValue chatValue, boolean isEdit) {
@@ -178,10 +172,6 @@ public class MenuService {
 						.text("❓ справка" + invisibleSpace.repeat(13))
 						.callbackData(Callbacks.HELP.getCallbackData())
 						.build()),
-//				new InlineKeyboardRow(InlineKeyboardButton.builder()
-//						.text("\uD83E\uDD16⠀⠀⠀нейробалбес" + invisibleSpace.repeat(7))
-//						.callbackData(Callbacks.AI.getCallbackData())
-//						.build()),
 				new InlineKeyboardRow(InlineKeyboardButton.builder()
 						.text("\uD83D\uDCF2 фсё, пока хватит" + invisibleSpace.repeat(7))
 						.callbackData(Callbacks.CANCEL.getCallbackData())

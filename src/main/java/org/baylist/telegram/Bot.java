@@ -53,6 +53,10 @@ public class Bot implements SpringLongPollingBot, LongPollingSingleThreadUpdateC
 
 	@Override
 	public void consume(Update update) {
+		// блокировка бота, редактирование сообщений и прочие апдейты - игнорируются
+		if (!update.hasMessage() && !update.hasCallbackQuery()) {
+			return;
+		}
 		inputLog(update);
 		ChatValue chatValue = new ChatValue(update);
 		userService.checkUser(chatValue);

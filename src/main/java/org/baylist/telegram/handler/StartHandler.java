@@ -33,28 +33,24 @@ public class StartHandler implements DialogHandler {
 			String callbackData = chatValue.getCallbackData();
 			Callbacks callbacks = Callbacks.fromValue(callbackData);
 			switch (callbacks) {
-				case START:
-					todoistAnswer(chatValue);
-				case START_1_TODOIST_TOKEN_REQUEST: {
+				case START -> todoistAnswer(chatValue);
+				case START_1_TODOIST_TOKEN_REQUEST -> {
 					if (userService.isExistToken(chatValue.getUserId())) {
 						responseService.existToken(chatValue);
 					} else {
 						responseService.tokenRequest(chatValue);
 					}
 				}
-				case START_1_TODOIST_TOKEN_CHANGE:
-					responseService.tokenRequest(chatValue);
-				case START_2_FRIENDS_REQUEST: {
+				case START_1_TODOIST_TOKEN_CHANGE -> responseService.tokenRequest(chatValue);
+				case START_2_FRIENDS_REQUEST -> {
 					if (userService.isExistToken(chatValue.getUserId())) {
 						friendsAnswer(chatValue);
 					} else {
 						responseService.doneWithouFriends(chatValue, State.START);
 					}
 				}
-				case START_2_ADD_FRIENDS:
-					responseService.friendsRequest(chatValue, State.START);
-				case START_DONE:
-					done(chatValue);
+				case START_2_ADD_FRIENDS -> responseService.friendsRequest(chatValue, State.START);
+				case START_DONE -> done(chatValue);
 			}
 		} else {
 			Update update = chatValue.getUpdate();

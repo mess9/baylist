@@ -46,7 +46,6 @@ public class StateHandlerConfig {
 			MainMenuHandler mainMenuHandler,
 			FriendsHandler friendsHandler,
 			HelpHandler helpHandler
-//			AiHandler aiHandler
 	) {
 		Map<State, DialogHandler> stateHandlers = new HashMap<>();
 		stateHandlers.put(State.START, startHandler);
@@ -66,7 +65,6 @@ public class StateHandlerConfig {
 		stateHandlers.put(State.MENU, mainMenuHandler);
 		stateHandlers.put(State.FRIENDS, friendsHandler);
 		stateHandlers.put(State.HELP, helpHandler);
-//		stateHandlers.put(State.AI, aiHandler);
 
 		return stateHandlers;
 	}

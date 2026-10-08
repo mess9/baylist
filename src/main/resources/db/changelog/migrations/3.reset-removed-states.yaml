@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 3-reset-removed-dialog-states
+      author: fil
+      comment: состояния AI и SYNC удалены из enum State, юзеров в них переводим в DEFAULT
+      changes:
+        - sql: |
+            UPDATE dialogs SET state = 'DEFAULT' WHERE state IN ('AI', 'SYNC');

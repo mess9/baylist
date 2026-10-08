@@ -54,7 +54,6 @@ public class MainMenuHandler implements DialogHandler {
 					case TODOIST_HELP -> responseService.todoistHelp(chatValue);
 					case VIEW -> responseService.checkAndView(chatValue, true);
 					case INFO -> responseService.info(chatValue);
-					case AI -> responseService.ai(chatValue);
 					default -> chatValue.setState(State.ERROR);
 				}
 			}

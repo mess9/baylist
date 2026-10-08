@@ -71,9 +71,7 @@ public class TodoistState {
     }
 
     public Optional<ProjectDto> getBuyListProject() {
-        return projects.stream()
-                .filter(project -> project.getProject().getName().equals(BUYLIST_PROJECT))
-                .findAny();
+        return getProjectByName(BUYLIST_PROJECT);
     }
 
 

@@ -9,10 +9,8 @@ public enum State {
 	DEFAULT,
 	CLEAR,
 	VIEW,
-	SYNC,
 	HELP,
 	FRIENDS,
-	AI,
 
 	DICT_SETTING,
 	DICT_VIEW,

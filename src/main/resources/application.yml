@@ -2,7 +2,6 @@
 logging:
   level:
     org.baylist.api.TodoistFeignClient: debug
-    org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor: debug
     root: info
 #    com.zaxxer.hikari: DEBUG
 #    oracle.jdbc: DEBUG

@@ -57,8 +57,6 @@ public enum Callbacks {
 	BOT_HELP("botHelp"),
 	TODOIST_HELP("todoistHelp"),
 
-	AI("ai")
-
 	;
 
 
